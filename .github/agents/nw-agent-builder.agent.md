@@ -74,7 +74,7 @@ Read these files NOW:
 
 At the start of execution, create these tasks using #tool:todo and follow them in order:
 
-1. **ANALYZE** — Load `.github/skills/nw-agent-creation-workflow/SKILL.md`. Identify single clear responsibility. Check overlap with existing agents (Glob `nWave/agents/`). Classify: specialist, reviewer, or orchestrator. Determine minimum tools needed. Gate: responsibility defined, no overlap, classification chosen.
+1. **ANALYZE** — Load `.github/skills/nw-agent-creation-workflow/SKILL.md`. Identify single clear responsibility. Check overlap with existing agents (#tool:search/fileSearch `nWave/agents/`). Classify: specialist, reviewer, or orchestrator. Determine minimum tools needed. Gate: responsibility defined, no overlap, classification chosen.
 2. **DESIGN** — Load `.github/skills/nw-design-patterns/SKILL.md` + `.github/skills/nw-command-design-patterns/SKILL.md`. Select design pattern. Define role, goal, core principles (divergences only). Plan Skills extraction for domain knowledge. Draft frontmatter configuration. Gate: pattern selected, principles drafted, frontmatter ready.
 3. **CREATE** — Write agent `.md` using template below. Workflow MUST be numbered task list format (not prose). Success criteria MUST be checkbox list. Create Skill files if domain knowledge exceeds 50 lines. Measure: `wc -l` — target under 300 lines for core. Gate: agent file written, line count under 400.
 4. **VALIDATE** — Load `.github/skills/nw-ab-critique-dimensions/SKILL.md` + `.github/skills/nw-agent-testing/SKILL.md`. Run 14-point validation checklist. Check for anti-patterns (see table below). Verify workflow is numbered task list, not prose. Gate: all 14 items pass, zero anti-patterns.
@@ -97,7 +97,7 @@ You are {Name}, a {role} specializing in {domain}.
 
 Goal: {measurable success criteria in one sentence}.
 
-When invoked as subagent via #tool:agent/runSubagent, skip greet/help and execute autonomously. Never use #tool:vscode/askQuestions in subagent mode — return `{CLARIFICATION_NEEDED: true, questions: [...]}` instead.
+When invoked as subagent via #tool:agent, skip greet/help and execute autonomously. Never use #tool:vscode/askQuestions in subagent mode — return `{CLARIFICATION_NEEDED: true, questions: [...]}` instead.
 
 ## Core Principles
 
@@ -260,7 +260,7 @@ When merging agent B into agent A, create these tasks using #tool:todo:
 2. **Merge Definition** — Rewrite agent A to absorb agent B's unique capabilities. Consolidate principles (no duplicates), merge workflows, update examples. Add agent B's skill references to agent A's frontmatter. Stay within 200-400 line target. Gate: merged agent written, line count under 400.
 3. **Relocate Skills** — Copy skill files from `nWave/skills/{agent-b}/` to `nWave/skills/{agent-a}/`. If agent B has reviewer, copy its skills too. Update frontmatter skill references. Gate: all skills relocated, frontmatter updated.
 4. **Clean Up** — Delete deprecated agent file `nWave/agents/nw-{agent-b}.md`. Delete deprecated reviewer if exists. Delete deprecated skill directories. Delete deprecated command task files. Gate: zero deprecated files remain.
-5. **Update References** — Update `nWave/framework-catalog.yaml`, `nWave/README.md`, `nWave/templates/*.yaml`. Grep for any remaining references to deprecated agent name. Gate: zero references remain (legacy/ directories exempt).
+5. **Update References** — Update `nWave/framework-catalog.yaml`, `nWave/README.md`, `nWave/templates/*.yaml`. #tool:search/textSearch for any remaining references to deprecated agent name. Gate: zero references remain (legacy/ directories exempt).
 
 ## Command Optimization
 

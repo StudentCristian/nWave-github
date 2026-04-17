@@ -125,7 +125,7 @@ Load: `critique-dimensions` — read it NOW before proceeding.
 1. **Count total scenarios** — If 3 or fewer: apply fast-path (ONE review pass, smoke test in current env only, skip fixture matrix). If more than 3: proceed to full review.
 2. **Invoke peer review** — Use critique-dimensions skill. Max 2 iterations.
 3. **Validate Definition of Done** — Run `*validate-dod` checklist below. Block handoff on any failure.
-4. **Prepare mandate compliance evidence** — CM-A: import listings showing driving port usage. CM-B: grep results showing zero technical terms. CM-C: walking skeleton + focused scenario counts. CM-D: pure function extraction inventory.
+4. **Prepare mandate compliance evidence** — CM-A: import listings showing driving port usage. CM-B: #tool:search/textSearch results showing zero technical terms. CM-C: walking skeleton + focused scenario counts. CM-D: pure function extraction inventory.
 
 Gate: reviewer approved, DoD validated, mandate compliance proven.
 
