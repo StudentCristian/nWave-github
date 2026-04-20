@@ -25,7 +25,7 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
    - **Specialist**: Single-domain expert (most common)
    - **Reviewer**: Validates outputs from another agent (Reflection pattern)
    - **Orchestrator**: Coordinates multiple agents
-5. Identify required tools (start with Read, Glob, Grep -- add only what's needed)
+5. Identify required tools (start with `read`, `search` -- add only what's needed)
 6. Determine if Skills needed (domain knowledge > 50 lines)
 
 **Gate**: Single responsibility identified. Agent type classified. No overlap.
@@ -41,8 +41,8 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
 **Steps**:
 1. Select design pattern (load `design-patterns` skill)
 2. Define role and goal (1-2 sentences each)
-3. Identify core principles that DIVERGE from Claude defaults:
-   - What must this agent do differently than Claude naturally would?
+3. Identify core principles that DIVERGE from model defaults:
+   - What must this agent do differently than the model naturally would?
    - Domain-specific methodology steps
    - Non-obvious constraints | Project-specific conventions
 4. Design workflow (3-7 phases)
@@ -51,18 +51,16 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
    - Map each skill to the workflow phase where it's needed
    - Create a loading table: Phase → Skill → Trigger condition
    - Add explicit `Load: skill-name` directives in each workflow phase
-   - Document path: `~/.claude/skills/nw-{skill-name}/SKILL.md` (installed) or `nWave/skills/nw-{skill-name}/SKILL.md` (repo)
-   - Note: `skills:` in frontmatter is declarative only — Claude Code does NOT auto-load skill files. The agent must use Read tool to load them, triggered by `Load:` directives in workflow text.
+   - Document path: `.github/skills/nw-{skill-name}/SKILL.md`
+   - Note: Copilot can auto-load skills based on description relevance, but for guaranteed loading of critical domain knowledge, agents should explicitly read skill files using `#tool:read/readFile` triggered by `Load:` directives in workflow text.
 7. Draft frontmatter:
    ```yaml
    ---
    name: {kebab-case-id}
    description: Use for {domain}. {When to delegate.}
-   model: inherit
-   tools: [{minimum tools needed}]
-   maxTurns: 30
-   skills:
-     - nw-{skill-name}
+   tools: [{minimum tool aliases needed}]
+   agents: [{reviewer-name}]
+   user-invocable: true
    ---
    ```
 
@@ -77,16 +75,15 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
 **Inputs**: Design from Phase 2.
 
 **Steps**:
-1. Create agent `.md` file:
-   - YAML frontmatter (name, description, tools, model, maxTurns, skills)
+1. Create agent `.agent.md` file:
+   - YAML frontmatter (description, name, tools, model, user-invocable, agents)
    - Role + Goal paragraph
    - Core Principles (divergences only, 3-8 items)
    - Workflow phases
    - Critical Rules (3-5, where violation causes real harm)
    - Examples (3-5 canonical cases)
-   - Subagent mode instructions
    - Constraints (what agent does NOT do)
-2. Create Skill files if needed: each in `nWave/skills/{agent-name}/` | YAML frontmatter with `name` and `description` | Focused content, 100-250 lines each
+2. Create Skill files if needed: each in `.github/skills/nw-{skill-name}/` with a `SKILL.md` file | YAML frontmatter with `name` and `description` | Focused content, 100-250 lines each
 3. Measure: `wc -l`. Target: under 300 lines.
 
 4. Add Skill Loading Strategy section (required for agents with 3+ skills):
@@ -100,14 +97,14 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
    | 1 Phase Name | `skill-name` | Always — core methodology |
    | 2 Phase Name | `other-skill` | When condition is met |
 
-   Skills path: `~/.claude/skills/nw-{skill-name}/SKILL.md` (installed) or `nWave/skills/nw-{skill-name}/SKILL.md` (repo)
+   Skills path: `.github/skills/nw-{skill-name}/SKILL.md`
    ```
 5. Add `Load:` directives at the start of each workflow phase referencing the applicable skills
-6. Verify: every skill in frontmatter `skills:` has at least one `Load:` directive in the workflow text. Orphan skills (declared but never loaded) are a bug.
+6. Verify: every skill referenced in the agent has at least one `Load:` directive in the workflow text. Orphan skills (referenced but never loaded) are a bug.
 
 **Gate**: Agent file created. Under 300 lines. Skills created if needed. Skill Loading Strategy present for 3+ skills.
 
-**Output**: Agent `.md` file + Skill files.
+**Output**: Agent `.agent.md` file + Skill files.
 
 ## Phase 4: VALIDATE
 
@@ -115,18 +112,21 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
 
 **Steps**:
 1. Run 14-point validation checklist:
-   - [ ] Uses official YAML frontmatter format
+   - [ ] Uses official `.agent.md` YAML frontmatter format
    - [ ] Total definition under 400 lines (domain knowledge in Skills)
-   - [ ] Only specifies behaviors diverging from Claude defaults
+   - [ ] Only specifies behaviors diverging from model defaults
    - [ ] No aggressive signaling language
    - [ ] 3-5 canonical examples for critical behaviors
-   - [ ] Tools restricted to minimum needed
-   - [ ] maxTurns set in frontmatter
+   - [ ] Tools restricted to minimum needed (use aliases)
+   - [ ] `user-invocable` and `agents` correctly configured
    - [ ] Safety via platform features, not prose
    - [ ] Instructions phrased affirmatively
    - [ ] Consistent terminology throughout
-   - [ ] Description clearly states delegation criteria
-2. Check anti-patterns: no monolithic sections (>50 lines without structure) | No duplicated Claude defaults | No embedded safety frameworks | No aggressive language
+   - [ ] Description clearly states delegation criteria (keyword-rich for subagent discovery)
+   - [ ] `description` field present in frontmatter (required)
+   - [ ] Tool references in body use `#tool:<name>` syntax
+   - [ ] Skill paths use `.github/skills/nw-{skill-name}/SKILL.md`
+2. Check anti-patterns: no monolithic sections (>50 lines without structure) | No duplicated model defaults | No embedded safety frameworks | No aggressive language
 3. Test with representative inputs (Layer 1 testing)
 
 **Gate**: All 14 items pass. No anti-patterns.
@@ -146,7 +146,7 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
 
 **Gate**: All validation passes. Line count within target. Edge cases handled.
 
-**Output**: Final agent definition, ready for installation.
+**Output**: Final agent definition, ready for deployment.
 
 ## Quality Gates Summary
 
@@ -160,16 +160,18 @@ Create agents through 5 phases: ANALYZE -> DESIGN -> CREATE -> VALIDATE -> REFIN
 
 ## Naming Conventions
 
-- Agent files: `nw-{name}.md` in `nWave/agents/`
-- Skill files: `{skill-name}.md` in `nWave/skills/{agent-name}/`
-- Reviewer agents: `nw-{name}-reviewer.md`
+- Agent files: `nw-{name}.agent.md` in `.github/agents/`
+- Skill directories: `.github/skills/nw-{skill-name}/` with `SKILL.md` inside
+- Reviewer agents: `nw-{name}-reviewer.agent.md`
 - Agent names in frontmatter: `nw-{name}` (kebab-case with nw- prefix)
+- Skill `name` field must match parent directory name
 
 ## Reviewer Agent Creation (Special Case)
 
 Reviewer agents pair with a primary agent and use the Reflection pattern:
-1. Set `model: haiku` in frontmatter (cost-efficient review)
-2. Use same tools as primary agent (no Write/Edit -- reviewers don't modify)
-3. Define structured critique output format (YAML)
-4. Include max 2 review iterations
-5. Define clear approval/rejection criteria
+1. Set `model: Claude Haiku 4.5` in frontmatter (cost-efficient review)
+2. Use read-only tools only (`read`, `search` — reviewers don't modify)
+3. Set `user-invocable: false` (only accessible as subagent)
+4. Define structured critique output format (YAML)
+5. Include max 2 review iterations
+6. Define clear approval/rejection criteria

@@ -21,7 +21,7 @@ Validate agent produces correct, well-structured outputs for typical inputs.
 
 Validate correct input/output between agents in workflows.
 
-**Test**: Input parsing handles upstream format | Output format matches downstream expectations | Error signals propagate correctly | Subagent mode activation works (skip greet, execute autonomously)
+**Test**: Input parsing handles upstream format | Output format matches downstream expectations | Error signals propagate correctly | Subagent invocation works correctly (agent receives task, executes, returns result)
 
 **How**: End-to-end workflow execution through full agent chain (e.g., DISCUSS -> DESIGN -> DELIVER).
 
@@ -37,41 +37,44 @@ Challenge validity of agent outputs rather than accepting at face value.
 
 Independent review to catch biases and blind spots in agent design.
 
-**Test**: Definition follows validation checklist? | Redundant Claude default instructions? | Over/under-specified? | Could simpler agent achieve same results?
+**Test**: Definition follows validation checklist? | Redundant platform default instructions? | Over/under-specified? | Could simpler agent achieve same results?
 
-**How**: `@nw-agent-builder` validates via 11-point checklist or `@agent-builder-reviewer` runs structured review.
+**How**: `@nw-agent-builder` validates via 11-point checklist or `@nw-agent-builder-reviewer` runs structured review.
 
 ### Layer 5: Security Validation
 
 Test resilience against misuse and prompt injection.
 
-**Test**: Tool restriction enforcement | maxTurns respected | Permission mode correctly scoped | Agent stays within declared scope
+**Test**: Tool restriction enforcement | Agent stays within declared scope | `user-invocable` and `disable-model-invocation` correctly configured
 
 **How**: Frontmatter fields enforce at platform level. Verify configuration.
 
 ## Prompt Injection Resistance
 
-Claude Code platform provides injection resistance through: subagent isolation (own context, no sub-subagents) | Tool restriction via frontmatter `tools` | Permission modes via `permissionMode` | Hook-based validation (PreToolUse, PostToolUse)
+GitHub Copilot provides injection resistance through: subagent isolation (own context via `agents` field) | Tool restriction via frontmatter `tools` array | Agent-scoped hooks (Preview, `PostToolUse` for validation)
 
 Do NOT add prose-based injection defense. Configure platform features:
 
 ```yaml
 ---
-tools: Read, Glob, Grep           # Only tools this agent needs
-maxTurns: 30                       # Prevents runaway execution
-permissionMode: default            # User approves dangerous actions
+tools:                                # Only tools this agent needs
+- read/readFile
+- search/fileSearch
+- search/textSearch
+user-invocable: false                 # Hidden from picker if subagent-only
+disable-model-invocation: true        # Prevents auto-invocation if manual-only
 ---
 ```
 
 ## Security Validation Checklist
 
 - [ ] `tools` restricted to minimum necessary (least privilege)
-- [ ] `maxTurns` set to prevent runaway execution
-- [ ] `permissionMode` appropriate for risk level
-- [ ] No `Bash` unless agent requires command execution
-- [ ] No `Write` unless agent creates/modifies files
+- [ ] `user-invocable` set appropriately (false for subagent-only agents)
+- [ ] `disable-model-invocation` set appropriately (true for manual-only skills)
+- [ ] No `execute/runInTerminal` unless agent requires command execution
+- [ ] No `edit/createFile` or `edit/editFiles` unless agent creates/modifies files
 - [ ] Description accurately describes scope
-- [ ] Subagent mode handles autonomous execution correctly
+- [ ] `agents` field restricts subagent access (use `[]` to prevent subagent use)
 - [ ] No sensitive data hardcoded in definition
 
 ## Testing Workflow for New Agents
