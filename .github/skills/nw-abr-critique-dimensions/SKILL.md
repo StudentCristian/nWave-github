@@ -12,9 +12,9 @@ Use these dimensions when reviewing or validating agent definitions.
 
 ## Dimension 1: Template Compliance
 
-Does the agent follow official Claude Code format?
+Does the agent follow official GitHub Copilot agent format?
 
-**Check**: YAML frontmatter with name and description (required) | Markdown body as system prompt | No embedded YAML config blocks | No activation-instructions or IDE-FILE-RESOLUTION sections | Skills referenced in frontmatter, not inline
+**Check**: YAML frontmatter with description (required) and name (optional) | Markdown body as system prompt | No embedded YAML config blocks | No activation-instructions or IDE-FILE-RESOLUTION sections | Skills loaded via `#tool:read/readFile` in workflow phases, not declared in frontmatter
 
 **Severity**: High -- non-compliant agents may not load correctly.
 
@@ -36,7 +36,7 @@ Does the agent specify only what diverges from Claude defaults?
 
 ## Dimension 4: Safety Implementation
 
-**Check**: Tools restricted via frontmatter `tools` field | maxTurns set | No prose-based security layers (use hooks) | No embedded enterprise safety frameworks | permissionMode set for risky actions
+**Check**: Tools restricted via frontmatter `tools` field | No prose-based security layers | No embedded enterprise safety frameworks
 
 **Severity**: High -- prose safety is ineffective and token-wasteful.
 
@@ -44,7 +44,7 @@ Does the agent specify only what diverges from Claude defaults?
 
 **Check**: No "CRITICAL:", "MANDATORY:", "ABSOLUTE" language | Direct statements ("Do X" not "You MUST X") | Affirmative phrasing ("Do Y" not "Don't do X") | Consistent terminology | No repetitive emphasis
 
-**Severity**: Medium -- aggressive language causes overtriggering on Opus 4.6.
+**Severity**: Medium -- aggressive language causes overtriggering on some models.
 
 ## Dimension 6: Examples Quality
 
@@ -56,17 +56,17 @@ Does the agent specify only what diverges from Claude defaults?
 
 Does the agent ensure skills are actually loaded during execution?
 
-**Check**: Skill Loading Strategy table present for agents with 3+ skills | Every frontmatter skill has matching `Load:` directive in workflow | Skills path documented (`~/.claude/skills/nw-{skill-name}/SKILL.md`) | Phase-gated loading (not "load everything at start")
+**Check**: Skill Loading Strategy table present for agents with 3+ skills | Every skill has matching `Load:` directive with `#tool:read/readFile` in workflow | Skills path documented (`.github/skills/nw-{skill-name}/SKILL.md`) | Phase-gated loading (not "load everything at start")
 
-**Severity**: High — orphan skills (declared but never loaded) mean sub-agents operate without domain knowledge. The `skills:` frontmatter field is declarative only; Claude Code does not auto-load skill files.
+**Severity**: High — orphan skills (referenced but never loaded) mean sub-agents operate without domain knowledge. GitHub Copilot does not auto-load skill files; agents must explicitly read them using `#tool:read/readFile`.
 
-**Gold standard**: `nw-product-owner.md` — Skill Loading Strategy table mapping phases to skills with triggers + explicit `Load:` directives in each workflow phase.
+**Gold standard**: `nw-product-owner.agent.md` — Skill Loading Strategy table mapping phases to skills with triggers + explicit `Load:` directives in each workflow phase.
 
 ## Dimension 8: Token Efficiency
 
 Is the agent definition compressed without losing semantic content?
 
-**Check**: No verbose prose where pipe-delimited lists suffice | Imperative voice throughout | No filler words ("in order to", "it is important to") | `### Example N:` headers preserved verbatim (not inlined) | AskUserQuestion options preserved with numbered descriptions | Code blocks preserved verbatim | No duplicate content already in skills
+**Check**: No verbose prose where pipe-delimited lists suffice | Imperative voice throughout | No filler words ("in order to", "it is important to") | `### Example N:` headers preserved verbatim (not inlined) | `#tool:vscode/askQuestions` options preserved with numbered descriptions | Code blocks preserved verbatim | No duplicate content already in skills
 
 **Severity**: Medium — bloated definitions waste context window and degrade performance via context rot.
 
@@ -105,3 +105,4 @@ review:
 ## Failure Conditions
 
 Review blocked (verdict: revisions_needed) if: any high-severity dimension fails | 3+ medium-severity fail | Agent exceeds 400 lines without Skills extraction | Zero examples provided | Agent with 3+ skills missing Skill Loading Strategy table
+

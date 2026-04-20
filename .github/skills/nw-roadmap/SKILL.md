@@ -30,10 +30,10 @@ You MUST execute these steps in order. Do NOT skip any.
 
 1. **Parse Parameters** — Extract agent name (after @, validated against agent registry), goal description (quoted string), and derive feature-id from goal in kebab-case (e.g., "Migrate to OAuth2" -> "migrate-to-oauth2"). Gate: agent name, goal, and feature-id all resolved.
 
-2. **Scaffold Skeleton** — Run `des.cli.roadmap init` via Bash BEFORE invoking agent. Gate: CLI exits 0; stop and report error on non-zero exit.
+2. **Scaffold Skeleton** — Run `des.cli.roadmap init` via `#tool:execute/runInTerminal` BEFORE invoking agent. Gate: CLI exits 0; stop and report error on non-zero exit.
 
 ```bash
-PYTHONPATH=~/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap init \
+PYTHONPATH=~/.github/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap init \
   --project-id {feature-id} \
   --goal "{goal-description}" \
   --output docs/feature/{feature-id}/deliver/roadmap.json
@@ -42,7 +42,7 @@ For complex projects add: `--phases 3 --steps "01:3,02:2,03:1"`
 
 Do NOT write the file manually.
 
-3. **Invoke Agent** — Invoke the named agent via Task tool to fill skeleton TODO placeholders. Gate: agent completes without error.
+3. **Invoke Agent** — Invoke the named agent as a subagent via `#tool:agent` to fill skeleton TODO placeholders. Gate: agent completes without error.
 
 ```
 @{agent-name}
@@ -57,10 +57,10 @@ Goal: {goal-description}
 
 Context to pass (if available): measurement baseline|mikado-graph.md|existing docs.
 
-4. **Validate** — Run `des.cli.roadmap validate` via Bash. Gate: exit 0 = success; exit 1 = print errors and stop; exit 2 = usage error, stop.
+4. **Validate** — Run `des.cli.roadmap validate` via `#tool:execute/runInTerminal`. Gate: exit 0 = success; exit 1 = print errors and stop; exit 2 = usage error, stop.
 
 ```bash
-PYTHONPATH=~/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap validate docs/feature/{feature-id}/deliver/roadmap.json
+PYTHONPATH=~/.github/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap validate docs/feature/{feature-id}/deliver/roadmap.json
 ```
 
 ## Invocation Principles
@@ -77,9 +77,9 @@ For performance roadmaps, include measurement context inline so agent can valida
 ### Dispatcher (you) — all 4 must be checked
 
 - [ ] 1. Parameters parsed (agent name, goal, feature-id)
-- [ ] 2. `des.cli.roadmap init` executed via Bash (exit 0)
-- [ ] 3. Agent invoked via Task tool to fill TODO placeholders
-- [ ] 4. `des.cli.roadmap validate` executed via Bash (exit 0)
+- [ ] 2. `des.cli.roadmap init` executed via `#tool:execute/runInTerminal` (exit 0)
+- [ ] 3. Agent invoked as subagent via `#tool:agent` to fill TODO placeholders
+- [ ] 4. `des.cli.roadmap validate` executed via `#tool:execute/runInTerminal` (exit 0)
 
 ### Agent output (reference)
 
@@ -122,4 +122,5 @@ Agent fills skeleton with methodology: mikado, references mikado-graph.md, maps 
 /nw-roadmap @agent "goal"           # 1. Plan (init -> agent fills -> validate)
 /nw-execute @agent "feature-id" "01-01" # 2. Execute steps
 /nw-finalize @agent "feature-id"        # 3. Finalize
+
 ```

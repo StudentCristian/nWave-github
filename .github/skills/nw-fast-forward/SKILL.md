@@ -13,7 +13,7 @@ argument-hint: '[feature-description] - Optional: --from=[discuss|design|devops|
 
 Chains remaining waves end-to-end after single user confirmation. Detects current progress (like `/nw-continue`), shows planned sequence, runs each wave automatically — DISCUSS > DESIGN > DEVOPS > DISTILL > DELIVER — without stopping between waves.
 
-You (main Claude instance) run this orchestration directly. Each wave invoked by reading its task file.
+You (main agent instance) run this orchestration directly. Each wave invoked by reading its skill file.
 
 **DISCOVER skipped by default** — requires interactive customer interview data that cannot be auto-generated. Use `--from=discover` to include.
 
@@ -25,13 +25,13 @@ Accept: feature description (new project)|`--from` flag with optional feature ID
 
 ### Step 2: Project Resolution
 
-**New project (description provided):** Derive feature ID per `~/.claude/nWave/skills/common/wizard-shared-rules.md` (Feature ID Derivation). Show derived ID, allow override via AskUserQuestion. Create `docs/feature/{feature-id}/`.
+**New project (description provided):** Derive feature ID per `.github/skills/common/wizard-shared-rules.md` (Feature ID Derivation). Show derived ID, allow override via `#tool:vscode/askQuestions`. Create `docs/feature/{feature-id}/`.
 
 **Existing project (no description):** Scan `docs/feature/` (same as `/nw-continue` Step 1-2). If multiple, ask user to select.
 
 ### Step 3: Detect Current Progress
 
-Check wave artifacts using Wave Detection Rules in `~/.claude/nWave/skills/common/wizard-shared-rules.md`.
+Check wave artifacts using Wave Detection Rules in `.github/skills/common/wizard-shared-rules.md`.
 
 ### Step 4: Determine Wave Sequence
 
@@ -68,13 +68,13 @@ If some waves complete, show as skipped:
   3 waves will execute without stopping.
 ```
 
-One-time confirmation via AskUserQuestion.
+One-time confirmation via `#tool:vscode/askQuestions`.
 
 ### Step 6: Sequential Execution
 
 For each wave:
-1. Read task file (`nWave/tasks/nw/{wave}.md`)
-2. Follow instructions — invoke appropriate agent via Task tool
+1. Read skill file (`.github/skills/nw-{wave}/SKILL.md`)
+2. Follow instructions — invoke appropriate agent via `#tool:agent`
 3. Wait for completion
 4. Verify output artifacts exist (wave detection rules)
 5. Missing artifacts after wave = failure

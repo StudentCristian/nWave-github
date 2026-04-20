@@ -17,8 +17,8 @@ Create evidence-based, DIVIO-compliant documentation by orchestrating research a
 ## Context Files Required
 
 - .nwave/trusted-source-domains.yaml — Embed inline in researcher prompt
-- ~/.claude/agents/nw/nw-researcher.md — Extract research methodology
-- ~/.claude/agents/nw/nw-documentarist.md — Extract DIVIO framework and templates
+- .github/agents/nw-researcher.agent.md — Extract research methodology
+- .github/agents/nw-documentarist.agent.md — Extract DIVIO framework and templates
 
 ## Command Syntax
 
@@ -30,7 +30,7 @@ If `--type` omitted, ask user. If `--research-depth` omitted, auto-select: tutor
 
 ## Orchestration Phases
 
-Sub-agents have no Skill tool access. Embed all domain knowledge inline in each Task prompt. Read from agent files and config at orchestration time.
+Sub-agents can load skills via #tool:read/readFile. Embed critical domain knowledge inline in each agent prompt. Read from agent files and config at orchestration time.
 
 ```
 Phase 1: Research           @nw-researcher
@@ -45,11 +45,11 @@ Phase 3: Handoff
 1. Validate topic non-empty, type/depth valid if provided
 2. If type not specified, present DIVIO selection: TUTORIAL ("Teach me")|HOW-TO ("Help me do X")|REFERENCE ("What is X?")|EXPLANATION ("Why is X?")
 3. Determine output: `docs/{tutorials|howto|reference|explanation}/{topic-kebab-case}.md`
-4. Read and cache: .nwave/trusted-source-domains.yaml|nw-researcher.md|nw-documentarist.md
+4. Read and cache: .nwave/trusted-source-domains.yaml|nw-researcher.agent.md|nw-documentarist.agent.md
 
 ### Phase 1: Research (@nw-researcher)
 
-Invoke via Task tool. Prompt includes: topic|doc type|research depth|complete .nwave/trusted-source-domains.yaml (inline)|type-specific research focus (from nw-researcher.md)|quality gates: trusted sources only, 3+ sources/claim, citation coverage >95%, source reputation >=0.80. Output: `docs/research/{topic-kebab-case}-for-{type}-doc.md`
+Invoke via `#tool:agent`. Prompt includes: topic|doc type|research depth|complete .nwave/trusted-source-domains.yaml (inline)|type-specific research focus (from nw-researcher.agent.md)|quality gates: trusted sources only, 3+ sources/claim, citation coverage >95%, source reputation >=0.80. Output: `docs/research/{topic-kebab-case}-for-{type}-doc.md`
 
 ### Phase 1.5: Research Review (@nw-researcher-reviewer)
 
@@ -57,7 +57,7 @@ Prompt includes: research artifact path|review focus (source verification|bias d
 
 ### Phase 2: Documentation (@nw-documentarist)
 
-Prompt includes: topic|type|research path|DIVIO framework principles (from nw-documentarist.md)|type-specific validation rules + template|collapse detection anti-patterns|quality gates: type purity >=80%, Flesch 70-80, zero spelling errors, zero broken links, style >=95%. Output: doc file + .validation.yaml
+Prompt includes: topic|type|research path|DIVIO framework principles (from nw-documentarist.agent.md)|type-specific validation rules + template|collapse detection anti-patterns|quality gates: type purity >=80%, Flesch 70-80, zero spelling errors, zero broken links, style >=95%. Output: doc file + .validation.yaml
 
 ### Phase 2.5: Documentation Review (@nw-documentarist-reviewer)
 
@@ -116,3 +116,4 @@ Orchestrator prompts user to select DIVIO type before proceeding.
 - Research: `docs/research/{topic}-for-{type}-doc.md`
 - Documentation: `docs/{type-dir}/{topic-kebab-case}.md`
 - Validation: `docs/{type-dir}/{topic-kebab-case}.md.validation.yaml`
+

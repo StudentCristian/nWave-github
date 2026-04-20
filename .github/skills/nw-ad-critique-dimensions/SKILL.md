@@ -217,5 +217,5 @@ Walking skeleton fixtures — what adapter tier do they use?
 
 ### 9e: Strategy Drift Detection
 
-Grep for @in-memory on walking skeleton scenarios under strategies B/C/D.
+Search (`#tool:search/textSearch`) for @in-memory on walking skeleton scenarios under strategies B/C/D.
 - If found: HIGH — WS claims real adapters but uses InMemory

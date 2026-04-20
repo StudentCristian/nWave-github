@@ -24,7 +24,7 @@ Create a new agent using research-validated v2 approach: focused core (200-400 l
 
 @nw-agent-builder
 
-Execute \*forge to create {agent-name} agent.
+Execute *forge to create {agent-name} agent.
 
 **Configuration:**
 - agent_type: specialist | reviewer | orchestrator
@@ -33,13 +33,13 @@ Execute \*forge to create {agent-name} agent.
 ## Success Criteria
 
 - [ ] Agent definition under 400 lines (`wc -l`)
-- [ ] Official YAML frontmatter format (name, description, tools, maxTurns)
+- [ ] Official YAML frontmatter format (name, description, tools)
 - [ ] 11-point validation checklist passes
-- [ ] Only divergent behaviors specified (no Claude defaults)
+- [ ] Only divergent behaviors specified (no model defaults)
 - [ ] 3-5 canonical examples included
 - [ ] Domain knowledge extracted to Skills if >50 lines
 - [ ] No aggressive language (no CRITICAL/MANDATORY/ABSOLUTE)
-- [ ] Safety via platform features (frontmatter/hooks), not prose
+- [ ] Safety via platform features (frontmatter/tool restrictions), not prose
 
 ## Next Wave
 
@@ -49,6 +49,6 @@ Execute \*forge to create {agent-name} agent.
 ## Expected Outputs
 
 ```
-~/.claude/agents/nw/nw-{agent-name}.md
-~/.claude/skills/nw-{skill-name}/SKILL.md*.md    (if Skills needed)
+.github/agents/nw-{agent-name}.agent.md
+.github/skills/nw-{skill-name}/SKILL.md    (if Skills needed)
 ```

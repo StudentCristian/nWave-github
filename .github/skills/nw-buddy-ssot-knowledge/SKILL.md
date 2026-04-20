@@ -29,7 +29,7 @@ Each concept below has one authoritative file. Read that file first. Treat every
 
 ### Architecture intent
 
-- **Authoritative**: `docs/architecture/architecture-design.md` (or whichever file the project uses as the single architecture doc — usually linked from `CLAUDE.md` or `README.md`).
+- **Authoritative**: `docs/architecture/architecture-design.md` (or whichever file the project uses as the single architecture doc — usually linked from `.github/copilot-instructions.md` or `README.md`).
 - **Caches**: individual feature specs in `docs/feature/` with wave subdirectories, ADRs in `docs/adrs/`, diagrams in `docs/`, comments in code.
 - **Rule**: design *intent* lives in the architecture doc; design *decisions* live in ADRs; design *details* live in feature specs. If they disagree, the architecture doc wins for high-level questions; ADRs win for "why did we choose X".
 

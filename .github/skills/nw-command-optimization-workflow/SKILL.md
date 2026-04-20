@@ -22,7 +22,7 @@ Convert oversized commands (500-2400 lines) to lean declarative definitions (40-
 
 ### 2a: Remove shared boilerplate
 These blocks appear in 5-12 commands, extract to shared orchestrator preamble skill:
-- "Sub-agents have NO ACCESS to Skill tool" briefing (~20-30 lines/file)
+- "Sub-agents load skills via #tool:read/readFile" briefing (~20-30 lines/file)
 - Agent registry with capabilities (~15-20 lines/file)
 - Parameter parsing rules (~10-15 lines/file)
 - Pre-invocation validation checklist (~10-15 lines/file)
@@ -41,7 +41,7 @@ Remove: deprecated format references | Aspirational unimplemented features | Ver
 
 ### 2d: Reduce aggressive language
 - "CRITICAL: You MUST extract..." -> "Extract..."
-- "MANDATORY: Use the Task tool" -> "Use the Task tool"
+- "MANDATORY: Use the agent tool" -> "Use the agent tool"
 - "NON-NEGOTIABLE requirement" -> Remove adjective entirely
 
 ### 2e: Condense examples
@@ -89,10 +89,11 @@ Approach: extract orchestration phases as lean sequence (which agent, which comm
 ## Shared Orchestrator Preamble
 
 Extract common orchestrator knowledge to single shared skill:
-- Architectural constraint about sub-agent tool access
+- Architectural constraint about sub-agent skill loading
 - Valid agent list with brief capabilities
 - Standard parameter parsing rules
 - Pre-invocation validation pattern
 - Correct/wrong invocation examples (2 each)
 
 Estimated: ~60-80 lines. Replaces ~620 lines duplicated across commands.
+

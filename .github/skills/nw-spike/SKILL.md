@@ -139,7 +139,7 @@ Promote probe for "{feature-description}" into a walking skeleton.
 
 ## Progress tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Phase 1, Phase 2, and Phase 3 are separate task groups — Phase 3 tasks are only created if the promotion gate says PROMOTE.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Phase 1, Phase 2, and Phase 3 are separate task groups — Phase 3 tasks are only created if the promotion gate says PROMOTE.
 
 ## Success criteria
 
@@ -238,4 +238,5 @@ src/{production-path}/  # only if PROMOTE
 tests/{test-type-path}/{feature-id}/acceptance/
   walking-skeleton.feature  # only if PROMOTE — 1 scenario, @walking_skeleton @driving_port
   steps/                    # only if PROMOTE
-```
+
+

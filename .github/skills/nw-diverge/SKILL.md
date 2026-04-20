@@ -46,7 +46,7 @@ Before beginning DIVERGE work, read SSOT and prior wave artifacts:
 
 **Migration gate**: If `docs/product/` does not exist but `docs/feature/` has existing features, STOP. Guide the user to `docs/guides/migrating-to-ssot-model/README.md` and complete the migration first. If greenfield, DIVERGE will bootstrap `docs/product/jobs.yaml` with the validated job.
 
-**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using the Read tool before proceeding. After reading, output a confirmation checklist. Do NOT skip files that exist -- skipping causes options disconnected from evidence.
+**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using `#tool:read/readFile` before proceeding. After reading, output a confirmation checklist. Do NOT skip files that exist -- skipping causes options disconnected from evidence.
 
 ## Agent Invocation
 
@@ -61,9 +61,9 @@ Execute \*diverge for {feature-id}.
 - research_depth: {Decision 2}
 - output_directory: docs/feature/{feature-id}/
 
-**SKILL_LOADING**: Before starting work, load your skill files using the Read tool from `~/.claude/skills/nw-{skill-name}/SKILL.md`. Skills encode your methodology -- without them you operate with generic knowledge only.
+**SKILL_LOADING**: Before starting work, load your skill files using `#tool:read/readFile` from `.github/skills/nw-{skill-name}/SKILL.md`. Skills encode your methodology -- without them you operate with generic knowledge only.
 
-At the start of execution, create these tasks using TaskCreate and follow them in order:
+At the start of execution, create these tasks using `#tool:todo` and follow them in order:
 
 1. **JTBD Analysis** — Load `jtbd-analysis` skill. Extract and elevate the job from the raw request or DISCOVER evidence. Produce job statements (functional + emotional + social) and ODI outcome statements. Gate: job at strategic or physical level (not tactical), minimum 3 ODI outcome statements produced.
 2. **Competitive Research** — Invoke `nw-researcher` sub-agent for evidence-grounded competitive research. Map how existing products serve the validated job. Identify non-obvious alternatives. Gate: 3+ real competitors named, at least one non-obvious alternative, evidence quality confirmed.

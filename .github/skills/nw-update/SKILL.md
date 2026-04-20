@@ -12,10 +12,10 @@ argument-hint: '[target-version] - Optional explicit version (e.g. 1.4.2). Defau
 ## Overview
 
 `/nw-update` records a `PendingUpdateFlag` on disk. The actual upgrade is performed
-by the SessionStart hook on the next Claude Code launch, so the user can keep
+by the SessionStart hook on the next VS Code launch, so the user can keep
 working in the current session and apply the new version whenever they restart.
 
-You (the main Claude instance) run this command directly — no subagent delegation.
+You (the main agent instance) run this command directly — no subagent delegation.
 Do NOT attempt to upgrade nwave-ai in the current session.
 
 ## Behavior Flow
@@ -31,10 +31,10 @@ Do NOT attempt to upgrade nwave-ai in the current session.
 
 ### Step 2: Detect the package manager and its binary
 
-Invoke the detector and resolve the PM binary absolute path in a single Bash call:
+Invoke the detector and resolve the PM binary absolute path in a single `#tool:execute/runInTerminal` call:
 
 ```bash
-PYTHONPATH=$HOME/.claude/lib/python python3 -c "
+PYTHONPATH=$HOME/.github/lib/python python3 -c "
 import shutil, sys
 from pathlib import Path
 from des.adapters.driven.package_managers.package_manager_detector import detect_pm
@@ -60,7 +60,7 @@ Please upgrade manually:
     — or —
   uv tool install nwave-ai@latest && nwave-ai install
 
-Then restart Claude Code.
+Then restart VS Code.
 ```
 
 ### Step 4: Queue the pending update
@@ -68,7 +68,7 @@ Then restart Claude Code.
 Call the driving port `PendingUpdateService.request_update`:
 
 ```bash
-PYTHONPATH=$HOME/.claude/lib/python python3 -c "
+PYTHONPATH=$HOME/.github/lib/python python3 -c "
 from des.application.pending_update_service import PendingUpdateService
 from des.adapters.driven.config.des_config import DESConfig
 from des.adapters.driven.package_managers.package_manager_detector import detect_pm
@@ -94,7 +94,7 @@ Substitute `${TARGET_VERSION}` with the value resolved in Step 1 (no leading `v`
 On success, print:
 
 ```
-Update to vX.Y.Z queued. It will be applied the next time you restart Claude Code.
+Update to vX.Y.Z queued. It will be applied the next time you restart VS Code.
 Package manager: <pipx|uv>  (<binary_abspath>)
 ```
 
@@ -127,7 +127,7 @@ progress inline.
 ```
 Reads `update_check.latest_available = "1.4.2"`, detects `pipx` at
 `/home/alex/.local/bin/pipx`, queues flag, prints:
-`Update to v1.4.2 queued. It will be applied the next time you restart Claude Code.`
+`Update to v1.4.2 queued. It will be applied the next time you restart VS Code.`
 
 ### Example 2: Explicit version, uv install
 ```

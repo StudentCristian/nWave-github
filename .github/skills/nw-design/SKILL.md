@@ -47,7 +47,7 @@ Architecture decisions are driven by quality attributes, not pattern shopping. E
 1. **Understand the Problem** — review JTBD artifacts from DISCUSS. Ask: What are we building? For whom? Which quality attributes matter most? (scalability|maintainability|testability|time-to-market|fault tolerance|auditability). Gate: quality attribute priorities ranked.
 2. **Understand Constraints** — ask: Team size/experience? Timeline? Existing systems to integrate? Regulatory requirements? Operational maturity (CI/CD, monitoring)? Gate: constraints list documented.
 3. **Map Team Structure (Conway's Law)** — ask: How many teams? Communication patterns? Does proposed architecture match org chart? Gate: team-architecture alignment confirmed.
-4. **Select Development Paradigm** — identify primary language(s) from constraints, then: FP-native (Haskell|F#|Scala|Clojure|Elixir) → recommend Functional; OOP-native (Java|C#|Go) → recommend OOP; Multi-paradigm (TypeScript|Kotlin|Python|Rust|Swift) → present both, let user choose. After confirmation, ask user permission to write paradigm to project CLAUDE.md: FP: `This project follows the **functional programming** paradigm. Use @nw-functional-software-crafter for implementation.` OOP: `This project follows the **object-oriented** paradigm. Use @nw-software-crafter for implementation.` Default if user declines/unsure: OOP. Gate: paradigm selected and optionally written to CLAUDE.md.
+4. **Select Development Paradigm** — identify primary language(s) from constraints, then: FP-native (Haskell|F#|Scala|Clojure|Elixir) → recommend Functional; OOP-native (Java|C#|Go) → recommend OOP; Multi-paradigm (TypeScript|Kotlin|Python|Rust|Swift) → present both, let user choose. After confirmation, ask user permission to write paradigm to `.github/copilot-instructions.md`: FP: `This project follows the **functional programming** paradigm. Use @nw-functional-software-crafter for implementation.` OOP: `This project follows the **object-oriented** paradigm. Use @nw-software-crafter for implementation.` Default if user declines/unsure: OOP. Gate: paradigm selected and optionally written to `.github/copilot-instructions.md`.
 5. **Reuse Analysis (MANDATORY — RCA F-1 fix)** — before designing ANY new component, search the existing codebase for components with overlapping responsibilities. For each overlap, decide "extend existing" or "justify new". Output a table:
 
    ```
@@ -71,7 +71,7 @@ Architecture decisions are driven by quality attributes, not pattern shopping. E
 
 Before dispatching the architect agent, read rigor config from `.nwave/des-config.json` (key: `rigor`). If absent, use standard defaults.
 
-- **`agent_model`**: Pass as `model` parameter to Task tool. If `"inherit"`, omit `model` (inherits from session).
+- **`agent_model`**: Set in the agent's frontmatter `model` field when invoking via `#tool:agent`. If `"inherit"`, omit (inherits from session).
 - **`reviewer_model`**: If design review is performed, use this model for the reviewer agent. If `"skip"`, skip design review.
 - **`review_enabled`**: If `false`, skip post-design review step.
 
@@ -138,7 +138,7 @@ Context files: see Prior Wave Consultation above.
 - diagram_format: mermaid (C4)
 - stress_analysis: {true if --residuality flag, false otherwise}
 
-**SKILL_LOADING**: Read your skill files at `~/.claude/skills/nw-{skill-name}/SKILL.md`. At Phase 4, always load: `nw-architecture-patterns`, `nw-architectural-styles-tradeoffs`. Do NOT load `nw-roadmap-design` during DESIGN wave -- roadmap creation belongs to the DELIVER wave (`/nw-roadmap` or `/nw-deliver`). Then follow your Skill Loading Strategy table for phase-specific skills.
+**SKILL_LOADING**: Read your skill files at `.github/skills/nw-{skill-name}/SKILL.md`. At Phase 4, always load: `nw-architecture-patterns`, `nw-architectural-styles-tradeoffs`. Do NOT load `nw-roadmap-design` during DESIGN wave -- roadmap creation belongs to the DELIVER wave (`/nw-roadmap` or `/nw-deliver`). Then follow your Skill Loading Strategy table for phase-specific skills.
 
 ## Success Criteria
 
@@ -148,7 +148,7 @@ Context files: see Prior Wave Consultation above.
 - [ ] **Reuse Analysis table present** with every overlapping component listed (HARD GATE — reviewer blocks without this)
 - [ ] Architecture supports all business requirements
 - [ ] Technology stack selected with clear rationale
-- [ ] Development paradigm selected and (optionally) written to project CLAUDE.md
+- [ ] Development paradigm selected and (optionally) written to `.github/copilot-instructions.md`
 - [ ] Component boundaries defined with dependency-inversion compliance
 - [ ] C4 System Context + Container diagrams produced (Mermaid)
 - [ ] ADRs written with alternatives considered
@@ -210,5 +210,4 @@ This summary enables DEVOPS and DISTILL to quickly assess architecture decisions
 
 ### Optional
 ```
-CLAUDE.md (project root)         (optional: ## Development Paradigm section)
-```
+.github/copilot-instructions.md  (optional: ## Development Paradigm section)

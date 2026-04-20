@@ -15,7 +15,7 @@ argument-hint: '[feature-description] - Example: "Add rate limiting to the API g
 
 Conversational wizard that asks the user to describe their feature|classifies it|recommends a starting wave|launches it. Eliminates need to understand the 6-wave pipeline before using nWave.
 
-You (the main Claude instance) run this wizard directly. No subagent delegation.
+You run this wizard directly. No subagent delegation.
 
 ## Behavior Flow
 
@@ -33,22 +33,22 @@ Do NOT proceed until you have a clear, actionable description.
 
 ### Step 2: Feature ID Derivation
 
-Derive feature ID per rules in `~/.claude/nWave/skills/common/wizard-shared-rules.md` (section: Feature ID Derivation).
+Derive feature ID per rules in `.github/skills/common/wizard-shared-rules.md` (section: Feature ID Derivation).
 
 Examples: "Add rate limiting to the API gateway" -> `rate-limiting-api-gateway` | "OAuth2 upgrade" -> `oauth2-upgrade` | "Implement a real-time notification system with WebSocket support for mobile and desktop clients" -> `real-time-notification-system-websocket`
 
-Show derived ID via AskUserQuestion. Allow override with custom value.
+Show derived ID via `#tool:vscode/askQuestions`. Allow override with custom value.
 
 ### Step 3: Name Conflict Check
 
-Check if `docs/feature/{feature-id}/` exists. If so, offer via AskUserQuestion:
+Check if `docs/feature/{feature-id}/` exists. If so, offer via `#tool:vscode/askQuestions`:
 1. **Continue that project** — switch to `/nw-continue`
 2. **Start fresh with different name** — ask for distinguishing name
 3. **Archive and restart** — move to `docs/feature/{feature-id}-archived-{date}/`
 
 ### Step 4: Clarifying Questions
 
-Use AskUserQuestion:
+Use `#tool:vscode/askQuestions`:
 
 **Q1: New or existing behavior?**
 - New functionality that doesn't exist yet
@@ -101,7 +101,7 @@ DEFAULT:
     -> /nw-discuss ("Start by defining what to build")
 ```
 
-Show recommendation with rationale via AskUserQuestion: recommended wave command|why this wave (one sentence)|what it produces.
+Show recommendation with rationale via `#tool:vscode/askQuestions`: recommended wave command|why this wave (one sentence)|what it produces.
 
 ### Step 8: Launch
 
@@ -110,7 +110,7 @@ After user confirms, create project directory:
 mkdir -p docs/feature/{feature-id}
 ```
 
-Invoke recommended wave command by reading its task file and following instructions, passing feature ID as argument.
+Invoke recommended wave command by reading its skill file and following instructions, passing feature ID as argument.
 
 ## Error Handling
 
@@ -150,3 +150,4 @@ Detects "fix" in description. User confirms bug. Recommends `/nw-root-why "authe
 /nw-new "Build a customer feedback system"
 ```
 User says they haven't validated whether customers want this. Recommends DISCOVER, launches `/nw-discover "customer-feedback-system"`.
+

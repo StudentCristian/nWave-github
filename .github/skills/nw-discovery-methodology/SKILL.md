@@ -91,7 +91,7 @@ Questions:
 
 ## Question Format
 
-Use AskUserQuestion with structured options:
+Use `#tool:vscode/askQuestions` with structured options:
 - 2-4 concrete options based on design methodology
 - Options represent real design alternatives
 - Include an "Other" option for open-ended input

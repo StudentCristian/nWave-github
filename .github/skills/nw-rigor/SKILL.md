@@ -13,7 +13,7 @@ argument-hint: '[profile] - Optional: lean, standard, thorough, exhaustive, cust
 
 Interactive command to select a quality-vs-token-consumption profile. Persists choice to either `~/.nwave/global-config.json` (global scope) or `.nwave/des-config.json` (project scope) under the `rigor` key. All wave commands read this config to adjust agent models, review policy, TDD phases, and mutation testing.
 
-You (the main Claude instance) run this directly. No subagent delegation.
+You (the main agent instance) run this directly. No subagent delegation.
 
 ## Profile Mappings (Single Source of Truth)
 
@@ -51,7 +51,7 @@ Brief explanation: "Rigor profiles control how much quality infrastructure nWave
 
 Display the current project rigor (from `.nwave/des-config.json`) and current global rigor (from `~/.nwave/global-config.json`, if it exists).
 
-Ask via AskUserQuestion:
+Ask via #tool:vscode/askQuestions:
 ```
 Where do you want to save this configuration?
 ```
@@ -87,7 +87,7 @@ Mark "standard" as [recommended]. Below the table, note: "Or choose **custom** t
 
 #### Step 3: User Selection
 
-Ask user to select via AskUserQuestion (4 options + Other for inherit/custom):
+Ask user to select via #tool:vscode/askQuestions (4 options + Other for inherit/custom):
 
 1. standard [recommended]
 2. lean
@@ -195,7 +195,7 @@ WHEN TO USE:
 
 #### Step 5: Confirm
 
-Ask user to confirm via AskUserQuestion:
+Ask user to confirm via #tool:vscode/askQuestions:
 1. Yes, apply this profile
 2. No, go back to selection (return to Step 2)
 3. Cancel (exit without saving)
@@ -284,7 +284,7 @@ If no current profile is set, show the target profile settings without diff.
 
 #### Step 3: Confirm
 
-Ask user to confirm via AskUserQuestion:
+Ask user to confirm via #tool:vscode/askQuestions:
 1. Yes, switch to {target}
 2. No, keep current profile
 
@@ -294,7 +294,7 @@ Same as Mode 1 Steps 6 and 7. Uses `{target_file}` from Step 1.5.
 
 ### Mode 3: Custom Builder (`/nw-rigor custom` or selected from interactive)
 
-Build a profile setting by setting. Each question uses AskUserQuestion with sensible defaults (standard values pre-selected). After all questions, show summary and confirm.
+Build a profile setting by setting. Each question uses #tool:vscode/askQuestions with sensible defaults (standard values pre-selected). After all questions, show summary and confirm.
 
 #### Step 1: Config Check
 
@@ -306,7 +306,7 @@ Same as Mode 1 Step 1.5. Ask scope question, store `{scope}` and `{target_file}`
 
 #### Step 2: Agent Model
 
-Ask via AskUserQuestion:
+Ask via #tool:vscode/askQuestions:
 ```
 Which model should agents use? (crafter, architect, acceptance-designer)
 ```
@@ -318,7 +318,7 @@ Options:
 
 #### Step 3: Reviewer Model
 
-Ask via AskUserQuestion:
+Ask via #tool:vscode/askQuestions:
 ```
 Which model for peer reviewers?
 ```
@@ -330,7 +330,7 @@ Options:
 
 #### Step 4: Double Review
 
-Ask via AskUserQuestion:
+Ask via #tool:vscode/askQuestions:
 ```
 Run peer review twice (two independent passes)?
 ```
@@ -342,7 +342,7 @@ Only show this question if reviewer_model is not "skip". If "skip", set double_r
 
 #### Step 5: TDD Phases
 
-Ask via AskUserQuestion:
+Ask via #tool:vscode/askQuestions:
 ```
 Which TDD phases should agents execute?
 ```
@@ -352,7 +352,7 @@ Options:
 
 #### Step 6: Refactoring Pass
 
-Ask via AskUserQuestion:
+Ask via #tool:vscode/askQuestions:
 ```
 Include a dedicated refactoring pass after implementation?
 ```
@@ -364,7 +364,7 @@ Only show if TDD phases is "Full 5-phase". If minimal, set refactor_pass = false
 
 #### Step 7: Mutation Testing
 
-Ask via AskUserQuestion:
+Ask via #tool:vscode/askQuestions:
 ```
 Enable mutation testing (>= 80% kill rate gate)?
 ```
@@ -389,7 +389,7 @@ Custom profile:
   +-----------------------+---------------------------------------------------+
 ```
 
-Ask to confirm via AskUserQuestion:
+Ask to confirm via #tool:vscode/askQuestions:
 1. Yes, apply this custom profile
 2. Start over (return to Step 2)
 3. Cancel (exit without saving)

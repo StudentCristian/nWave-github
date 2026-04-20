@@ -8,7 +8,7 @@ argument-hint: '[--top=N] [--since=6m] [--json] [--rank report.md] [--detail fil
 # NW-HOTSPOT: Code Crime Scene Hotspot Lens
 
 **Wave**: CROSS_WAVE
-**Execution**: Inline (no agent — Claude executes git commands directly)
+**Execution**: Inline (no agent — the model executes git commands directly)
 **Inspiration**: Adam Tornhill's "Your Code as a Crime Scene"
 
 ## Overview

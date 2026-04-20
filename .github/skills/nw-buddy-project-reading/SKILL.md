@@ -21,7 +21,7 @@ Read in this order. Stop as soon as you have enough context for the current ques
 ### 1. Project identity (always, <1s)
 
 - `README.md` — what is this project, for whom.
-- `CLAUDE.md` (project root) — how Claude-based tools should behave here.
+- `.github/copilot-instructions.md` (project root) — how AI-based tools should behave here.
 - `pyproject.toml` / `package.json` / `Cargo.toml` / equivalent — language, dependencies, versions, scripts.
 - `VERSION` or the version field in the package manifest.
 
@@ -121,7 +121,7 @@ If the user's question requires reading more than ~15 files, or requires running
 
 A well-formed answer:
 
-1. Read `README.md`, `pyproject.toml`, `CLAUDE.md` — get the elevator pitch and version.
+1. Read `README.md`, `pyproject.toml`, `.github/copilot-instructions.md` — get the elevator pitch and version.
 2. Read `BACKLOG.md` — get the current priorities.
 3. Run `git status` + `git log --oneline -10` — get the current branch and recent direction.
 4. Synthesize: "This is `<name>` v`<version>`, a `<one-sentence purpose>` written in `<language>`. The current branch is `<branch>`. Recent commits focus on `<summary>`. The backlog's top items are `<top 3>`. (citations for each claim)"

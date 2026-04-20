@@ -66,7 +66,7 @@ Findings MUST be priority-ordered: blocking issues first, then suggestions, then
 Before dispatching the reviewer agent, read rigor config from `.nwave/des-config.json` (key: `rigor`). If absent, use standard defaults.
 
 - **`review_enabled`**: If `false`, skip the review entirely. Output: "Review skipped per rigor profile (review_enabled=false)."
-- **`reviewer_model`**: Pass as `model` parameter to Task tool. If `"skip"`, skip the review. Overrides the default Haiku model.
+- **`reviewer_model`**: Pass as `model` parameter to `#tool:agent`. If `"skip"`, skip the review. Overrides the default Haiku model.
 - **`double_review`**: If `true` and called from deliver Phase 4, the caller is responsible for invoking review twice.
 
 ## Agent Derivation
@@ -85,7 +85,7 @@ Default model: Haiku (overridden by `rigor.reviewer_model` when set).
 2. **Read rigor config** — Read `.nwave/des-config.json` key `rigor`. If absent, use standard defaults. Gate: rigor profile loaded or defaults applied.
 3. **Validate inputs** — Run all four validation checks below. Gate: zero validation failures.
 4. **Apply rigor overrides** — Check `review_enabled` (skip if false), determine model from `reviewer_model` (default: haiku, skip if "skip"). Gate: execution decision made.
-5. **Invoke reviewer** — Call Task tool with `subagent_type="{agent-name}-reviewer"`, resolved model, and prompt `"Review {artifact-type}: {absolute-artifact-path} [step_id={id}]"`. Reviewer handles reading artifact, applying domain expertise, generating structured critique, updating original artifact with review metadata. Gate: Task tool invoked.
+5. **Invoke reviewer** — Invoke `{agent-name}-reviewer` via `#tool:agent` with resolved model and prompt `"Review {artifact-type}: {absolute-artifact-path} [step_id={id}]"`. Reviewer handles reading artifact, applying domain expertise, generating structured critique, updating original artifact with review metadata. Gate: reviewer invoked.
 
 ## Validation (before invoking)
 
@@ -142,4 +142,4 @@ Invokes `nw-software-crafter-reviewer` with implementation review + RPP L1-L3 co
 
 ```
 Updated artifact file (roadmap.json, execution-log.json, etc.) with reviews section
-```
+

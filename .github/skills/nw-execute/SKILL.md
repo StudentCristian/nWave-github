@@ -28,7 +28,7 @@ Dispatch a single roadmap step to an agent. Orchestrator extracts step context f
 
 Before dispatching the agent, read rigor config from `.nwave/des-config.json` (key: `rigor`). If absent, use standard defaults.
 
-- **`agent_model`**: Pass as `model` parameter to Agent tool. If `"inherit"`, omit `model` (inherits from session).
+- **`agent_model`**: Pass as `model` parameter to `#tool:agent`. If `"inherit"`, omit `model` (inherits from session).
 - **`tdd_phases`**: If `["RED_UNIT", "GREEN"]` (lean), modify the TDD_PHASES section in the DES template to only include those 2 phases. Remove PREPARE/RED_ACCEPTANCE/COMMIT instructions.
 - **`refactor_pass`**: If `false`, skip COMMIT phase refactoring instructions.
 
@@ -38,7 +38,7 @@ Before dispatching the agent, read rigor config from `.nwave/des-config.json` (k
 2. **Load Rigor Profile** — Read `.nwave/des-config.json` key `rigor` (default: standard if absent). Gate: config loaded or default applied.
 3. **Validate Context Files** — Confirm `docs/feature/{feature-id}/deliver/roadmap.json` and `execution-log.json` exist. Gate: both files present; report path-not-found if missing.
 4. **Extract Step Context** — Grep roadmap for `step_id: "{step-id}"` with ~50 lines context. Gate: step found; report available step IDs if missing.
-5. **Invoke Agent** — Call Agent tool with DES template below, applying rigor model and phases from step 2. Gate: Agent tool called, not executed inline.
+5. **Invoke Agent** — Call `#tool:agent` with DES template below, applying rigor model and phases from step 2. Gate: agent invoked, not executed inline.
 
 ## Agent Invocation
 
@@ -61,7 +61,7 @@ Agent: {agent-name}
 
 # SKILL_LOADING
 Before starting TDD phases, read your skill files for methodology guidance.
-Skills path: ~/.claude/skills/nw-{skill-name}/SKILL.md
+Skills path: .github/skills/nw-{skill-name}/SKILL.md
 Always load at PREPARE: tdd-methodology.md, quality-framework.md
 Load on-demand per phase as specified in your Skill Loading Strategy table.
 
@@ -109,7 +109,7 @@ Execute in order:
 # OUTCOME_RECORDING
 After ACTUALLY EXECUTING each phase, record via DES CLI:
 
-    PYTHONPATH=$HOME/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
+    PYTHONPATH=$HOME/.github/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
       --project-dir docs/feature/{feature-id}/deliver \
       --step-id {step-id} \
       --phase {PHASE_NAME} \
@@ -118,7 +118,7 @@ After ACTUALLY EXECUTING each phase, record via DES CLI:
 
 For SKIPPED phases (genuinely not applicable):
 
-    PYTHONPATH=$HOME/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
+    PYTHONPATH=$HOME/.github/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
       --project-dir docs/feature/{feature-id}/deliver \
       --step-id {step-id} \
       --phase {PHASE_NAME} \
@@ -147,13 +147,12 @@ Anti-Fraud Rules:
 - NEVER write execution-log entries for phases you did not execute
 
 # TIMEOUT_INSTRUCTION
-Target: 30 turns max. If approaching limit, COMMIT current progress.
+Target: 30 conversation turns max. If approaching limit, COMMIT current progress.
 If GREEN complete (all tests pass), MUST commit before returning — even at turn limit.
 ```
 
 **Configuration:**
 - subagent_type: extracted agent name
-- Turn limits are defined in each agent's `maxTurns` frontmatter field (not as a tool parameter)
 
 ## Error Handling
 
@@ -189,7 +188,7 @@ Resume costs ~50% more tokens/call due to context replay (measured: 3.7K vs 2.5K
 
 ## Success Criteria
 
-- [ ] Agent invoked via Agent tool (dispatcher does not execute the work)
+- [ ] Agent invoked via `#tool:agent` (dispatcher does not execute the work)
 - [ ] Step context extracted from roadmap and passed in prompt
 - [ ] Agent appended phase events to execution-log.json
 - [ ] Agent did not load roadmap.json

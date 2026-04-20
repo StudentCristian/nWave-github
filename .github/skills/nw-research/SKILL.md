@@ -23,7 +23,7 @@ At orchestration time, before invoking the researcher subagent:
 
 1. **Read Config** — Read `.nwave/trusted-source-domains.yaml` from the project root. Gate: file read attempted.
 2. **Seed If Missing** — If file missing, write it from the defaults in `## Default Trusted Sources` below, then notify the user: "Seeded `.nwave/trusted-source-domains.yaml` with defaults (7 categories, 42 trusted domains, 5 excluded). Edit the YAML directly to customize." Gate: file exists.
-3. **Embed Config** — Embed the YAML content inline in the researcher subagent Task prompt so the agent receives trusted source config via prompt context. Gate: YAML present in Task prompt.
+3. **Embed Config** — Embed the YAML content inline in the researcher subagent `#tool:agent` prompt so the agent receives trusted source config via prompt context. Gate: YAML present in `#tool:agent` prompt.
 
 ## Agent Invocation
 
@@ -36,7 +36,7 @@ Execute \*research on {topic} [--skill-for={agent-name}].
 - source_preferences: ["academic", "official", "technical_docs"]
 - output_directory: docs/research/
 - skill_for: {agent-name} # Optional: distilled skill for specified agent
-- skill_output_directory: ~/.claude/nWave/skills/{agent-name}/
+- skill_output_directory: .github/skills/nw-{agent-name}/
 
 ## Output Management
 
@@ -60,7 +60,7 @@ If the agent is interrupted or runs out of turns, the output file contains all w
 - [ ] Average source reputation >= 0.80
 
 **Distillation (if --skill-for specified):**
-- [ ] Skill file created in ~/.claude/nWave/skills/{agent-name}/
+- [ ] Skill file created in .github/skills/nw-{agent-name}/
 - [ ] 100% essential concepts preserved
 - [ ] Self-contained with no external references
 - [ ] Token budget respected (<5000 tokens per skill)
@@ -82,13 +82,13 @@ Nova researches event sourcing from trusted sources, cross-references 3+ sources
 ```
 /nw-research "mutation testing methodologies" --skill-for=software-crafter
 ```
-Nova researches mutation testing, distills into practitioner-focused skill file at ~/.claude/nWave/skills/software-crafter/.
+Nova researches mutation testing, distills into practitioner-focused skill file at .github/skills/nw-software-crafter/.
 
 ## Expected Outputs
 
 ```
 docs/research/{category}/{topic}-comprehensive-research.md
-~/.claude/nWave/skills/{agent}/{topic}-methodology.md    (if --skill-for)
+.github/skills/nw-{agent}/{topic}-methodology.md    (if --skill-for)
 ```
 
 ## Default Trusted Sources
@@ -270,4 +270,3 @@ quality_guidelines:
     - "Evaluate source reliability for each claim"
     - "Present both sides with evidence"
     - "Note which sources are more authoritative"
-```

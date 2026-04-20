@@ -11,15 +11,15 @@ Use these dimensions when reviewing or validating agent definitions.
 
 ## Dimension 1: Template Compliance
 
-Does the agent follow official Claude Code format?
+Does the agent follow official GitHub Copilot custom agent format (`.agent.md`)?
 
-**Check**: YAML frontmatter with name and description (required) | Markdown body as system prompt | No embedded YAML config blocks | No activation-instructions or IDE-FILE-RESOLUTION sections | Skills referenced in frontmatter, not inline
+**Check**: YAML frontmatter with description (required) | Markdown body as system prompt | No embedded YAML config blocks | No activation-instructions or IDE-FILE-RESOLUTION sections | File located in `.github/agents/` directory
 
 **Severity**: High -- non-compliant agents may not load correctly.
 
 ## Dimension 2: Size and Focus
 
-**Check**: Core definition under 400 lines | Domain knowledge in Skills | Single clear responsibility | No monolithic sections (>50 lines without structure) | No redundant Claude default behaviors
+**Check**: Core definition under 400 lines | Domain knowledge in Skills | Single clear responsibility | No monolithic sections (>50 lines without structure) | No redundant default behaviors
 
 **Measurement**: `wc -l {agent-file}`. Target: 200-400 lines.
 
@@ -27,15 +27,15 @@ Does the agent follow official Claude Code format?
 
 ## Dimension 3: Divergence Quality
 
-Does the agent specify only what diverges from Claude defaults?
+Does the agent specify only what diverges from model defaults?
 
-**Check**: No file operation instructions | No generic quality principles ("be thorough") | No tool usage guidelines | Core principles are domain-specific and non-obvious | Each instruction justifies why Claude wouldn't do this naturally
+**Check**: No file operation instructions | No generic quality principles ("be thorough") | No tool usage guidelines | Core principles are domain-specific and non-obvious | Each instruction justifies why the model wouldn't do this naturally
 
 **Severity**: Medium -- redundant instructions waste tokens, cause overtriggering.
 
 ## Dimension 4: Safety Implementation
 
-**Check**: Tools restricted via frontmatter `tools` field | maxTurns set | No prose-based security layers (use hooks) | No embedded enterprise safety frameworks | permissionMode set for risky actions
+**Check**: Tools restricted via frontmatter `tools` field | No prose-based security layers | No embedded enterprise safety frameworks | Tool list follows principle of least privilege
 
 **Severity**: High -- prose safety is ineffective and token-wasteful.
 
@@ -43,7 +43,7 @@ Does the agent specify only what diverges from Claude defaults?
 
 **Check**: No "CRITICAL:", "MANDATORY:", "ABSOLUTE" language | Direct statements ("Do X" not "You MUST X") | Affirmative phrasing ("Do Y" not "Don't do X") | Consistent terminology | No repetitive emphasis
 
-**Severity**: Medium -- aggressive language causes overtriggering on Opus 4.6.
+**Severity**: Medium -- aggressive language causes overtriggering on some models.
 
 ## Dimension 6: Examples Quality
 
@@ -55,17 +55,17 @@ Does the agent specify only what diverges from Claude defaults?
 
 Does the agent ensure skills are actually loaded during execution?
 
-**Check**: Skill Loading Strategy table present for agents with 3+ skills | Every frontmatter skill has matching `Load:` directive in workflow | Skills path documented (`~/.claude/skills/nw-{skill-name}/SKILL.md`) | Phase-gated loading (not "load everything at start")
+**Check**: Skill Loading Strategy table present for agents with 3+ skills | Every skill has matching `Load:` directive in workflow using `#tool:read/readFile` | Skills path documented (`.github/skills/nw-{skill-name}/SKILL.md`) | Phase-gated loading (not "load everything at start")
 
-**Severity**: High — orphan skills (declared but never loaded) mean sub-agents operate without domain knowledge. The `skills:` frontmatter field is declarative only; Claude Code does not auto-load skill files.
+**Severity**: High — orphan skills (declared but never loaded) mean sub-agents operate without domain knowledge. GitHub Copilot does not auto-load skill files; agents must explicitly read them via `#tool:read/readFile`.
 
-**Gold standard**: `nw-product-owner.md` — Skill Loading Strategy table mapping phases to skills with triggers + explicit `Load:` directives in each workflow phase.
+**Gold standard**: `nw-product-owner.agent.md` — Skill Loading Strategy table mapping phases to skills with triggers + explicit `Load:` directives in each workflow phase.
 
 ## Dimension 8: Token Efficiency
 
 Is the agent definition compressed without losing semantic content?
 
-**Check**: No verbose prose where pipe-delimited lists suffice | Imperative voice throughout | No filler words ("in order to", "it is important to") | `### Example N:` headers preserved verbatim (not inlined) | AskUserQuestion options preserved with numbered descriptions | Code blocks preserved verbatim | No duplicate content already in skills
+**Check**: No verbose prose where pipe-delimited lists suffice | Imperative voice throughout | No filler words ("in order to", "it is important to") | `### Example N:` headers preserved verbatim (not inlined) | `#tool:vscode/askQuestions` options preserved with numbered descriptions | Code blocks preserved verbatim | No duplicate content already in skills
 
 **Severity**: Medium — bloated definitions waste context window and degrade performance via context rot.
 

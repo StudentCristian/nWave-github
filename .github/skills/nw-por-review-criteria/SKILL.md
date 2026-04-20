@@ -68,14 +68,14 @@ Install: git+https://github.com/org/repo
 Paths from different sources. Trace ${path} -- same source?
 ```
 Install to: ${install_path} from config
-Uninstall from: ~/.claude/agents/nw/  <-- HARDCODED
+Uninstall from: .github/agents/  <-- HARDCODED
 ```
 
 ### Pattern 4: Missing Commands
 CLI commands without slash equivalents. Check both contexts exist.
 ```
 Terminal: crafter run
-Claude Code: /nw-execute  <-- EXISTS?
+Chat: /nw-execute  <-- EXISTS?
 ```
 
 ## Review Output Schema

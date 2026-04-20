@@ -7,21 +7,20 @@ disable-model-invocation: true
 
 # Agent Review Workflow
 
-## V2 Validation Checklist (11 Points)
+## V2 Validation Checklist (10 Points)
 
 Run against every agent under review. Each item pass/fail.
 
 1. **Frontmatter format**: `---` delimited YAML with `name` and `description`
 2. **Size compliance**: Under 400 lines; domain knowledge in Skills
-3. **Divergence-only**: Only behaviors diverging from Claude defaults
+3. **Divergence-only**: Only behaviors diverging from model defaults
 4. **Calm language**: No "CRITICAL", "MANDATORY", "ABSOLUTE"
 5. **Examples present**: 3-5 canonical for critical/subtle behaviors
 6. **Least privilege tools**: Minimum needed in frontmatter
-7. **maxTurns set**: Present in frontmatter
-8. **Platform safety**: Via frontmatter/hooks, not prose
-9. **Affirmative phrasing**: "Do X" not "Don't do Y"
-10. **Consistent terminology**: One term per concept
-11. **Clear delegation**: Description states when to delegate
+7. **Platform safety**: Via frontmatter/tool restrictions, not prose
+8. **Affirmative phrasing**: "Do X" not "Don't do Y"
+9. **Consistent terminology**: One term per concept
+10. **Clear delegation**: Description states when to delegate
 
 ## Scoring Methodology
 
@@ -54,7 +53,7 @@ Every finding includes: **Dimension** (which of 7) | **Severity** (high/medium/l
 | Residual Pattern | What to Flag |
 |-----------------|-------------|
 | Embedded YAML config blocks | Should be frontmatter or removed |
-| `activation-instructions` section | Remove -- Claude Code handles activation |
+| `activation-instructions` section | Remove -- platform handles activation |
 | `IDE-FILE-RESOLUTION` section | Remove -- not needed in v2 |
 | `commands` with 10+ entries | Reduce to 3-5 focused |
 | Inline `embed_knowledge` | Extract to Skills |
@@ -73,8 +72,9 @@ Every finding includes: **Dimension** (which of 7) | **Severity** (high/medium/l
 
 ## Command Template Review
 
-Additional checks for nWave command files (tasks):
+Additional checks for nWave command files (skills):
 - Size: 50-60 lines target; >60 warning, >150 major, >500 blocker
 - Structure: agent activation metadata, context files section, success criteria
 - Delegation: business logic belongs in agent, not command
 - No embedded procedural steps (STEP 1, STEP 2)
+

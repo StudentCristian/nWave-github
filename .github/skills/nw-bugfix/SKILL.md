@@ -38,12 +38,12 @@ INPUT: "{bug-description}"
 
 ### Phase 1: Root Cause Analysis
 
-**Skill loading**: The troubleshooter loads its skills from `~/.claude/skills/nw-{skill}/SKILL.md`:
+**Skill loading**: The troubleshooter loads its skills from `.github/skills/nw-{skill}/SKILL.md`:
 - `nw-five-whys-methodology` — core investigation methodology
 - `nw-investigation-techniques` — systematic debugging patterns
 - `nw-post-mortem-framework` — structured incident analysis
 
-Invoke @nw-troubleshooter via Agent tool:
+Invoke @nw-troubleshooter via `#tool:agent`:
 
 ```
 Execute *investigate-root-cause for the following defect:
@@ -88,7 +88,7 @@ If user approves → proceed to Phase 3.
 ### Phase 3: Regression Test + Fix (via /nw-deliver)
 
 This phase delegates entirely to `/nw-deliver`, which handles:
-- Paradigm detection (reads project CLAUDE.md for `## Development Paradigm`)
+- Paradigm detection (reads project `.github/copilot-instructions.md` for `## Development Paradigm`)
 - Crafter selection (@nw-software-crafter for OOP, @nw-functional-software-crafter for FP)
 - DES enforcement with proper markers
 - Rigor profile from `.nwave/des-config.json`

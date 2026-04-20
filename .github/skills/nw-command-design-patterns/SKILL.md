@@ -65,7 +65,7 @@ Execute \*{command} for {parameters}.
 
 ## Size Targets and Evidence
 
-Research (Chroma Research, Anthropic context engineering): focused prompts (~300 tokens) outperform full prompts (~113k tokens) | Claude shows most pronounced performance gap | Information buried mid-prompt gets deprioritized ("Lost in the Middle") | Opus 4.6 is proactive/self-directing; verbose instructions cause overtriggering
+Research (Chroma Research, Anthropic context engineering): focused prompts (~300 tokens) outperform full prompts (~113k tokens) | Models show most pronounced performance gap with bloated context | Information buried mid-prompt gets deprioritized ("Lost in the Middle") | Some advanced models are proactive/self-directing; verbose instructions cause overtriggering
 
 Targets: Dispatchers 40-150 lines | Orchestrators 100-300 lines | Current average 437 lines; target under 150
 
@@ -86,7 +86,7 @@ Fix: Extract shared content to preamble skill. Move domain knowledge to agents. 
 | Procedural overload | Step-by-step for capable agents wastes tokens, "lost in the middle" | Declare goal + constraints, let agent apply methodology |
 | Duplicated briefings | Same orchestrator constraints in every command (30-80 lines each) | Extract to shared preamble, reference once |
 | Embedded domain knowledge | Refactoring hierarchies, review criteria, TDD cycles in commands | Move to agent definitions or skills |
-| Aggressive language | "CRITICAL/MANDATORY/MUST" causes overtriggering in Opus 4.6 | Direct statements without emphasis markers |
+| Aggressive language | "CRITICAL/MANDATORY/MUST" causes overtriggering in advanced models | Direct statements without emphasis markers |
 | Example overload | 50+ lines of JSON examples | 2-3 canonical examples suffice |
 | Inline validation logic | Prompt template validation in command text | Platform/hook responsibility |
 | Dead code | Deprecated formats, aspirational metrics, old signatures | Remove; version control preserves history |
@@ -238,20 +238,20 @@ When optimizing command files for token efficiency:
 **Never compress**:
 
 1. `### Example N:` section headers — keep verbatim (eval tools and agents depend on these)
-2. AskUserQuestion decision tree options — these are runtime menu items, not documentation
+2. `#tool:vscode/askQuestions` decision tree options — these are runtime menu items, not documentation
 3. `**Question**:` lines in decision points — runtime behavior
 4. Code blocks and YAML — preserve verbatim
 5. YAML frontmatter — preserve exactly
 
 **Compression evidence**: Pipe-delimited compression achieves 15-30% token reduction on prose-heavy files. Code-heavy files (PBT skills, code examples) yield <5%. Average across framework: ~7.4% overall.
 
-**Orchestrator skill loading section**: Commands dispatching sub-agents must include `SKILL_LOADING` in the Task prompt reminding the agent to read its skills at `~/.claude/skills/nw-{skill-name}/SKILL.md`. Without this, sub-agents operate without domain knowledge (the `skills:` frontmatter is decorative).
+**Orchestrator skill loading section**: Commands dispatching sub-agents must remind the subagent to read its skills at `.github/skills/nw-{skill-name}/SKILL.md`. Without this, sub-agents operate without domain knowledge.
 
 ## Command Installation Format (v2.8+)
 
-Since v2.8.0, commands are installed as **skills**, not as separate command files. The installer reads from `nWave/skills/nw-{command-name}/SKILL.md`, NOT from `nWave/tasks/nw/{command-name}.md`. The legacy `tasks/nw/*.md` path is still supported but is NOT auto-installed.
+Since v2.8.0, commands are installed as **skills**. The installer reads from `nWave/skills/nw-{command-name}/SKILL.md`. Skills are installed to `.github/skills/nw-{command-name}/SKILL.md` in the project.
 
-**When creating a new command, produce THREE files:**
+**When creating a new command, produce TWO files:**
 
 1. **`nWave/skills/nw-{name}/SKILL.md`** — the installable command skill. Frontmatter MUST include:
    ```yaml
@@ -264,9 +264,7 @@ Since v2.8.0, commands are installed as **skills**, not as separate command file
    ```
    Body: the full command definition (same content as the declarative template above).
 
-2. **`nWave/tasks/nw/{name}.md`** — legacy task file (kept for backward compat + reference). Same content, simpler frontmatter (just `description` + `argument-hint`).
-
-3. **`nWave/skills/nw-{name}-methodology/SKILL.md`** (optional) — deep methodology knowledge for the agent. Frontmatter:
+2. **`nWave/skills/nw-{name}-methodology/SKILL.md`** (optional) — deep methodology knowledge for the agent. Frontmatter:
    ```yaml
    ---
    name: nw-{name}-methodology
@@ -276,6 +274,7 @@ Since v2.8.0, commands are installed as **skills**, not as separate command file
    ---
    ```
 
-**The skill file (`nWave/skills/nw-{name}/SKILL.md`) is the PRIMARY deliverable.** Without it, the command won't appear in the `/nw-` menu after installation. The task file is secondary.
+**The skill file (`nWave/skills/nw-{name}/SKILL.md`) is the PRIMARY deliverable.** Without it, the command won't appear in the `/nw-` slash command menu after installation.
 
 Also update `nWave/framework-catalog.yaml` with the command entry under the appropriate wave section.
+

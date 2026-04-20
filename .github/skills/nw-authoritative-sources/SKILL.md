@@ -83,7 +83,7 @@ Supplements general reputation tiers in `source-verification` with domain-specif
 2. Conference talks: `{topic} QCon OR StrangeLoop OR GOTO conference`
 3. Books/papers: `{topic} book OR paper architecture`
 4. Adoption status: `{topic} site:thoughtworks.com/radar`
-5. Local docs: Grep in `docs/research/` and `nWave/skills/`
+5. Local docs: search via #tool:search/textSearch in `docs/research/` and `.github/skills/`
 
 ### Security Topics
 1. Vuln databases: `{topic} site:cve.mitre.org` or `site:nvd.nist.gov`
