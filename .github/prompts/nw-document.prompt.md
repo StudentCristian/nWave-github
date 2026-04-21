@@ -1,6 +1,12 @@
 ---
 description: "Creates evidence-based documentation following DIVIO/Diataxis principles. Use when writing tutorials, how-to guides, reference docs, or explanations."
-argument-hint: "[topic/component] - Optional: --type=[tutorial|howto|reference|explanation] --research-depth=[overview|detailed|comprehensive|deep-dive]"
+argument-hint: '[topic/component] - Optional: --type=[tutorial|howto|reference|explanation] --research-depth=[overview|detailed|comprehensive|deep-dive]'
+tools:
+- todo
+- agent
+- read/readFile
+- edit/createFile
+- edit/createDirectory
 ---
 
 # NW-DOCUMENT: DIVIO Documentation Creation
@@ -15,8 +21,8 @@ Create evidence-based, DIVIO-compliant documentation by orchestrating research a
 ## Context Files Required
 
 - .nwave/trusted-source-domains.yaml — Embed inline in researcher prompt
-- ~/.claude/agents/nw/nw-researcher.md — Extract research methodology
-- ~/.claude/agents/nw/nw-documentarist.md — Extract DIVIO framework and templates
+- .github/agents/nw/nw-researcher.md — Extract research methodology
+- .github/agents/nw/nw-documentarist.md — Extract DIVIO framework and templates
 
 ## Command Syntax
 
@@ -28,7 +34,7 @@ If `--type` omitted, ask user. If `--research-depth` omitted, auto-select: tutor
 
 ## Orchestration Phases
 
-Sub-agents have no Skill tool access. Embed all domain knowledge inline in each Task prompt. Read from agent files and config at orchestration time.
+Sub-agents have no Skill tool access. Embed all domain knowledge inline in each #tool:agent prompt. Read from agent files and config at orchestration time.
 
 ```
 Phase 1: Research           @nw-researcher
@@ -43,11 +49,11 @@ Phase 3: Handoff
 1. Validate topic non-empty, type/depth valid if provided
 2. If type not specified, present DIVIO selection: TUTORIAL ("Teach me")|HOW-TO ("Help me do X")|REFERENCE ("What is X?")|EXPLANATION ("Why is X?")
 3. Determine output: `docs/{tutorials|howto|reference|explanation}/{topic-kebab-case}.md`
-4. Read and cache: .nwave/trusted-source-domains.yaml|nw-researcher.md|nw-documentarist.md
+4. Read and cache: .nwave/trusted-source-domains.yaml|.github/agents/nw/nw-researcher.md|.github/agents/nw/nw-documentarist.md
 
 ### Phase 1: Research (@nw-researcher)
 
-Invoke via Task tool. Prompt includes: topic|doc type|research depth|complete .nwave/trusted-source-domains.yaml (inline)|type-specific research focus (from nw-researcher.md)|quality gates: trusted sources only, 3+ sources/claim, citation coverage >95%, source reputation >=0.80. Output: `docs/research/{topic-kebab-case}-for-{type}-doc.md`
+Invoke via #tool:agent. Prompt includes: topic|doc type|research depth|complete .nwave/trusted-source-domains.yaml (inline)|type-specific research focus (from nw-researcher.md)|quality gates: trusted sources only, 3+ sources/claim, citation coverage >95%, source reputation >=0.80. Output: `docs/research/{topic-kebab-case}-for-{type}-doc.md`
 
 ### Phase 1.5: Research Review (@nw-researcher-reviewer)
 
@@ -80,21 +86,9 @@ Applies to both review gates (Phase 1.5 and 2.5):
 ```
 Orchestrator auto-selects overview depth, invokes researcher, reviews, invokes documentarist, reviews, outputs to `docs/tutorials/getting-started-with-nwave.md`.
 
-### Example 2: Explanation with explicit depth
-```bash
-/nw-document "Why nWave Uses Hexagonal Architecture" --type=explanation --research-depth=deep-dive
-```
-Full 4-phase pipeline with deep-dive research. Output to `docs/explanation/`.
-
-### Example 3: Interactive type selection
-```bash
-/nw-document "Mikado Method Integration"
-```
-Orchestrator prompts user to select DIVIO type before proceeding.
-
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
@@ -104,12 +98,6 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 - [ ] Doc review: APPROVED (max 2 cycles)
 - [ ] All deliverables exist: research|documentation|validation report
 - [ ] No collapse anti-patterns detected
-
-## Error Handling
-
-- Insufficient sources: continue with gaps|expand scope|cancel
-- Review iteration limit exceeded: escalate with persistent issues
-- Collapse detected: split into separate docs|revise scope|accept
 
 ## Next Wave
 

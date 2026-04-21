@@ -1,6 +1,9 @@
 ---
 description: "nWave concierge — ask any question about methodology, project state, commands, migration, or troubleshooting. Read-only, contextual answers."
-argument-hint: "[question] - Example: \"What should I do next for rate-limiting?\""
+argument-hint: '[question] - Example: "What should I do next for rate-limiting?"'
+tools:
+- todo
+- agent
 ---
 
 # NW-BUDDY: nWave Concierge
@@ -23,7 +26,7 @@ Execute *help to show capabilities, or ask any nWave question directly.
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 

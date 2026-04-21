@@ -1,6 +1,12 @@
 ---
 description: "Creates new specialized agents using the 5-phase workflow (ANALYZE > DESIGN > CREATE > VALIDATE > REFINE). Use when building a new AI agent or validating an existing agent specification."
 argument-hint: '[agent-name] - Optional: --type=[specialist|reviewer|orchestrator] --pattern=[react|reflection|router]'
+tools:
+- todo
+- agent
+- edit/createFile
+- edit/createDirectory
+- read/readFile
 ---
 
 # NW-FORGE: Create Agent (V2)
@@ -14,9 +20,7 @@ Create a new agent using research-validated v2 approach: focused core (200-400 l
 
 ## Agent Invocation
 
-@nw-agent-builder
-
-Execute \*forge to create {agent-name} agent.
+Invoke the builder via #tool:agent (nw-agent-builder) to execute `*forge` and create the {agent-name} agent.
 
 **Configuration:**
 - agent_type: specialist | reviewer | orchestrator
@@ -24,12 +28,12 @@ Execute \*forge to create {agent-name} agent.
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
 - [ ] Agent definition under 400 lines (`wc -l`)
-- [ ] Official YAML frontmatter format (name, description, tools, maxTurns)
+- [ ] Official YAML frontmatter format (name, description, tools)
 - [ ] 11-point validation checklist passes
 - [ ] Only divergent behaviors specified (no Claude defaults)
 - [ ] 3-5 canonical examples included
@@ -45,6 +49,6 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 ## Expected Outputs
 
 ```
-~/.claude/agents/nw/nw-{agent-name}.md
-~/.claude/skills/nw/{agent-name}/*.md    (if Skills needed)
+.github/agents/nw/nw-{agent-name}.md
+.github/skills/nw-{agent-name}/*.md    (if Skills needed)
 ```

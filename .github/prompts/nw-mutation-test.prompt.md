@@ -1,6 +1,11 @@
 ---
 description: "Runs feature-scoped mutation testing to validate test suite quality. Use after implementation to verify tests catch real bugs (kill rate >= 80%)."
-argument-hint: "[feature-id] - Optional: --threshold=[75|80|85] --language=[auto|python|java|javascript]"
+argument-hint: '[feature-id] - Optional: --threshold=[75|80|85] --language=[auto|python|java|javascript]'
+tools:
+- todo
+- agent
+- read/readFile
+- execute/runInTerminal
 ---
 
 # NW-MUTATION-TEST: Feature-Scoped Mutation Testing
@@ -37,7 +42,7 @@ Execute mutation testing for project {feature-id}.
 - Project ID
 - Implementation file list (from execution-log.json)
 - Test scope path (e.g., `tests/des/`)
-- Kill rate threshold (default: 80%)
+- Kill rate threshold (default: 80% )
 - Language and tool selection
 
 **Configuration:**
@@ -55,21 +60,9 @@ Execute mutation testing for project {feature-id}.
 ```
 Reads execution-log.json, runs `generate_scoped_configs.py des-hook-enforcement`, delegates to software-crafter with per-component configs. Agent runs cosmic-ray, produces mutation-report.md.
 
-### Example 2: Python project without config generator
-```bash
-/nw-mutation-test auth-upgrade tests/auth/
-```
-Extracts files manually from execution-log.json, creates single cosmic-ray config with `module-path = [file1, file2, ...]` and `test-command = "pytest -x tests/auth/"`, delegates to agent.
-
-### Example 3: Non-Python project
-```bash
-/nw-mutation-test payment-gateway tests/payment/
-```
-Detects `package.json`, selects Stryker, delegates with Stryker-specific instructions.
-
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 

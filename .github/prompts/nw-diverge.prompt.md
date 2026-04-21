@@ -1,6 +1,10 @@
 ---
 description: "Generates 3-5 divergent design directions through JTBD analysis, competitive research, structured brainstorming, and taste evaluation before convergence."
-argument-hint: "[feature-id] - Optional: --work-type=[new-product|brownfield|pivot]"
+argument-hint: '[feature-id] - Optional: --work-type=[new-product|brownfield|pivot]'
+tools:
+- todo
+- agent
+- read/readFile
 ---
 
 # NW-DIVERGER: Structured Divergent Thinking Before Convergence
@@ -44,13 +48,13 @@ Before beginning DIVERGE work, read SSOT and prior wave artifacts:
 
 If `docs/product/` does not exist, this is the first wave using the SSOT model. DIVERGE will create it (bootstrap `docs/product/jobs.yaml` with the validated job).
 
-**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using the Read tool before proceeding. After reading, output a confirmation checklist. Do NOT skip files that exist -- skipping causes options disconnected from evidence.
+**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using #tool:read/readFile before proceeding. After reading, output a confirmation checklist. Do NOT skip files that exist -- skipping causes options disconnected from evidence.
 
 ## Agent Invocation
 
 @nw-diverger
 
-Execute \*diverge for {feature-id}.
+Execute *diverge for {feature-id}.
 
 **Context Files:** see Prior Wave Consultation above + project context files.
 
@@ -59,7 +63,7 @@ Execute \*diverge for {feature-id}.
 - research_depth: {Decision 2}
 - output_directory: docs/feature/{feature-id}/
 
-**SKILL_LOADING**: Before starting work, load your skill files using the Read tool from `~/.claude/skills/nw-{skill-name}/SKILL.md`. Skills encode your methodology -- without them you operate with generic knowledge only.
+**SKILL_LOADING**: Before starting work, load your skill files using the Read tool from `.github/skills/nw-{skill-name}/SKILL.md`. Skills encode your methodology -- without them you operate with generic knowledge only.
 
 **Phase 1 -- JTBD Analysis:**
 Flux loads `jtbd-analysis` skill. Extracts and elevates the job from the raw request or DISCOVER evidence. Produces job statements (functional + emotional + social) and ODI outcome statements. Gate G1 validates job level and ODI minimum.
@@ -78,7 +82,7 @@ After Phase 4 gates pass, Flux invokes `nw-diverger-reviewer` (Prism) to validat
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
@@ -96,77 +100,3 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 
 **Handoff To**: nw-product-owner (DISCUSS wave)
 **Deliverables**: `recommendation.md` with explicit decision statement + supporting DIVERGE artifacts
-
-## Wave Decisions Summary
-
-Before completing DIVERGE, produce (or append to) `docs/feature/{feature-id}/wave-decisions.md`:
-
-```markdown
-# DIVERGE Decisions -- {feature-id}
-
-## Key Decisions
-- [D1] {decision}: {rationale} (see: {source-file})
-
-## Job Summary
-- Validated job: {job statement at strategic/physical level}
-- ODI outcomes: {count} outcome statements
-
-## Options Evaluated
-- {count} options generated, {count} survived DVF filter
-- Recommended: {option name} -- {one-line rationale}
-- Dissent: {second-place option} -- {why it might be better under different assumptions}
-
-## SSOT Updates
-- jobs.yaml: {created|updated} with job JOB-{NNN}
-```
-
-## SSOT Update
-
-After producing feature-level artifacts, update the product-level SSOT:
-
-1. **Jobs SSOT**: Create or update `docs/product/jobs.yaml` with the validated job from Phase 1. Add changelog entry referencing this feature-id.
-2. If `docs/product/` does not exist, create the directory. This is the SSOT bootstrap.
-
-SSOT files use `schema_version` and `changelog` fields. See canonical schema in the design spec.
-
-## Expected Outputs
-
-### Feature delta (in `docs/feature/{feature-id}/`)
-```
-  recommendation.md             (top 3 options, dissenting case, decision for DISCUSS)
-  wave-decisions.md             (DIVERGE section appended)
-```
-
-### Internal artifacts (in `docs/feature/{feature-id}/diverge/`)
-```
-  job-analysis.md               (validated job + ODI outcome statements)
-  competitive-research.md       (prior art, competitor analysis, non-obvious alternatives)
-  options-raw.md                (all generated options, unfiltered, no evaluation)
-  taste-evaluation.md           (DVF filter, locked weights, scoring matrix)
-  review.yaml                   (peer review result from nw-diverger-reviewer)
-```
-
-### SSOT updates (in `docs/product/`)
-```
-  jobs.yaml                     (created or updated with validated job + changelog entry)
-```
-
-## Examples
-
-### Example 1: New product divergence
-```
-/nw-diverger notification-system
-```
-DISCOVER artifacts present with validated problem. Flux reads `problem-validation.md`, extracts job ("minimize likelihood of developers missing critical failure signals"), researches 5 notification tools including non-obvious alternatives (ambient light signals, IDE annotations), generates 6 structurally diverse options, scores with taste evaluation, recommends proactive push with Slack integration. Updates `jobs.yaml` with validated job.
-
-### Example 2: Brownfield feature without DISCOVER
-```
-/nw-diverger rate-limiting
-```
-No DISCOVER artifacts. Flux works from project-brief.md and direct conversation. Extracts job via 5 Whys from "we need rate limiting" to strategic level. Creates `docs/product/jobs.yaml` (SSOT bootstrap). Proceeds through all 4 phases.
-
-### Example 3: Skip validation (DIVERGE not needed)
-```
-/nw-diverger --skip auth-bugfix
-```
-Skip checklist evaluated: clear direction exists (bugfix), no competing approaches, self-evident path. DIVERGE skipped. User directed to `/nw-discuss` or `/nw-distill` depending on work type.

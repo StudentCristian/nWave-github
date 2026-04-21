@@ -1,7 +1,13 @@
 ---
 description: "Archives a completed feature to docs/evolution/, migrates lasting artifacts to permanent directories, and cleans up the temporary workspace. Use after all implementation steps pass and mutation testing completes."
-disable-model-invocation: true
 argument-hint: '[agent] [feature-id] - Example: @platform-architect "auth-upgrade"'
+tools:
+- todo
+- agent
+- read/readFile
+- execute/runInTerminal
+- edit/createFile
+- edit/createDirectory
 ---
 
 # NW-FINALIZE: Feature Completion and Archive
@@ -111,7 +117,7 @@ Finalize: {feature-id}
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 

@@ -1,6 +1,13 @@
 ---
 description: "Dispatches a single roadmap step to a specialized agent for TDD execution. Use when implementing a specific step from a roadmap.json plan."
 argument-hint: '[agent] [feature-id] [step-id] - Example: @nw-software-crafter "auth-upgrade" "01-01"'
+tools:
+- todo
+- agent
+- read/readFile
+- execute/runInTerminal
+- edit/createFile
+- edit/editFiles
 ---
 
 # NW-EXECUTE: Atomic Task Execution
@@ -26,7 +33,7 @@ Dispatch a single roadmap step to an agent. Orchestrator extracts step context f
 
 Before dispatching the agent, read rigor config from `.nwave/des-config.json` (key: `rigor`). If absent, use standard defaults.
 
-- **`agent_model`**: Pass as `model` parameter to Agent tool. If `"inherit"`, omit `model` (inherits from session).
+- **`agent_model`**: Pass as `model` parameter to #tool:agent. If `"inherit"`, omit `model` (inherits from session).
 - **`tdd_phases`**: If `["RED_UNIT", "GREEN"]` (lean), modify the TDD_PHASES section in the DES template to only include those 2 phases. Remove PREPARE/RED_ACCEPTANCE/COMMIT instructions.
 - **`refactor_pass`**: If `false`, skip COMMIT phase refactoring instructions.
 
@@ -36,7 +43,7 @@ Before dispatching the agent, read rigor config from `.nwave/des-config.json` (k
 2. Read rigor profile from `.nwave/des-config.json` (default: standard)
 3. Validate roadmap and execution-log exist
 4. Grep roadmap for `step_id: "{step-id}"` with ~50 lines context
-5. Extract step fields and invoke Agent tool with DES template below, applying rigor model and phases
+5. Extract step fields and invoke #tool:agent with DES template below, applying rigor model and phases
 
 ## Agent Invocation
 
@@ -59,7 +66,7 @@ Agent: {agent-name}
 
 # SKILL_LOADING
 Before starting TDD phases, read your skill files for methodology guidance.
-Skills path: ~/.claude/skills/nw/{agent-name}/
+Skills path: .github/skills/nw-{agent-name}/
 Always load at PREPARE: tdd-methodology.md, quality-framework.md
 Load on-demand per phase as specified in your Skill Loading Strategy table.
 
@@ -107,7 +114,7 @@ Execute in order:
 # OUTCOME_RECORDING
 After ACTUALLY EXECUTING each phase, record via DES CLI:
 
-    PYTHONPATH=$HOME/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
+    PYTHONPATH=$HOME/.github/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
       --project-dir docs/feature/{feature-id}/deliver \
       --step-id {step-id} \
       --phase {PHASE_NAME} \
@@ -116,7 +123,7 @@ After ACTUALLY EXECUTING each phase, record via DES CLI:
 
 For SKIPPED phases (genuinely not applicable):
 
-    PYTHONPATH=$HOME/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
+    PYTHONPATH=$HOME/.github/lib/python $(command -v python3 || command -v python) -m des.cli.log_phase \
       --project-dir docs/feature/{feature-id}/deliver \
       --step-id {step-id} \
       --phase {PHASE_NAME} \
@@ -148,10 +155,6 @@ Anti-Fraud Rules:
 Target: 30 turns max. If approaching limit, COMMIT current progress.
 If GREEN complete (all tests pass), MUST commit before returning — even at turn limit.
 ```
-
-**Configuration:**
-- subagent_type: extracted agent name
-- Turn limits are defined in each agent's `maxTurns` frontmatter field (not as a tool parameter)
 
 ## Error Handling
 
@@ -187,11 +190,11 @@ Resume costs ~50% more tokens/call due to context replay (measured: 3.7K vs 2.5K
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
-- [ ] Agent invoked via Agent tool (dispatcher does not execute the work)
+- [ ] Agent invoked via #tool:agent (dispatcher does not execute the work)
 - [ ] Step context extracted from roadmap and passed in prompt
 - [ ] Agent appended phase events to execution-log.json
 - [ ] Agent did not load roadmap.json

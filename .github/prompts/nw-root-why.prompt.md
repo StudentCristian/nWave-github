@@ -1,6 +1,9 @@
 ---
 description: "Root cause analysis and debugging"
-argument-hint: "[problem-description] - Optional: --depth=[3|5|7-whys] --output=[text|diagram|report]"
+argument-hint: '[problem-description] - Optional: --depth=[3|5|7-whys] --output=[text|diagram|report]'
+tools:
+- todo
+- agent
 ---
 
 # NW-ROOT-WHY: Toyota 5 Whys Root Cause Analysis
@@ -40,7 +43,7 @@ Tag items requiring nWave framework changes as **meta-improvements**.
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 

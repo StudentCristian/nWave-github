@@ -1,6 +1,10 @@
 ---
 description: "Conducts Jobs-to-be-Done analysis, UX journey design, and requirements gathering through interactive discovery. Use when starting feature analysis, defining user stories, or creating acceptance criteria."
-argument-hint: "[feature-name] - Optional: --phase=[jtbd|journey|requirements] --interactive=[high|moderate] --output-format=[md|yaml]"
+argument-hint: '[feature-name] - Optional: --phase=[jtbd|journey|requirements] --interactive=[high|moderate] --output-format=[md|yaml]'
+tools:
+- todo
+- agent
+- read/readFile
 ---
 
 # NW-DISCUSS: Jobs-to-be-Done Analysis, UX Journey Design, and Requirements Gathering
@@ -56,7 +60,7 @@ DISCUSS is the convergence wave — it takes the direction from DIVERGE (or a di
 
 If `docs/product/` does not exist, this is the first feature using the SSOT model. DISCUSS will create it (see SSOT Update below).
 
-**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using the Read tool before proceeding. After reading, output a confirmation checklist (`✓ {file}` for each read, `⊘ {file} (not found)` for missing). Do NOT skip files that exist — skipping causes requirements disconnected from evidence.
+**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using #tool:read/readFile before proceeding. After reading, output a confirmation checklist (`✓ {file}` for each read, `⊘ {file} (not found)` for missing). Do NOT skip files that exist — skipping causes requirements disconnected from evidence.
 
 After reading, check whether any DISCUSS decisions would contradict DISCOVER evidence. Flag contradictions and resolve with user before proceeding. Example: DISCOVER found "users don't want automation" but DISCUSS story assumes "automated workflow" — this must be resolved.
 
@@ -130,7 +134,7 @@ Luna crafts LeanUX stories informed by JTBD + journey artifacts. Every story tra
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
@@ -153,87 +157,3 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 
 **Handoff To**: nw-solution-architect (DESIGN wave) + nw-platform-architect (DEVOPS wave, KPIs only)
 **Deliverables**: Journey artifacts (visual + YAML) + story map (with priority rationale) + user-stories + outcome KPIs
-
-## Wave Decisions Summary
-
-Before completing DISCUSS, produce `docs/feature/{feature-id}/discuss/wave-decisions.md`:
-
-```markdown
-# DISCUSS Decisions — {feature-id}
-
-## Key Decisions
-- [D1] {decision}: {rationale} (see: {source-file})
-
-## Requirements Summary
-- Primary jobs/user needs: {1-3 sentence summary}
-- Walking skeleton scope: {if applicable}
-- Feature type: {user-facing|backend|infrastructure|cross-cutting}
-
-## Constraints Established
-- {constraint from requirements analysis}
-
-## Upstream Changes
-- {any DISCOVER assumptions changed, with rationale}
-```
-
-This summary enables DESIGN to quickly assess DISCUSS outcomes. DESIGN reads this plus key artifacts (user-stories.md, story-map.md, outcome-kpis.md) rather than all DISCUSS files.
-
-## SSOT Update
-
-After producing feature-level artifacts, update the product-level SSOT:
-
-1. **Journey SSOT**: If journey is new, create `docs/product/journeys/{name}.yaml` + `{name}-visual.md`. If journey exists, update it with new/changed steps and add a changelog entry.
-2. **Jobs SSOT**: If DIVERGE produced a validated job, ensure it is in `docs/product/jobs.yaml`. If `jobs.yaml` does not exist, create it.
-
-If `docs/product/` does not exist, create the directory structure. This is the SSOT bootstrap — first wave initializes it.
-
-SSOT files use `schema_version` and `changelog` fields. See canonical schemas in the design-methodology skill.
-
-## Expected Outputs
-
-### Feature delta (in `docs/feature/{feature-id}/discuss/`)
-```
-  user-stories.md               (includes ## System Constraints + ## Impacted Journeys + AC per story)
-  story-map.md                  (includes ## Priority Rationale)
-  dor-validation.md
-  outcome-kpis.md
-  wave-decisions.md
-```
-
-### SSOT updates (in `docs/product/`)
-```
-  journeys/{name}.yaml          (created or updated + changelog entry)
-  journeys/{name}-visual.md     (created or updated)
-  jobs.yaml                     (updated with validated jobs, if DIVERGE ran)
-```
-
-### Internal artifacts (produced but not persisted as standalone files)
-```
-  shared-artifacts-registry.md  (used during coherence validation, content folded into journey.yaml shared_artifacts)
-```
-
-## Examples
-
-### Example 1: User-facing feature after DIVERGE wave
-```
-/nw-discuss first-time-setup
-```
-Orchestrator detects DIVERGE artifacts present. Reads `recommendation.md` — direction is "proactive push notification on workflow failure". Luna reads `job-analysis.md` for the validated job statement. Runs journey discovery informed by the selected direction, produces visual journey + YAML. Crafts stories where each traces to the DIVERGE job, validates DoR, prepares handoff.
-
-### Example 2: Feature without DIVERGE
-```
-/nw-discuss new-monitoring-feature
-```
-No DIVERGE artifacts found. Luna proceeds with discovery conversation from scratch, notes the absence of a pre-validated job in `wave-decisions.md` as a risk.
-
-### Example 3: Journey-only invocation
-```
-/nw-discuss --phase=journey release-nwave
-```
-Runs only Luna's journey design phases (discovery + visualization + coherence validation). Produces journey artifacts without proceeding to requirements crafting. Useful when JTBD is already done and journey design needs standalone iteration.
-
-### Example 4: Requirements-only invocation
-```
-/nw-discuss --phase=requirements new-plugin-system
-```
-Runs only Luna's requirements phases (gathering + crafting + DoR validation). Assumes JTBD and journey artifacts already exist or are not needed (e.g., backend feature).

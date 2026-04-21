@@ -1,6 +1,13 @@
 ---
 description: "Designs system architecture with C4 diagrams and technology selection. Use when defining component boundaries, choosing tech stacks, or creating architecture documents."
-argument-hint: "[component-name] - Optional: --residuality --paradigm=[auto|oop|fp]"
+argument-hint: '[component-name] - Optional: --residuality --paradigm=[auto|oop|fp]'
+tools:
+- todo
+- agent
+- read/readFile
+- edit/createFile
+- edit/editFiles
+- edit/createDirectory
 ---
 
 # NW-DESIGN: Architecture Design
@@ -48,9 +55,7 @@ Before beginning DESIGN work, read SSOT and prior wave artifacts:
    - `outcome-kpis.md` — quality attributes informing architecture
 3. **DISCOVER** (synthesis check only): Read `docs/feature/{feature-id}/discover/wave-decisions.md` — only if architecturally relevant
 
-DISCUSS already synthesizes evidence into structured user stories. DESIGN reads SSOT architecture first (to extend, not recreate), then feature-level artifacts for the delta.
-
-**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using the Read tool before proceeding. After reading, output a confirmation checklist (`✓ {file}` for each read, `⊘ {file} (not found)` for missing). Do NOT skip files that exist — skipping causes architectural decisions disconnected from requirements.
+**READING ENFORCEMENT**: You MUST read every file listed in Prior Wave Consultation above using #tool:read/readFile before proceeding. After reading, output a confirmation checklist (`✓ {file}` for each read, `⊘ {file} (not found)` for missing). Do NOT skip files that exist — skipping causes architectural decisions disconnected from requirements.
 
 After reading, check whether any DESIGN decisions would contradict DISCUSS requirements. Flag contradictions and resolve with user before proceeding. Example: DISCUSS requires "real-time updates" but DESIGN chooses batch processing — this must be resolved.
 
@@ -83,7 +88,7 @@ Morgan identifies primary language(s) from constraints, then applies:
 - **OOP-native** (Java|C#|Go): recommend OOP
 - **Multi-paradigm** (TypeScript|Kotlin|Python|Rust|Swift): present both, let user choose based on team experience and domain fit
 
-After confirmation, ask user permission to write paradigm to project CLAUDE.md:
+After confirmation, ask user permission to write paradigm to project .github/copilot-instructions.md:
 - FP: `This project follows the **functional programming** paradigm. Use @nw-functional-software-crafter for implementation.`
 - OOP: `This project follows the **object-oriented** paradigm. Use @nw-software-crafter for implementation.`
 
@@ -115,7 +120,7 @@ When not activated: skip entirely, do not mention.
 
 Before dispatching the architect agent, read rigor config from `.nwave/des-config.json` (key: `rigor`). If absent, use standard defaults.
 
-- **`agent_model`**: Pass as `model` parameter to Task tool. If `"inherit"`, omit `model` (inherits from session).
+- **`agent_model`**: Pass as `model` parameter to #tool:agent. If `"inherit"`, omit `model` (inherits from session).
 - **`reviewer_model`**: If design review is performed, use this model for the reviewer agent. If `"skip"`, skip design review.
 - **`review_enabled`**: If `false`, skip post-design review step.
 
@@ -130,14 +135,14 @@ Before dispatching the architect agent, read rigor config from `.nwave/des-confi
 | Application / components | @nw-solution-architect | Component boundaries, hexagonal architecture, tech stack, ADRs |
 | Full stack | @nw-system-designer then @nw-ddd-architect then @nw-solution-architect | All three in sequence |
 
-Pass Decision 1 (guide/propose) to the invoked agent via `interaction_mode` parameter in the Task tool config. If the agent is invoked in a direct session (not via Task), it asks the user for the mode.
+Pass Decision 1 (guide/propose) to the invoked agent via `interaction_mode` parameter in the #tool:agent config. If the agent is invoked in a direct session (not via #tool:agent), it asks the user for the mode.
 
 All agents write to `docs/product/architecture/` (SSOT). Each architect owns its section:
 - @nw-system-designer writes `## System Architecture` in `brief.md`
 - @nw-ddd-architect writes `## Domain Model` in `brief.md`
 - @nw-solution-architect writes `## Application Architecture` in `brief.md`
 
-**Full stack invocation**: The orchestrator (this task file) makes 3 sequential Task calls:
+**Full stack invocation**: The orchestrator (this task file) makes 3 sequential #tool:agent calls:
 1. Invoke @nw-system-designer → waits for completion → `brief.md` now has `## System Architecture`
 2. Invoke @nw-ddd-architect → reads `## System Architecture` from brief.md → completes → `brief.md` now has `## Domain Model`
 3. Invoke @nw-solution-architect → reads both prior sections → completes → `brief.md` has all 3 sections
@@ -165,11 +170,11 @@ Context files: see Prior Wave Consultation above.
 - diagram_format: mermaid (C4)
 - stress_analysis: {true if --residuality flag, false otherwise}
 
-**SKILL_LOADING**: Read your skill files at `~/.claude/skills/nw/solution-architect/`. At Phase 4, always load: `architecture-patterns.md`, `architectural-styles-tradeoffs.md`. Do NOT load `roadmap-design.md` during DESIGN wave -- roadmap creation belongs to the DELIVER wave (`/nw-roadmap` or `/nw-deliver`). Then follow your Skill Loading Strategy table for phase-specific skills.
+**SKILL_LOADING**: Read your skill files at `.github/skills/nw-solution-architect/`. At Phase 4, always load: `architecture-patterns.md`, `architectural-styles-tradeoffs.md`. Do NOT load `roadmap-design.md` during DESIGN wave -- roadmap creation belongs to the DELIVER wave (`/nw-roadmap` or `/nw-deliver`). Then follow your Skill Loading Strategy table for phase-specific skills.
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
@@ -179,7 +184,7 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 - [ ] Reuse vs. new component decisions justified
 - [ ] Architecture supports all business requirements
 - [ ] Technology stack selected with clear rationale
-- [ ] Development paradigm selected and (optionally) written to project CLAUDE.md
+- [ ] Development paradigm selected and (optionally) written to project .github/copilot-instructions.md
 - [ ] Component boundaries defined with dependency-inversion compliance
 - [ ] C4 System Context + Container diagrams produced (Mermaid)
 - [ ] ADRs written with alternatives considered
@@ -189,59 +194,3 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 
 **Handoff To**: nw-platform-architect (DEVOPS wave)
 **Deliverables**: See Morgan's handoff package specification in agent file
-
-## Wave Decisions Summary
-
-Before completing DESIGN, produce `docs/feature/{feature-id}/design/wave-decisions.md`:
-
-```markdown
-# DESIGN Decisions — {feature-id}
-
-## Key Decisions
-- [D1] {decision}: {rationale} (see: {source-file})
-
-## Architecture Summary
-- Pattern: {e.g., modular monolith with ports-and-adapters}
-- Paradigm: {OOP|FP}
-- Key components: {list top-level components}
-
-## Technology Stack
-- {language/framework}: {rationale}
-
-## Constraints Established
-- {architectural constraint}
-
-## Upstream Changes
-- {any DISCUSS assumptions changed, with rationale}
-```
-
-This summary enables DEVOPS and DISTILL to quickly assess architecture decisions without reading all DESIGN files.
-
-## SSOT Update
-
-After producing feature-level artifacts, update the product-level SSOT:
-
-1. **Architecture SSOT**: Update `docs/product/architecture/brief.md` with new component boundaries, driving ports, and key decisions. Add consumer-labeled sections: `## For Acceptance Designer` (driving ports, test entry points) and `## For Software Crafter` (component boundaries, key decisions). If `brief.md` does not exist, create it.
-2. **ADRs**: Write new ADRs to `docs/product/architecture/adr-*.md`. ADRs are permanent — they accumulate, never replaced.
-3. **C4 diagrams**: Update `docs/product/architecture/c4-diagrams.md` with current component topology.
-
-If `docs/product/architecture/` does not exist, create it. This is SSOT bootstrap for architecture.
-
-## Expected Outputs
-
-### Feature delta (in `docs/feature/{feature-id}/design/`)
-```
-  wave-decisions.md              (appends ## DESIGN Decisions section)
-```
-
-### SSOT updates (in `docs/product/architecture/`)
-```
-  brief.md                       (created or updated — includes C4 diagrams, consumer-labeled sections)
-  adr-*.md                       (new ADRs for this feature)
-  c4-diagrams.md                 (current component topology, if separate from brief)
-```
-
-### Optional
-```
-CLAUDE.md (project root)         (optional: ## Development Paradigm section)
-```

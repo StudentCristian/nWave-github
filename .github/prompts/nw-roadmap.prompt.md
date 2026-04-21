@@ -1,7 +1,11 @@
 ---
 description: "Creates a phased roadmap.json for a feature goal with acceptance criteria and TDD steps. Use when planning implementation steps before execution."
-disable-model-invocation: true
 argument-hint: '[agent] [goal-description] - Example: @solution-architect "Migrate to microservices"'
+tools:
+- todo
+- agent
+- execute/runInTerminal
+- read/readFile
 ---
 
 # NW-ROADMAP: Goal Planning
@@ -35,7 +39,7 @@ You MUST execute these steps in order. Do NOT skip any.
 **Step 2 — Scaffold skeleton via CLI (mandatory, BEFORE invoking agent):**
 
 ```bash
-PYTHONPATH=~/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap init \
+PYTHONPATH=$HOME/.github/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap init \
   --project-id {feature-id} \
   --goal "{goal-description}" \
   --output docs/feature/{feature-id}/deliver/roadmap.json
@@ -46,24 +50,14 @@ If exit code non-zero, stop and report error. Do NOT write file manually.
 
 **Step 3 — Invoke agent to fill skeleton:**
 
-Skeleton exists with TODO placeholders. Invoke via Task tool:
-```
-@{agent-name}
-
-Fill in the roadmap skeleton at docs/feature/{feature-id}/deliver/roadmap.json.
-Replace every TODO with real content. Do NOT change the YAML structure
-(phases, steps, keys). Fill in: names, descriptions, acceptance criteria,
-time estimates, dependencies, and implementation_scope paths.
-
-Goal: {goal-description}
-```
+Invoke the filling agent via #tool:agent. Skeleton exists with TODO placeholders. Provide the agent the skeleton path and goal description and ask it to replace TODOs without changing YAML structure.
 
 Context to pass (if available): measurement baseline|mikado-graph.md|existing docs.
 
 **Step 4 — Validate via CLI (hard gate, mandatory):**
 
 ```bash
-PYTHONPATH=~/.claude/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap validate docs/feature/{feature-id}/deliver/roadmap.json
+PYTHONPATH=$HOME/.github/lib/python $(command -v python3 || command -v python) -m des.cli.roadmap validate docs/feature/{feature-id}/deliver/roadmap.json
 ```
 - Exit 0 -> success, roadmap ready
 - Exit 1 -> print errors, STOP, do NOT proceed
@@ -76,19 +70,17 @@ Keep agent prompt minimal. Agent knows roadmap structure and planning methodolog
 Pass: skeleton file path + goal description + measurement context (if available).
 Do not pass: YAML templates|phase guidance|step decomposition rules.
 
-For performance roadmaps, include measurement context inline so agent can validate targets against baselines.
-
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
 ### Dispatcher (you) — all 4 must be checked
 - [ ] Parameters parsed (agent name, goal, feature-id)
-- [ ] `des.cli.roadmap init` executed via Bash (exit 0)
-- [ ] Agent invoked via Task tool to fill TODO placeholders
-- [ ] `des.cli.roadmap validate` executed via Bash (exit 0)
+- [ ] `des.cli.roadmap init` executed via CLI (exit 0)
+- [ ] Agent invoked via #tool:agent to fill TODO placeholders
+- [ ] `des.cli.roadmap validate` executed via CLI (exit 0)
 
 ### Agent output (reference)
 - [ ] All TODO placeholders replaced with real content
@@ -103,31 +95,3 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 - Missing goal: show usage syntax and stop
 - Scaffold failure (exit 2): report CLI error and stop
 - Validation failure (exit 1): print errors, do not proceed
-
-## Examples
-
-### Example 1: Standard architecture roadmap
-```
-/nw-roadmap @nw-solution-architect "Migrate authentication to OAuth2"
-```
-Derives feature-id="migrate-auth-to-oauth2", scaffolds skeleton, invokes agent to fill TODOs, validates. Produces docs/feature/migrate-auth-to-oauth2/deliver/roadmap.json.
-
-### Example 2: Performance roadmap with measurement context
-```
-/nw-roadmap @nw-solution-architect "Optimize test suite execution"
-```
-Passes measurement data inline. Agent fills skeleton, validates targets against baseline, prioritizes largest bottleneck first.
-
-### Example 3: Mikado refactoring
-```
-/nw-roadmap @nw-software-crafter "Extract payment module from monolith"
-```
-Agent fills skeleton with methodology: mikado, references mikado-graph.md, maps leaf nodes to steps.
-
-## Workflow Context
-
-```bash
-/nw-roadmap @agent "goal"           # 1. Plan (init -> agent fills -> validate)
-/nw-execute @agent "feature-id" "01-01" # 2. Execute steps
-/nw-finalize @agent "feature-id"        # 3. Finalize
-```

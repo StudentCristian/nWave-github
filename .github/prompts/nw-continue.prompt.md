@@ -1,7 +1,12 @@
 ---
 description: "Detects current wave progress for a feature and resumes at the next step. Scans docs/feature/ for artifacts."
 argument-hint: "[feature-id] - Optional: omit to auto-detect from docs/feature/"
-disable-model-invocation: true
+tools:
+- todo
+- agent
+- read/readFile
+- vscode/askQuestions
+- search/textSearch
 ---
 
 # NW-CONTINUE: Resume a Feature
@@ -12,7 +17,7 @@ disable-model-invocation: true
 
 Scans `docs/feature/` for active projects, detects wave artifacts, displays progress summary, launches next wave command. Eliminates manual artifact inspection when returning after hours/days.
 
-You (main Claude instance) run this wizard directly. No subagent delegation.
+You (main instance) run this wizard directly. No subagent delegation.
 
 ## Behavior Flow
 
@@ -34,11 +39,11 @@ If multiple directories exist, list by most recent file modification:
 find docs/feature/{feature-id}/ -type f -printf '%T@ %p\n' | sort -rn | head -1
 ```
 
-Present via AskUserQuestion: project name|last modified date|most recent first. Ask user to select.
+Present via #tool:vscode/askQuestions: project name|last modified date|most recent first. Ask user to select.
 
 ### Step 3: Wave Progress Detection
 
-Check each wave's artifacts using Wave Detection Rules in `~/.claude/nWave/skills/common/wizard-shared-rules.md`.
+Check each wave's artifacts using Wave Detection Rules in `.github/skills/common/wizard-shared-rules.md`.
 
 ### Step 4: Anomaly Detection
 
@@ -76,7 +81,7 @@ Symbols: ● complete | ◐ in progress | ○ not started
 
 ### Step 7: Recommendation and Launch
 
-Recommend next wave: resume in-progress wave|successor of last complete wave. Show via AskUserQuestion for confirmation. After confirmation, invoke recommended wave command by reading its task file, passing project ID as argument.
+Recommend next wave: resume in-progress wave|successor of last complete wave. Show via #tool:vscode/askQuestions for confirmation. After confirmation, invoke recommended wave command by reading its task file, passing project ID as argument.
 
 ## Error Handling
 
@@ -90,7 +95,7 @@ Recommend next wave: resume in-progress wave|successor of last complete wave. Sh
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 

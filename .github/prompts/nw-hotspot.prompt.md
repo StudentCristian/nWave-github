@@ -1,12 +1,16 @@
 ---
 description: "Git change frequency hotspot analysis — find the most-changed files in your codebase"
-argument-hint: "[--top=N] [--since=6m] [--json] [--rank report.md] [--detail file]"
+argument-hint: '[--top=N] [--since=6m] [--json] [--rank report.md] [--detail file]'
+tools:
+- todo
+- execute/runInTerminal
+- read/readFile
 ---
 
 # NW-HOTSPOT: Code Crime Scene Hotspot Lens
 
 **Wave**: CROSS_WAVE
-**Execution**: Inline (no agent — Claude executes git commands directly)
+**Execution**: Inline (no agent — the model executes git commands directly)
 **Inspiration**: Adam Tornhill's "Your Code as a Crime Scene"
 
 ## Overview
@@ -114,12 +118,6 @@ Run `/nw-hotspot --top=10 --json` first, then pass the file list to:
 
 Run `/nw-hotspot --rank {report.md}` after any analysis to prioritize by churn.
 
-### In nWave workflows
-
-- Before `/nw-refactor` — identify which files to refactor first
-- Before `/nw-review` — focus review effort on high-churn areas
-- Before `/nw-root-why` — check if the problematic area is a known hotspot
-
 ## Next Wave
 
 **Usage Context**: Inline utility, composable with any analysis skill
@@ -142,14 +140,9 @@ Run `/nw-hotspot --rank {report.md}` after any analysis to prioritize by churn.
 /nw-hotspot --rank code-refactoring-report.md
 ```
 
-### Example 4: Investigate a specific troubled file
-```
-/nw-hotspot --detail src/services/payment.ts
-```
-
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Expected Outputs
 

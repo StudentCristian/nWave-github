@@ -1,6 +1,9 @@
 ---
 description: "Bug fix workflow: root cause analysis → user review → regression test + fix via TDD"
-argument-hint: "[bug-description] - Describe the defect observed"
+argument-hint: '[bug-description] - Describe the defect observed'
+tools:
+- todo
+- agent
 ---
 
 # NW-BUGFIX: Defect Resolution Workflow
@@ -36,12 +39,12 @@ INPUT: "{bug-description}"
 
 ### Phase 1: Root Cause Analysis
 
-**Skill loading**: The troubleshooter loads its skills from `~/.claude/skills/nw-{skill}/SKILL.md`:
+**Skill loading**: The troubleshooter loads its skills from `.github/skills/nw-{skill}/SKILL.md`:
 - `nw-five-whys-methodology` — core investigation methodology
 - `nw-investigation-techniques` — systematic debugging patterns
 - `nw-post-mortem-framework` — structured incident analysis
 
-Invoke @nw-troubleshooter via Agent tool:
+Invoke @nw-troubleshooter via #tool:agent:
 
 ```
 Execute *investigate-root-cause for the following defect:
@@ -86,7 +89,7 @@ If user approves → proceed to Phase 3.
 ### Phase 3: Regression Test + Fix (via /nw-deliver)
 
 This phase delegates entirely to `/nw-deliver`, which handles:
-- Paradigm detection (reads project CLAUDE.md for `## Development Paradigm`)
+- Paradigm detection (reads project .github/copilot-instructions.md for `## Development Paradigm`)
 - Crafter selection (@nw-software-crafter for OOP, @nw-functional-software-crafter for FP)
 - DES enforcement with proper markers
 - Rigor profile from `.nwave/des-config.json`
@@ -120,7 +123,7 @@ The crafter handles the 5-phase TDD cycle (PREPARE → RED → GREEN → COMMIT)
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
@@ -130,37 +133,3 @@ The invoked agent MUST create a task list from its workflow phases at the start 
 - [ ] Fix implemented that makes the regression test pass
 - [ ] All existing tests still pass (no regressions)
 - [ ] Commit with conventional message: `fix(scope): description`
-
-## Examples
-
-### Example 1: Runtime crash
-```
-/nw-bugfix "DES hook crashes with FileNotFoundError when template schema is missing"
-```
-Phase 1: Rex traces to missing `step-tdd-cycle-schema.json` in plugin cache.
-Phase 2: User confirms.
-Phase 3: `/nw-deliver "fix-missing-template-schema"` → crafter writes `test_bug_missing_template_schema.py` (RED), adds fallback path resolution (GREEN), commits.
-
-### Example 2: Silent failure
-```
-/nw-bugfix "Skills plugin reports success but installs zero files when source has nw-prefixed layout"
-```
-Phase 1: Rex traces to `is_public_skill()` returning False for all nw-prefixed names due to ownership map key mismatch.
-Phase 2: User confirms.
-Phase 3: `/nw-deliver "fix-ownership-map-keys"` → crafter writes regression test with nw-prefixed fixture (RED), fixes ownership map keys (GREEN), commits.
-
-### Example 3: Functional project bug
-```
-/nw-bugfix "Pipeline composition breaks when filter predicate returns None"
-```
-Phase 1: Rex traces to missing None guard in compose() function.
-Phase 2: User confirms.
-Phase 3: `/nw-deliver "fix-compose-none-guard"` → paradigm detected as FP → @nw-functional-software-crafter writes property-based test (RED), adds None guard (GREEN), commits.
-
-## Notes
-
-- This command is for **known defects** (something is broken). For new features, use `/nw-deliver`.
-- The regression test is the primary deliverable — it prevents the bug from recurring.
-- Keep the fix minimal. Refactoring belongs in `/nw-refactor`, not here.
-- If the RCA reveals a design flaw (not just a code bug), escalate to `/nw-design` before fixing.
-- Phase 3 uses `/nw-deliver` which handles paradigm detection, DES enforcement, and rigor profile automatically.

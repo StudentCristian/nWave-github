@@ -1,6 +1,9 @@
 ---
 description: "Conducts evidence-based product discovery through customer interviews and assumption testing. Use at project start to validate problem-solution fit."
-argument-hint: "[product-concept] - Optional: --interview-depth=[overview|comprehensive] --output-format=[md|yaml]"
+argument-hint: '[product-concept] - Optional: --interview-depth=[overview|comprehensive] --output-format=[md|yaml]'
+tools:
+- todo
+- agent
 ---
 
 # NW-DISCOVER: Evidence-Based Product Discovery
@@ -62,11 +65,11 @@ Execute \*discover for {product-concept-name}.
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
-Refer to Scout's quality gates in ~/.claude/agents/nw/nw-product-discoverer.md.
+Refer to Scout's quality gates in .github/agents/nw-product-discoverer.agent.md.
 
 - [ ] All 4 decision gates passed (G1-G4)
 - [ ] Minimum interview thresholds met per phase

@@ -1,6 +1,10 @@
 ---
 description: "Dispatches an expert reviewer agent to critique workflow artifacts. Use when a roadmap, implementation, or step needs quality review before proceeding."
 argument-hint: '[agent] [artifact-type] [artifact-path] - Example: @software-crafter task "roadmap.json"'
+tools:
+- todo
+- agent
+- read/readFile
 ---
 
 # NW-REVIEW: Expert Critique and Quality Assurance
@@ -64,7 +68,7 @@ Findings MUST be priority-ordered: blocking issues first, then suggestions, then
 Before dispatching the reviewer agent, read rigor config from `.nwave/des-config.json` (key: `rigor`). If absent, use standard defaults.
 
 - **`review_enabled`**: If `false`, skip the review entirely. Output: "Review skipped per rigor profile (review_enabled=false)."
-- **`reviewer_model`**: Pass as `model` parameter to Task tool. If `"skip"`, skip the review. Overrides the default Haiku model.
+- **`reviewer_model`**: Pass as `model` parameter to #tool:agent. If `"skip"`, skip the review. Overrides the default Haiku model.
 - **`double_review`**: If `true` and called from deliver Phase 4, the caller is responsible for invoking review twice.
 
 ## Agent Derivation
@@ -79,7 +83,7 @@ Default model: Haiku (overridden by `rigor.reviewer_model` when set).
 
 ## Agent Invocation
 
-Parse parameters, validate, then invoke via Task tool:
+Parse parameters, validate, then invoke via #tool:agent:
 
 ```python
 Task(
@@ -102,7 +106,7 @@ On validation failure, return specific error and stop.
 
 ## Progress Tracking
 
-The invoked agent MUST create a task list from its workflow phases at the start of execution using TaskCreate. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
+The invoked agent MUST create a task list from its workflow phases at the start of execution using #tool:todo. Each phase becomes a task with the gate condition as completion criterion. Mark tasks in_progress when starting each phase and completed when the gate passes. This gives the user real-time visibility into progress.
 
 ## Success Criteria
 
@@ -123,25 +127,6 @@ Invokes `nw-software-crafter-reviewer` with step review of execution log, step 0
 /nw-review @nw-solution-architect roadmap "docs/feature/auth-upgrade/roadmap.json"
 ```
 Invokes `nw-solution-architect-reviewer` with roadmap review.
-
-### Example 3: Implementation review
-```
-/nw-review @nw-platform-architect implementation "docs/feature/auth-upgrade/execution-log.json" step_id=01-01
-```
-Invokes `nw-platform-architect-reviewer` with implementation review of step 01-01.
-
-### Example 4: RPP code quality review
-```
-/nw-review @nw-software-crafter implementation "src/des/" --dimensions=rpp --from=1 --to=3
-```
-Invokes `nw-software-crafter-reviewer` with implementation review + RPP L1-L3 code smell detection using cascade rule.
-
-## Error Messages
-
-- Invalid agent: "Unknown agent: {name}. Check available agents with /nw-agents."
-- Invalid type: "Invalid artifact type: {type}. Use: baseline, roadmap, step, task, implementation."
-- Missing file: "Artifact not found: {path}."
-- Missing step_id: "step_id required for {type} reviews."
 
 ## Next Wave
 
