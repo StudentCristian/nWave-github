@@ -1,7 +1,7 @@
 """Hook driver adapters.
 
 Legacy SubagentStopHook removed. Production validation uses
-claude_code_hook_adapter -> SubagentStopService.
+copilot_hook_adapter -> SubagentStopService.
 
 MockedSubagentStopHook retained for orchestrator tests that need a HookPort stub.
 """

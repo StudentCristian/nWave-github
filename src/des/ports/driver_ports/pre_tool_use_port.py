@@ -1,9 +1,9 @@
 """PreToolUsePort - driver port for validating Agent tool invocations.
 
-Abstract interface defining how the Claude Code hook adapter communicates
+Abstract interface defining how the hook adapter communicates
 with the application layer for pre-tool-use validation.
 
-Called by: ClaudeCodeHookAdapter when PreToolUse hook fires for Agent tool.
+Called by: CopilotHookAdapter when PreToolUse hook fires for Agent tool.
 Implemented by: PreToolUseService (application layer).
 """
 
@@ -66,7 +66,7 @@ class PreToolUsePort(ABC):
     """Driver port: validates Agent tool invocations before execution.
 
     This is the application-layer interface that the hook adapter calls.
-    The adapter translates Claude Code's JSON protocol into PreToolUseInput,
+    The adapter translates the hook JSON protocol into PreToolUseInput,
     calls this port, and translates HookDecision back to JSON + exit code.
     """
 

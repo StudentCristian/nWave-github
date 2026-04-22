@@ -4,8 +4,8 @@ Pure business rules for validating TDD phase completion of a step.
 No I/O dependencies - operates on in-memory PhaseEvent lists and TDDSchema.
 
 Replaces inline validation in:
-- SubagentStopHook._validate_from_execution_log() (lines 199-324)
-- claude_code_hook_adapter._verify_step_from_append_only_log()
+-- SubagentStopHook._validate_from_execution_log() (lines 199-324)
+- hook_adapter (legacy extraction)
 
 Validation rules (from TDDSchema):
 1. All 7 TDD phases must have an event (missing = abandoned)

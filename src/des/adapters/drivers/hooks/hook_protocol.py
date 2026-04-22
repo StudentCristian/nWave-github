@@ -11,7 +11,7 @@ caller can control which writer is used.  This enables tests that patch
 ``adapter._create_audit_writer`` to inject spy writers without coupling
 function globals to a specific module.
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition (step 4a).
+Extracted from copilot_hook_adapter.py as part of P4 decomposition (step 4a).
 """
 
 import json
@@ -186,7 +186,7 @@ def log_hook_invoked(
 ) -> None:
     """Log a HOOK_INVOKED diagnostic event at handler entry.
 
-    This confirms the hook was actually called by Claude Code.
+    This confirms the hook was actually called by GitHub Copilot.
     Without this, silent passthrough is indistinguishable from hook-not-firing.
 
     Args:

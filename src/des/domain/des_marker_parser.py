@@ -3,7 +3,7 @@
 Pure business rule for detecting and parsing DES HTML comment markers
 in Task prompts. No I/O dependencies.
 
-Replaces inline regex in claude_code_hook_adapter.handle_pre_tool_use()
+Replaces inline regex in copilot_hook_adapter.handle_pre_tool_use()
 (lines 123-134).
 
 Marker formats:

@@ -1,9 +1,9 @@
 """SubagentStopPort - driver port for validating step completion.
 
-Abstract interface defining how the Claude Code hook adapter communicates
+Abstract interface defining how the hook adapter communicates
 with the application layer for subagent-stop validation.
 
-Called by: ClaudeCodeHookAdapter when SubagentStop hook fires.
+Called by: CopilotHookAdapter when SubagentStop hook fires.
 Implemented by: SubagentStopService (application layer).
 """
 
@@ -46,7 +46,7 @@ class SubagentStopPort(ABC):
     """Driver port: validates step completion when a subagent finishes.
 
     This is the application-layer interface that the hook adapter calls.
-    The adapter translates Claude Code's JSON protocol into SubagentStopContext,
+    The adapter translates the hook JSON protocol into SubagentStopContext,
     calls this port, and translates HookDecision back to JSON + exit code.
     """
 

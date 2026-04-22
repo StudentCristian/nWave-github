@@ -3,7 +3,7 @@
 Reads the audit log for the most recent HOOK_SUBAGENT_STOP_FAILED entry.
 If found, injects additionalContext so the orchestrator knows a sub-agent failed.
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition.
+Extracted from copilot_hook_adapter.py as part of P4 decomposition.
 """
 
 import contextlib

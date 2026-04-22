@@ -246,9 +246,9 @@ line-ending = "auto"
 version = "3.11.0"  
 version_scheme = "pep440"  
 version_files = [  
-    "nWave-github/VERSION",  
-    "nWave-github/framework-catalog.yaml:version",  
-]  
+    "VERSION",  
+    "framework-catalog.yaml:version",  
+]
 tag_format = "v$version"  
 name = "cz_conventional_commits"  
 commit_parser = "conventional"  

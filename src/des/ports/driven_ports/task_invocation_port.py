@@ -2,7 +2,7 @@
 TaskInvocationPort interface for sub-agent task invocation in DES.
 
 Defines the contract for invoking sub-agent tasks, abstracting away the
-specific implementation (Claude Code Task tool, mock for testing, etc.).
+specific implementation (GitHub Copilot task invocation, mock for testing, etc.).
 """
 
 from abc import ABC, abstractmethod

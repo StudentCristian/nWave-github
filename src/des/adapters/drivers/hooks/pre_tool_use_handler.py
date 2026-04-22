@@ -1,10 +1,10 @@
 """PreToolUse handler — validates Task/Agent tool invocations.
 
-Translates Claude Code's PreToolUse hook event (JSON stdin) into
+Translates GitHub Copilot's PreToolUse hook event (JSON stdin) into
 PreToolUseService decisions (allow/block), manages DES task signal creation,
 and emits audit events through hook_protocol.
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition.
+Extracted from copilot_hook_adapter.py as part of P4 decomposition.
 """
 
 import contextlib
@@ -67,7 +67,7 @@ def handle_pre_tool_use() -> int:
             )
 
             # Extract protocol fields
-            # Claude Code sends: {"tool_name": "Agent", "tool_input": {...}, ...}
+            # Hook protocol sends: {"tool_name": "Agent", "tool_input": {...}, ...}
             prompt = tool_input.get("prompt", "")
 
             # Delegate to application service

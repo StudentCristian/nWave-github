@@ -1,7 +1,7 @@
 """No-op hook adapter for DES orchestrator.
 
 Used by create_with_defaults() since production validation runs through
-claude_code_hook_adapter -> SubagentStopService, bypassing the orchestrator's hook.
+copilot_hook_adapter -> SubagentStopService, bypassing the orchestrator's hook.
 """
 
 from __future__ import annotations

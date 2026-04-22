@@ -1,6 +1,6 @@
 """Deliver progress handler - SubagentStop hook for tracking delivery progress.
 
-Integrates with Claude Code's SubagentStop hook event to track which roadmap
+Integrates with GitHub Copilot's SubagentStop hook event to track which roadmap
 steps have been completed. When all steps are done, prints a reminder about
 remaining orchestrator phases (3-9) to stderr.
 """

@@ -3,7 +3,7 @@
 The shell fast-path tests for deliver-session.json BEFORE invoking Python.
 This handler only runs during active deliver sessions.
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition.
+Extracted from copilot_hook_adapter.py as part of P4 decomposition.
 """
 
 import contextlib

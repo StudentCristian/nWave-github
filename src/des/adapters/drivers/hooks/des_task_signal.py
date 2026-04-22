@@ -13,7 +13,7 @@ Two API levels:
 - Module-level constants + convenience wrappers use default paths (the single
   patch point for tests — patch DES_SESSION_DIR / DES_TASK_ACTIVE_FILE here)
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition.
+Extracted from copilot_hook_adapter.py as part of P4 decomposition.
 """
 
 import json
