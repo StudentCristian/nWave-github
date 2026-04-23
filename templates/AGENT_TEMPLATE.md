@@ -1,19 +1,22 @@
-# nWave Agent Template
+```
+# nWave Agent Template (GitHub Copilot)
 
-Version: 1.0 (2026-02-28)
-Extracted from analysis of 23 production agents (12 specialists + 11 reviewers).
+Version: 2.0 (2026-04-22)
+Adapted from Claude Code template v1.0. Based on analysis of 23 production agents (12 specialists + 11 reviewers).
 
 ## Frontmatter Schema
 
 ```yaml
 ---
-name: nw-{agent-name}                    # REQUIRED. kebab-case with nw- prefix
+name: nw-{agent-name}                    # Optional. kebab-case with nw- prefix. Defaults to filename
 description: {delegation criteria}        # REQUIRED. Starts with "Use for..." or wave name
-model: inherit                            # REQUIRED. inherit|haiku|sonnet|opus
-tools: Read, Glob, Grep                   # REQUIRED. Comma-separated, least privilege
-maxTurns: 30                              # REQUIRED. 15-50 range
-skills:                                   # OPTIONAL. List of skill file basenames
-  - {skill-name}                          #   Path: nWave/skills/{agent-name}/{skill-name}.md
+tools:                                    # Optional. YAML array of tool aliases (least privilege)
+- read
+- search
+agents:                                   # Optional. Restrict allowed subagents by name
+- nw-{agent-name}-reviewer
+user-invocable: true                      # Optional. Show in agent picker (default: true)
+disable-model-invocation: false           # Optional. Prevent subagent invocation (default: false)
 ---
 ```
 
@@ -21,36 +24,51 @@ skills:                                   # OPTIONAL. List of skill file basenam
 
 | Field | Type | Required | Valid Values | Notes |
 |-------|------|----------|--------------|-------|
-| name | string | yes | `nw-{kebab-case}` | Must match filename without `.md` |
-| description | string | yes | Free text | Start with "Use for {domain}" or "{WAVE} wave" |
-| model | enum | yes | `inherit`, `haiku`, `sonnet`, `opus` | Reviewers use `haiku`; specialists use `inherit` |
-| tools | string | yes | See tool list below | Comma-separated, no brackets |
-| maxTurns | integer | yes | 10-65 | Specialists: 30-50; reviewers: 15-30 |
-| skills | list | no | Skill basenames | Frontmatter is declarative only -- agent must load via Read tool |
+| name | string | no | `nw-{kebab-case}` | Defaults to filename without `.agent.md` |
+| description | string | yes | Free text | Start with "Use for {domain}" or "{WAVE} wave". Keyword-rich for subagent discovery |
+| tools | array | no | See tool list below | YAML array of aliases or specific tools. Omit = defaults |
+| agents | array | no | Agent names | Restrict which agents can be invoked as subagents. Omit = all, `[]` = none |
+| model | string/array | no | Model names | Specific model or prioritized fallback array. Omit = uses picker default |
+| user-invocable | boolean | no | `true`/`false` | Default `true`. Set `false` for subagent-only agents |
+| disable-model-invocation | boolean | no | `true`/`false` | Default `false`. Set `true` to prevent auto-invocation as subagent |
+| handoffs | list | no | See handoffs below | Suggested next actions to transition between agents |
+| hooks | object | no | Hook commands | Preview. Scoped hooks that only run when this agent is active |
 
 ### Available Tools
 
-| Tool | Purpose | Typical Users |
-|------|---------|---------------|
-| Read | Read files | All agents |
-| Write | Create/overwrite files | Specialists only |
-| Edit | Edit existing files | Specialists only |
-| Bash | Run shell commands | Implementation agents |
-| Glob | Find files by pattern | All agents |
-| Grep | Search file contents | All agents |
-| Task | Invoke sub-agents | Agents with peer review |
-| WebSearch | Search the web | Researcher only |
-| WebFetch | Fetch web pages | Researcher only |
+| Alias | Specific Tool | Purpose | Typical Users |
+|-------|---------------|---------|---------------|
+| `read` | `read/readFile` | Read files | All agents |
+| `edit` | `edit/createFile` | Create/overwrite files | Specialists only |
+| `edit` | `edit/editFiles` | Edit existing files | Specialists only |
+| `execute` | `execute/runInTerminal` | Run shell commands | Implementation agents |
+| `search` | `search/fileSearch` | Find files by pattern | All agents |
+| `search` | `search/textSearch` | Search file contents | All agents |
+| `agent` | `agent/runSubagent` | Invoke sub-agents | Agents with peer review |
+| `web` | `web/search` | Search the web | Researcher only |
+| `web` | `web/fetch` | Fetch web pages | Researcher only |
+| `todo` | `todo` | Manage task lists | Orchestrators |
+| `vscode` | `vscode/askQuestions` | Ask user questions | Interactive agents |
 
 ### Tool Profiles (Common Patterns)
 
-| Profile | Tools | Used By |
-|---------|-------|---------|
-| Reviewer | `Read, Glob, Grep, Task` | All `-reviewer` agents |
-| Read-only reviewer | `Read, Glob, Grep` | `product-owner-reviewer`, `documentarist-reviewer` |
-| Specialist (full) | `Read, Write, Edit, Bash, Glob, Grep, Task` | software-crafter, acceptance-designer |
-| Specialist (no bash) | `Read, Write, Edit, Glob, Grep, Task` | solution-architect, product-owner |
-| Research | `Read, Write, Edit, Glob, Grep, WebFetch, WebSearch` | researcher |
+| Profile | Tools (frontmatter) | Used By |
+|---------|---------------------|---------|
+| Reviewer | `[read, search, agent]` | All `-reviewer` agents |
+| Read-only reviewer | `[read, search]` | `product-owner-reviewer`, `documentarist-reviewer` |
+| Specialist (full) | `[read, edit, execute, search, agent]` | software-crafter, acceptance-designer |
+| Specialist (no terminal) | `[read, edit, search, agent]` | solution-architect, product-owner |
+| Research | `[read, edit, search, web]` | researcher |
+
+### Handoffs (Optional)
+
+```yaml
+handoffs:
+  - label: "Start Implementation"      # Button text shown after response
+    agent: nw-software-crafter          # Target agent identifier
+    prompt: "Implement the plan above." # Pre-filled prompt for target agent
+    send: false                         # Auto-submit (default: false)
+```
 
 ---
 
@@ -59,12 +77,12 @@ skills:                                   # OPTIONAL. List of skill file basenam
 ```markdown
 ---
 name: nw-{agent-name}
-description: {Use for {domain}. {When to delegate -- one sentence.}}
-model: inherit
-tools: {tool-list}
-maxTurns: 30
-skills:
-  - {skill-name}
+description: "{Use for {domain}. {When to delegate -- one sentence.}}"
+tools:
+- {tool-alias-1}
+- {tool-alias-2}
+agents:
+- nw-{agent-name}-reviewer
 ---
 
 # nw-{agent-name}
@@ -73,7 +91,7 @@ You are {PersonaName}, a {Role Title} specializing in {domain}.
 
 Goal: {measurable success criteria in one sentence}.
 
-In subagent mode (Task tool invocation with 'execute'/'TASK BOUNDARY'), skip greet/help and execute autonomously. Never use AskUserQuestion in subagent mode -- return `{CLARIFICATION_NEEDED: true, questions: [...]}` instead.
+In subagent mode (invoked via `#tool:agent/runSubagent` with 'execute'/'TASK BOUNDARY'), skip greet/help and execute autonomously. Never use `#tool:vscode/askQuestions` in subagent mode -- return `{CLARIFICATION_NEEDED: true, questions: [...]}` instead.
 
 ## Core Principles
 
@@ -87,7 +105,7 @@ These {N} principles diverge from defaults -- they define your specific methodol
 
 You MUST load your skill files before beginning any work. Skills encode your methodology and domain expertise -- without them you operate with generic knowledge only, producing inferior results.
 
-**How**: Use the Read tool to load files from `~/.claude/skills/nw/{agent-name}/`
+**How**: Use `#tool:read/readFile` to load files from `.github/skills/nw-{skill-name}/SKILL.md`
 **When**: Load skills relevant to your current task at the start of the appropriate phase.
 **Rule**: Never skip skill loading. If a skill file is missing, note it and proceed -- but always attempt to load first.
 
@@ -97,38 +115,38 @@ Load on-demand by phase, not all at once. Each skill loading decision uses one o
 
 | Strategy | When | Example |
 |----------|------|---------|
-| **Always** | Core methodology the agent cannot function without | `tdd-methodology` for software-crafter |
-| **Conditional** | Domain-specific knowledge needed only for certain inputs | `fp-kotlin` only when target language is Kotlin |
-| **On-demand** | Reference material loaded when a specific pattern is detected | `mikado-method` only when refactoring is complex |
-| **Cross-ref** | Skill from paired agent's directory (shared knowledge) | reviewer loading `tdd-methodology` from crafter |
+| **Always** | Core methodology the agent cannot function without | `nw-tdd-methodology` for software-crafter |
+| **Conditional** | Domain-specific knowledge needed only for certain inputs | `nw-fp-kotlin` only when target language is Kotlin |
+| **On-demand** | Reference material loaded when a specific pattern is detected | `nw-mikado-method` only when refactoring is complex |
+| **Cross-ref** | Skill from paired agent's skill directory (shared knowledge) | reviewer loading `nw-tdd-methodology` from crafter's skills |
 
 ### Skill Loading Table
 
 | Phase | Load | Strategy | Trigger |
 |-------|------|----------|---------|
-| {N} {Phase Name} | `{skill-name}` | Always | {reason this skill is always needed} |
-| {N} {Phase Name} | `{skill-name}` | Conditional | When {condition is true} |
-| {N} {Phase Name} | `{skill-name}` | On-demand | When {pattern detected in input} |
+| {N} {Phase Name} | `nw-{skill-name}` | Always | {reason this skill is always needed} |
+| {N} {Phase Name} | `nw-{skill-name}` | Conditional | When {condition is true} |
+| {N} {Phase Name} | `nw-{skill-name}` | On-demand | When {pattern detected in input} |
 
 ### Loading Principles
 
 1. **Lazy over eager**: Load skills at the phase that needs them, not at start. Saves context window.
 2. **Core first, specialty second**: Always-load skills first, then conditional ones based on input analysis.
 3. **Detect before load**: Analyze the task input to decide which conditional skills are needed.
-4. **Cross-ref explicitly**: When loading from another agent's directory, state the path explicitly.
+4. **Cross-ref explicitly**: When loading from another agent's skill directory, state the path explicitly.
 5. **Fail gracefully**: If a skill file is missing, log it and proceed with degraded capability.
 
-Skills path: `~/.claude/skills/nw/{agent-name}/`
+Skills path: `.github/skills/nw-{skill-name}/SKILL.md`
 
 ## Workflow
 
 ### Phase 1: {Phase Name}
-Load: `{skill-name}` -- read it NOW before proceeding.
+Load: `nw-{skill-name}` -- read it NOW before proceeding.
 {Phase description with key steps separated by |}.
 Gate: {what must be true to proceed}.
 
 ### Phase 2: {Phase Name}
-Load: `{skill-name}` -- read it NOW before proceeding.
+Load: `nw-{skill-name}` -- read it NOW before proceeding.
 {Phase description}.
 Gate: {quality gate criteria}.
 
@@ -139,7 +157,7 @@ Gate: {final quality gate}.
 ## Peer Review Protocol
 
 ### Invocation
-Use Task tool to invoke {agent-name}-reviewer during Phase {N}.
+Use `#tool:agent/runSubagent` to invoke {agent-name}-reviewer during Phase {N}.
 
 ### Workflow
 1. {Agent} produces deliverables
@@ -183,7 +201,7 @@ All commands require `*` prefix.
 {Expected behavior}
 
 ### Example 3: {Subagent Mode}
-Via Task: {scenario}
+Via subagent: {scenario}
 {Expected autonomous behavior}
 
 ## Critical Rules
@@ -227,7 +245,7 @@ Via Task: {scenario}
 | Commands | Agents with 2+ internal commands |
 | Output Format | Agents producing structured output (YAML) |
 | Anti-Patterns | Agents where common mistakes cause harm |
-
+```
 ### Persona Names (Registry)
 
 | Agent | Persona | Role |

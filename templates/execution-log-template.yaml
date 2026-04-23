@@ -30,12 +30,12 @@ events: []
 
 # Usage Instructions for Agent:
 # 1. DO NOT read this file (orchestrator provides current state in prompt)
-# 2. After EACH phase completion, append ONE event line using Bash:
+# 2. After EACH phase completion, append ONE event line using #tool:execute/runInTerminal:
 #    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 #    echo '  - "01-01|PREPARE|EXECUTED|PASS|'$timestamp'"' >> execution-log.json
-# 3. Use Edit tool with careful string escaping if Bash unavailable
+# 3. Use #tool:edit/editFile with careful string escaping if terminal unavailable
 # 4. NEVER re-read this file (append-only, no verification reads)
-# 5. SubagentStop hook validates completion at end
+# 5. Post-execution hook validates completion at end
 
 # Valid SKIPPED Prefixes (allow commit):
 # - "NOT_APPLICABLE:" - Phase not applicable for this task type

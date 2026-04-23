@@ -1,7 +1,7 @@
-# nWave Reviewer Agent Template
+# nWave Reviewer Agent Template (GitHub Copilot)
 
-Version: 1.0 (2026-02-28)
-Extracted from analysis of 11 production reviewer agents.
+Version: 2.0 (2026-04-22)
+Adapted from analysis of 11 production reviewer agents. GitHub Copilot `.agent.md` format.
 
 Reviewers are a distinct agent category using the Reflection pattern. They pair with a
 specialist agent to provide adversarial quality review before handoff to the next wave.
@@ -10,34 +10,55 @@ specialist agent to provide adversarial quality review before handoff to the nex
 
 | Aspect | Specialist | Reviewer |
 |--------|-----------|----------|
-| Model | `inherit` | `haiku` |
-| Tools | Full (Read/Write/Edit/Bash/Glob/Grep/Task) | Read-only + Task (`Read, Glob, Grep, Task`) |
+| Tools | Full (`read, edit, execute, search, agent`) | Read-only + agent (`read, search, agent`) |
 | Purpose | Produce deliverables | Critique deliverables |
 | Output | Files, code, documents | Structured YAML feedback |
-| Iterations | Unlimited within turns | Max 2 review cycles |
+| Iterations | Unlimited | Max 2 review cycles |
 | Naming | `nw-{name}` | `nw-{name}-reviewer` |
+| Filename | `nw-{name}.agent.md` | `nw-{name}-reviewer.agent.md` |
 
 ## Frontmatter Schema
 
 ```yaml
 ---
 name: nw-{agent-name}-reviewer            # REQUIRED. Matches specialist + "-reviewer"
-description: {review scope description}    # REQUIRED. Include "Runs on Haiku for cost efficiency"
-model: haiku                               # REQUIRED. Always haiku for reviewers
-tools: Read, Glob, Grep, Task             # REQUIRED. Read-only + Task for skill loading
-maxTurns: 30                               # REQUIRED. 15-30 range
-skills:                                    # OPTIONAL. Reviewer-specific + cross-referenced
-  - {reviewer-specific-skill}              #   From: nWave/skills/{agent-name}-reviewer/
-  - {shared-skill}                         #   Cross-ref from: nWave/skills/{agent-name}/
+description: {review scope description}    # REQUIRED. Include review domain
+tools:                                     # REQUIRED. YAML array, least privilege
+  - read                                   #   Alias for read/readFile
+  - search                                 #   Alias for search/fileSearch + search/textSearch
+  - agent                                  #   Alias for agent/runSubagent (skill loading + sub-agents)
 ---
 ```
 
-### Tool Variants
+### Field Reference
 
-| Variant | Tools | When |
-|---------|-------|------|
-| Standard reviewer | `Read, Glob, Grep, Task` | Most reviewers (Task for skill loading) |
-| Pure read-only | `Read, Glob, Grep` | Reviewers that never invoke sub-agents |
+| Field | Type | Required | Valid Values | Notes |
+|-------|------|----------|--------------|-------|
+| name | string | yes | `nw-{kebab-case}-reviewer` | Must match filename without `.agent.md` |
+| description | string | yes | Free text | Start with "Use for {domain} review" |
+| tools | list | yes | See tool aliases below | YAML array with Copilot aliases |
+
+### Available Tool Aliases
+
+| Alias | Resolves To | Purpose | Typical Users |
+|-------|-------------|---------|---------------|
+| `read` | `read/readFile` | Read files | All agents |
+| `edit` | `edit/editFile`, `edit/createFile` | Edit/create files | Specialists only |
+| `execute` | `execute/runInTerminal` | Run shell commands | Implementation agents |
+| `search` | `search/fileSearch`, `search/textSearch` | Find files and search contents | All agents |
+| `agent` | `agent/runSubagent` | Invoke sub-agents | Agents with peer review |
+| `web` | `web/webSearch`, `web/fetch` | Search/fetch web | Researcher only |
+| `todo` | `todo/addTodo`, `todo/getTodos` | Task tracking | Orchestrators |
+
+### Tool Profiles (Common Patterns)
+
+| Profile | Tools | Used By |
+|---------|-------|---------|
+| Reviewer | `[read, search, agent]` | All `-reviewer` agents |
+| Read-only reviewer | `[read, search]` | `product-owner-reviewer`, `documentarist-reviewer` |
+| Specialist (full) | `[read, edit, execute, search, agent]` | software-crafter, acceptance-designer |
+| Specialist (no execute) | `[read, edit, search, agent]` | solution-architect, product-owner |
+| Research | `[read, edit, search, web]` | researcher |
 
 ---
 
@@ -46,12 +67,11 @@ skills:                                    # OPTIONAL. Reviewer-specific + cross
 ```markdown
 ---
 name: nw-{agent-name}-reviewer
-description: Use for review and critique tasks - {Domain} review specialist. Runs on Haiku for cost efficiency.
-model: haiku
-tools: Read, Glob, Grep, Task
-maxTurns: 30
-skills:
-  - {critique-dimensions-or-review-criteria}
+description: Use for review and critique tasks - {Domain} review specialist.
+tools:
+  - read
+  - search
+  - agent
 ---
 
 # nw-{agent-name}-reviewer
@@ -60,7 +80,7 @@ You are {PersonaName}, a {Review Role} specializing in {review domain}.
 
 Goal: {what the review validates} -- producing structured YAML review feedback with severity ratings and clear approval verdict.
 
-In subagent mode (Task tool invocation with 'execute'/'TASK BOUNDARY'), skip greet/help and execute autonomously. Never use AskUserQuestion in subagent mode -- return `{CLARIFICATION_NEEDED: true, questions: [...]}` instead.
+When invoked as a subagent, skip greet/help and execute autonomously. Never use #tool:vscode/askQuestions in subagent mode -- return `{CLARIFICATION_NEEDED: true, questions: [...]}` instead.
 
 ## Core Principles
 
@@ -76,7 +96,7 @@ These {N} principles diverge from defaults -- they define your review methodolog
 
 You MUST load your skill files before beginning any work. Skills encode your review criteria and quality thresholds -- without them you operate with generic knowledge only, producing inferior assessments.
 
-**How**: Use the Read tool to load files from `~/.claude/skills/nw/{agent-name}-reviewer/`
+**How**: Use #tool:read/readFile to load files from `.github/skills/nw-{agent-name}-reviewer/`
 **When**: Load skills relevant to your current task at the start of the appropriate phase.
 **Rule**: Never skip skill loading. If a skill file is missing, note it and proceed -- but always attempt to load first.
 
@@ -86,7 +106,7 @@ Load on-demand by phase, not all at once:
 |-------|------|---------|
 | {N} {Phase Name} | `{skill-name}` | Always -- {review criteria or dimensions} |
 
-Skills path: `~/.claude/skills/nw/{agent-name}-reviewer/`
+Skills path: `.github/skills/nw-{agent-name}-reviewer/`
 
 ## Workflow
 
@@ -153,11 +173,11 @@ All dimensions pass. Zero blockers. Output: approved.
 High-severity but not blocking. Output: conditionally_approved.
 
 ### Example 4: Subagent Mode
-Via Task: "{review request}". Execute full review workflow autonomously. Return YAML verdict directly. No greeting.
+Invoked as subagent: "{review request}". Execute full review workflow autonomously. Return YAML verdict directly. No greeting.
 
 ## Critical Rules
 
-1. Read-only: never write, edit, or delete files. Review output returned inline or via Task response.
+1. Read-only: never write, edit, or delete files. Review output returned inline or via subagent response.
 2. Every finding includes severity, evidence location, and specific recommendation.
 3. Never approve with unaddressed critical issues. Zero tolerance.
 4. Max 2 review iterations per artifact. Escalate after that.
@@ -165,7 +185,7 @@ Via Task: "{review request}". Execute full review workflow autonomously. Return 
 ## Constraints
 
 - Reviews {domain} artifacts only. Does not create, modify, or execute.
-- Tools restricted to read-only (Read|Glob|Grep) plus Task for skill loading.
+- Tools restricted to read-only (`read`|`search`) plus `agent` for skill loading.
 - Does not review artifacts outside its domain.
 - Token economy: structured YAML output, no prose beyond findings.
 ```
@@ -190,28 +210,30 @@ Via Task: "{review request}". Execute full review workflow autonomously. Return 
 
 ## Cross-Referenced Skills Pattern
 
-Reviewers often load skills from their paired specialist's directory:
+Reviewers often load skills from their paired specialist's directory. Since GitHub Copilot does not have a `skills:` frontmatter field, all skill loading is done via `#tool:read/readFile` in the agent body.
 
-```yaml
-skills:
-  - critique-dimensions           # From: {agent-name}-reviewer/ (reviewer-specific)
-  - tdd-methodology               # Cross-ref from: {agent-name}/ (shared with specialist)
-```
+Document cross-references in the skill loading table with the path column:
 
-Document cross-references with comments in frontmatter:
-```yaml
-skills:
-  - review-dimensions  # cross-ref: from software-crafter/
-  - tdd-review-enforcement
-  - tdd-methodology  # cross-ref: from software-crafter/
-```
-
-And in the skill loading table, include the path column:
 ```
 | Phase | Load | Path | Trigger |
 |-------|------|------|---------|
-| 1 Context | `tdd-methodology` | `software-crafter/` | Always |
-| 2 Review | `tdd-review-enforcement` | `software-crafter-reviewer/` | Always |
+| 1 Context | `tdd-methodology` | `.github/skills/nw-software-crafter/` | Always -- shared with specialist |
+| 2 Review | `tdd-review-enforcement` | `.github/skills/nw-software-crafter-reviewer/` | Always -- reviewer-specific |
+```
+
+The agent body's Skill Loading section handles all skill references. Example:
+
+```markdown
+## Skill Loading -- MANDATORY
+
+**How**: Use #tool:read/readFile to load files from `.github/skills/nw-{agent-name}-reviewer/`
+
+Load on-demand by phase:
+
+| Phase | Load | Path | Trigger |
+|-------|------|------|---------|
+| 1 Context | `tdd-methodology` | `.github/skills/nw-software-crafter/` | Always |
+| 2 Review | `review-dimensions` | `.github/skills/nw-software-crafter-reviewer/` | Always |
 ```
 
 ## Approval Decision Patterns
@@ -241,5 +263,4 @@ Score <= 3: rejected
 | Principles | 4 | 5 | 8 |
 | Skills | 1 | 2 | 3 |
 | Workflow phases | 3 | 4 | 5 |
-| Examples | 3 | 4 | 7 |
-| maxTurns | 15 | 30 | 30 |
+*** End Patch
