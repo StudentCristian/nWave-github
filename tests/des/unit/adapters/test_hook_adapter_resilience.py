@@ -27,7 +27,7 @@ def _invoke_hook(hook_type: str, stdin_data: str) -> tuple[int, dict]:
         [
             sys.executable,
             "-m",
-            "des.adapters.drivers.hooks.claude_code_hook_adapter",
+            "des.adapters.drivers.hooks.copilot_hook_adapter",
             hook_type,
         ],
         input=stdin_data,

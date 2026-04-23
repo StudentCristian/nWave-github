@@ -1,0 +1,44 @@
+{
+    "hooks": {
+        "SessionStart": [
+            {
+                "type": "command",
+                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter session-start",
+                "timeout": 10
+            }
+        ],
+        "PreToolUse": [
+            {
+                "type": "command",
+                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter pre-tool-use",
+                "timeout": 15
+            }
+        ],
+        "PostToolUse": [
+            {
+                "type": "command",
+                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter post-tool-use",
+                "timeout": 15
+            }
+        ],
+        "SubagentStart": [
+            {
+                "type": "command",
+                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter subagent-start",
+                "timeout": 10
+            }
+        ],
+        "SubagentStop": [
+            {
+                "type": "command",
+                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter subagent-stop",
+                "timeout": 15
+            },
+            {
+                "type": "command",
+                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter deliver-progress",
+                "timeout": 10
+            }
+        ]
+    }
+}

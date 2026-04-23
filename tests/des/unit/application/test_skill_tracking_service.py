@@ -42,7 +42,7 @@ class TestTracksSkillReadCalls:
     """Service logs an event when a Read targets a skill file."""
 
     def test_tracks_skill_read_call(self) -> None:
-        """Read to /skills/nw/ path produces a logged SkillLoadEvent."""
+        """Read to .github/skills path produces a logged SkillLoadEvent."""
         tracker = InMemorySkillTracker()
         time_provider = MockedTimeProvider()
         service = SkillTrackingService(
@@ -54,7 +54,7 @@ class TestTracksSkillReadCalls:
         service.maybe_track(
             tool_name="Read",
             tool_input={
-                "file_path": "/home/user/.claude/skills/nw/software-crafter/tdd-methodology.md"
+                "file_path": "/home/user/project/.github/skills/software-crafter/tdd-methodology.md"
             },
         )
 
@@ -76,7 +76,7 @@ class TestTracksSkillReadCalls:
         service.maybe_track(
             tool_name="Read",
             tool_input={
-                "file_path": "/home/user/.claude/skills/nw/software-crafter/tdd-methodology.md"
+                "file_path": "/home/user/project/.github/skills/software-crafter/tdd-methodology.md"
             },
             des_context={"step_id": "01-03"},
         )
@@ -89,10 +89,10 @@ class TestIgnoresNonSkillCalls:
 
     @pytest.mark.parametrize(
         "file_path",
-        [
+            [
             "/home/user/project/src/main.py",
-            "/home/user/.claude/CLAUDE.md",
-            "/home/user/.claude/commands/nw/deliver.md",
+            "/home/user/project/.github/copilot-instructions.md",
+            "/home/user/project/.github/prompts/deliver.prompt.md",
         ],
         ids=["source_file", "claude_md", "command_file"],
     )
@@ -128,7 +128,7 @@ class TestIgnoresNonSkillCalls:
         service.maybe_track(
             tool_name=tool_name,
             tool_input={
-                "file_path": "/home/user/.claude/skills/nw/software-crafter/tdd-methodology.md"
+                "file_path": "/home/user/project/.github/skills/software-crafter/tdd-methodology.md"
             },
         )
 
@@ -150,7 +150,7 @@ class TestParsesSkillInfo:
         service.maybe_track(
             tool_name="Read",
             tool_input={
-                "file_path": "/home/alexd/.claude/skills/nw/acceptance-designer/bdd-scenarios.md"
+                "file_path": "/home/alexd/project/.github/skills/acceptance-designer/bdd-scenarios.md"
             },
         )
 
@@ -164,7 +164,7 @@ class TestEstimatesTokens:
 
     def test_estimates_tokens_from_file_size(self, tmp_path) -> None:
         """Token count is chars // 4 when strategy is token-tracking."""
-        skill_dir = tmp_path / "skills" / "nw" / "software-crafter"
+        skill_dir = tmp_path / ".github" / "skills" / "software-crafter"
         skill_dir.mkdir(parents=True)
         skill_file = skill_dir / "tdd-methodology.md"
         skill_file.write_text("x" * 400, encoding="utf-8")
@@ -185,7 +185,7 @@ class TestEstimatesTokens:
 
     def test_passive_logging_skips_token_estimation(self, tmp_path) -> None:
         """Token count is 0 when strategy is passive-logging."""
-        skill_dir = tmp_path / "skills" / "nw" / "software-crafter"
+        skill_dir = tmp_path / ".github" / "skills" / "software-crafter"
         skill_dir.mkdir(parents=True)
         skill_file = skill_dir / "tdd-methodology.md"
         skill_file.write_text("x" * 400, encoding="utf-8")

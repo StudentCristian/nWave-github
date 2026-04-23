@@ -1,4 +1,4 @@
-"""Tests for stderr capture in HOOK_ERROR events in claude_code_hook_adapter.
+"""Tests for stderr capture in HOOK_ERROR events in copilot_hook_adapter.
 
 When an exception occurs in a handler, the HOOK_ERROR event should include:
 - error_type: the exception class name (e.g., 'RuntimeError')
@@ -49,7 +49,7 @@ def _run_handler_with_exception(monkeypatch, exception_factory, events=None):
 
     Returns the list of captured audit events.
     """
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     if events is None:
         events = []
@@ -210,7 +210,7 @@ def test_stderr_redirect_does_not_interfere_with_normal_operation(
 ):
     """Handlers still operate correctly when stderr redirect is in place
     (no exceptions, normal allow path works)."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_valid_pre_tool_use_stdin()))
     captured_output = []

@@ -94,7 +94,16 @@ def test_task_correlation_id_flows_from_signal_to_hook_completed(monkeypatch, tm
     """End-to-end: task_correlation_id generated in pre_tool_use signal file
     is the same UUID4 that appears in HOOK_COMPLETED events for both
     pre_tool_use and subagent_stop handlers."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+    )
 
     # Use tmp_path for signal files to avoid polluting working directory
     monkeypatch.setattr(des_task_signal, "DES_SESSION_DIR", tmp_path / ".nwave" / "des")
@@ -169,7 +178,10 @@ def test_task_correlation_id_flows_from_signal_to_hook_completed(monkeypatch, tm
 
 def test_task_correlation_id_absent_for_non_des_tasks(monkeypatch):
     """For non-DES tasks, task_correlation_id should be absent from HOOK_COMPLETED."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import pre_tool_use_handler
+
+    adapter = SimpleNamespace(handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use)
 
     events: list[AuditEvent] = []
     writer = _make_capturing_writer(events)

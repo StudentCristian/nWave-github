@@ -80,11 +80,11 @@ class MandatorySectionChecker:
         "TDD_PHASES": "Add TDD_PHASES section listing all 5 phases: PREPARE, RED_ACCEPTANCE, RED_UNIT, GREEN, COMMIT",
         "QUALITY_GATES": "Add QUALITY_GATES section defining validation criteria (G1-G6)",
         "OUTCOME_RECORDING": "Add OUTCOME_RECORDING section describing how to track phase completion",
-        "RECORDING_INTEGRITY": (
+            "RECORDING_INTEGRITY": (
             "Add RECORDING_INTEGRITY section with valid skip prefixes "
             "(NOT_APPLICABLE, BLOCKED_BY_DEPENDENCY, APPROVED_SKIP, CHECKPOINT_PENDING) "
-            "and anti-fraud rules. See ~/.claude/skills/nw-execute/SKILL.md"
-        ),
+            "and anti-fraud rules. See .github/skills/nw-execute/SKILL.md"
+            ),
         "BOUNDARY_RULES": "Add BOUNDARY_RULES section specifying which files can be modified",
         "TIMEOUT_INSTRUCTION": "Add TIMEOUT_INSTRUCTION section with turn budget guidance",
     }

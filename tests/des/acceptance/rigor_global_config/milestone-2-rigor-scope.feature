@@ -3,7 +3,7 @@ Feature: Rigor profile scope selection
   I want to choose whether my rigor profile saves globally or for this project only
   So that I can have a personal default that follows me while still overriding per-project
 
-  The /nw:rigor command is a markdown file executed by the main Claude instance.
+  The /nw:rigor command is a markdown file executed by the main GitHub Copilot instance.
   These tests verify the CONFIG WRITE RESULT -- the file contents after a save operation --
   not the interactive flow itself.
 

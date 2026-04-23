@@ -422,7 +422,7 @@ def hook_adapter_cli():
         / "adapters"
         / "drivers"
         / "hooks"
-        / "claude_code_hook_adapter.py"
+        / "copilot_hook_adapter.py"
     )
 
 
@@ -493,7 +493,7 @@ def stub_adapter_exists():
         / "adapters"
         / "drivers"
         / "hooks"
-        / "claude_code_hook_adapter.py"
+        / "copilot_hook_adapter.py"
     )
     assert adapter_file.exists(), f"Production stub adapter not found at {adapter_file}"
     return adapter_file

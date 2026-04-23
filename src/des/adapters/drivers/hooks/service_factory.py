@@ -6,7 +6,7 @@ with all required dependencies injected.
 All factories accept an optional ``audit_writer_factory`` callable, enabling
 the adapter to pass its own patchable factory for test isolation.
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition (step 4c).
+Extracted from the original adapter (now copilot_hook_adapter) as part of P4 decomposition (step 4c).
 """
 
 from collections.abc import Callable

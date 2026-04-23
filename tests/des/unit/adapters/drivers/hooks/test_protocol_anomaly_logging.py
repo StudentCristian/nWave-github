@@ -1,4 +1,4 @@
-"""Tests for HOOK_PROTOCOL_ANOMALY events in claude_code_hook_adapter.
+"""Tests for HOOK_PROTOCOL_ANOMALY events in copilot_hook_adapter.
 
 Each handler has early-return paths for empty stdin and JSON parse errors.
 These paths now emit HOOK_PROTOCOL_ANOMALY audit events with anomaly_type,
@@ -42,7 +42,20 @@ def test_empty_stdin_produces_protocol_anomaly(
     handler_name, expected_fallback, expected_exit_code, monkeypatch, audit_events
 ):
     """Empty stdin in any handler emits HOOK_PROTOCOL_ANOMALY with anomaly_type='empty_stdin'."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     monkeypatch.setattr("sys.stdin", io.StringIO(""))
     monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
@@ -83,7 +96,20 @@ def test_json_parse_error_produces_protocol_anomaly(
     handler_name, expected_fallback, expected_exit_code, monkeypatch, audit_events
 ):
     """Malformed JSON in any handler emits HOOK_PROTOCOL_ANOMALY with anomaly_type='json_parse_error'."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     monkeypatch.setattr("sys.stdin", io.StringIO("{not valid json"))
     monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
@@ -129,7 +155,20 @@ def test_anomaly_logging_failure_does_not_change_exit_code(
     stdin_content, handler_name, expected_exit_code, monkeypatch
 ):
     """When anomaly logging itself throws, handler exit code and response are unchanged."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     class ExplodingWriter:
         def log_event(self, event):

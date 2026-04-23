@@ -29,7 +29,7 @@ New code should import from the specific layer packages:
 
 # Re-export all key classes for backward compatibility
 from des.adapters.driven import (
-    ClaudeCodeTaskAdapter,
+  CopilotTaskAdapter,
     EnvironmentConfigAdapter,
     InMemoryConfigAdapter,
     MockedTaskAdapter,
@@ -66,7 +66,7 @@ RealFilesystem = RealFileSystem
 SystemTime = SystemTimeProvider
 
 __all__ = [
-    "ClaudeCodeTaskAdapter",
+  "CopilotTaskAdapter",
     "ConfigLoader",
     # Driven ports
     "ConfigPort",

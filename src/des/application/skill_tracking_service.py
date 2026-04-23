@@ -30,7 +30,7 @@ class SkillTrackingService:
     for every tool invocation. It filters to skill Read calls only.
     """
 
-    SKILL_PATH_MARKER = "/skills/nw/"
+    SKILL_PATH_MARKER = "/.github/skills/"
 
     def __init__(
         self,
@@ -58,7 +58,7 @@ class SkillTrackingService:
         """Track skill load if this is a skill Read call.
 
         Entry point called for every tool invocation. Filters to
-        Read calls targeting skill files under /skills/nw/.
+        Read calls targeting skill files under .github/skills/.
 
         Args:
             tool_name: Name of the tool invoked (e.g., "Read", "Write")
@@ -92,7 +92,7 @@ class SkillTrackingService:
     def _parse_skill_info(self, file_path: str) -> tuple[str, str]:
         """Extract agent name and skill name from skill file path.
 
-        Expected path format: .../skills/nw/{agent-name}/{skill-name}.md
+        Expected path format: .../.github/skills/{agent-name}/{skill-name}.md
 
         Args:
             file_path: Full path to the skill file

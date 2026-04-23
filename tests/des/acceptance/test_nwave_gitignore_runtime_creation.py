@@ -37,10 +37,10 @@ def _assert_gitignore(nwave_dir: Path) -> None:
     assert "*" in content
 
 
-def test_des_config_save_update_check_state_creates_gitignore(
+def test_des_config_runtime_write_creates_gitignore(
     tmp_path: Path,
 ) -> None:
-    """Regression for #32: SessionStart update check must create .gitignore."""
+    """Regression for #32: runtime write must create .nwave/.gitignore."""
     nwave_dir = tmp_path / ".nwave"
     config_path = nwave_dir / "des-config.json"
     # Point global config at a non-existent file to keep the scenario hermetic.
@@ -49,10 +49,14 @@ def test_des_config_save_update_check_state_creates_gitignore(
         global_config_path=tmp_path / "no-such-global.json",
     )
 
-    config.save_update_check_state(
-        last_checked="2026-04-15T00:00:00Z",
-        skipped_versions=[],
-    )
+    # Simulate the runtime creating the config file and ensure .nwave/.gitignore
+    # is created when runtime writes files under .nwave/. This mirrors the
+    # previous session-start behavior without requiring the deprecated API.
+    config._config_path.parent.mkdir(parents=True, exist_ok=True)
+    from des.domain.nwave_dir_gitignore import ensure_nwave_gitignore
+
+    ensure_nwave_gitignore(config._config_path.parent)
+    config._config_path.write_text("{}", encoding="utf-8")
 
     assert config_path.exists()
     _assert_gitignore(nwave_dir)

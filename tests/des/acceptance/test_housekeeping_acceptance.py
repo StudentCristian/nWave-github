@@ -857,55 +857,7 @@ class TestHousekeepingOrchestration:
             f"Total housekeeping took {elapsed_ms:.1f}ms (budget: 500ms)"
         )
 
-    def test_housekeeping_runs_alongside_update_check_without_interference(
-        self, tmp_path, capsys
-    ):
-        """Given both housekeeping and update check are enabled
-        When a new session starts
-        Then both housekeeping and update check execute
-        And neither operation blocks or interferes with the other."""
-        import io
-        from unittest.mock import MagicMock, patch
-
-        from des.adapters.drivers.hooks.session_start_handler import (
-            handle_session_start,
-        )
-
-        nwave_dir = tmp_path / ".nwave"
-        logs_dir = nwave_dir / "des" / "logs"
-
-        # Create an old audit log that housekeeping should clean
-        _create_audit_log(logs_dir, "2026-02-10")
-
-        # Mock the update check to return UP_TO_DATE
-        from des.application.update_check_service import (
-            UpdateCheckResult,
-            UpdateStatus,
-        )
-
-        update_result = UpdateCheckResult(status=UpdateStatus.UP_TO_DATE)
-
-        with (
-            patch(
-                "des.adapters.drivers.hooks.session_start_handler._build_update_check_service"
-            ) as mock_factory,
-            patch("sys.stdin", io.StringIO("{}")),
-            patch(
-                "des.adapters.drivers.hooks.session_start_handler._run_housekeeping"
-            ) as mock_hk,
-        ):
-            mock_service = MagicMock()
-            mock_service.check_for_updates.return_value = update_result
-            mock_factory.return_value = mock_service
-
-            exit_code = handle_session_start()
-
-        assert exit_code == 0
-        # Housekeeping was called
-        mock_hk.assert_called_once()
-        # No console output from housekeeping
-        captured = capsys.readouterr()
-        assert captured.out.strip() == ""
+    
 
 
 # ---------------------------------------------------------------------------

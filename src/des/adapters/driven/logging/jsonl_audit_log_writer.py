@@ -46,7 +46,7 @@ class JsonlAuditLogWriter(AuditLogWriter):
         1. Explicit log_dir parameter
         2. DES_AUDIT_LOG_DIR environment variable
         3. Project-local .nwave/des/logs/ (default)
-        4. Global ~/.claude/des/logs/ (fallback)
+        4. Global ~/.nwave/des/logs/ (fallback)
 
         Args:
             log_dir: Directory for audit log files (default: follows priority above)

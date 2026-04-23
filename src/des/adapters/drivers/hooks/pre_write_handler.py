@@ -59,7 +59,8 @@ def handle_pre_write() -> int:
 
     Returns:
         0 if write is allowed
-        2 if write is blocked (source file during deliver without DES task)
+        0 if write is blocked — the handler prints a Copilot-style
+        `hookSpecificOutput` JSON with a deny decision to stdout.
     """
     hook_id = str(uuid.uuid4())
     start_ns = time.perf_counter_ns()
@@ -122,8 +123,16 @@ def handle_pre_write() -> int:
                     file_path=file_path,
                     reason="execution_log_direct_write",
                 )
-                print(json.dumps({"decision": "block", "reason": block_reason}))
-                return 2
+                # Copilot protocol: emit hookSpecificOutput with deny on stdout
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": block_reason,
+                    }
+                }
+                print(json.dumps(output))
+                return 0
 
             # Check session and signal state
             session_active = des_task_signal.DES_DELIVER_SESSION_FILE.exists()
@@ -154,13 +163,18 @@ def handle_pre_write() -> int:
                     file_path=file_path,
                     reason=guard_result.reason or "Source write blocked during deliver",
                 )
-                response = {
-                    "decision": "block",
-                    "reason": guard_result.reason
-                    or "Source write blocked during deliver",
+                reason_text = (
+                    guard_result.reason or "Source write blocked during deliver"
+                )
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": reason_text,
+                    }
                 }
-                print(json.dumps(response))
-                exit_code = 2
+                print(json.dumps(output))
+                exit_code = 0
                 return exit_code
             else:
                 # Determine allow reason for diagnostics

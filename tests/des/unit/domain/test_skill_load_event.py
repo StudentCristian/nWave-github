@@ -21,7 +21,7 @@ class TestSkillLoadEventImmutability:
             timestamp="2026-02-25T10:00:00+00:00",
             agent_name="software-crafter",
             skill_name="tdd-methodology",
-            file_path="/home/user/.claude/skills/nw/software-crafter/tdd-methodology.md",
+            file_path="/home/user/project/.github/skills/software-crafter/tdd-methodology.md",
             estimated_tokens=250,
         )
 
@@ -38,7 +38,7 @@ class TestSkillLoadEventOptionalFields:
             timestamp="2026-02-25T10:00:00+00:00",
             agent_name="software-crafter",
             skill_name="tdd-methodology",
-            file_path="/home/user/.claude/skills/nw/software-crafter/tdd-methodology.md",
+            file_path="/home/user/project/.github/skills/software-crafter/tdd-methodology.md",
             estimated_tokens=250,
         )
 

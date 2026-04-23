@@ -1,12 +1,12 @@
 """Hook Protocol Conformance — E2E acceptance tests.
 
-Validates that DES hook handlers conform to the Claude Code hook protocol:
+Validates that DES hook handlers conform to the GitHub Copilot hook protocol:
 - Allow path: exit 0 with NO stdout (silent allow)
 - Block path: exit 2 (PreToolUse, PreWrite) or exit 0 with JSON (SubagentStop)
 - PostToolUse: always exit 0, always produces JSON on stdout
 
-These tests invoke the real hook adapter via subprocess, matching how Claude
-Code dispatches hooks in production. They capture stdout and verify the
+These tests invoke the real hook adapter via subprocess, matching how GitHub
+Copilot dispatches hooks in production. They capture stdout and verify the
 protocol contract.
 
 Issue: nWave-ai/nWave#34
@@ -31,7 +31,7 @@ scenarios("hook-protocol-conformance.feature")
 
 
 # ---------------------------------------------------------------------------
-# Subprocess helper — invokes the hook adapter exactly as Claude Code would
+# Subprocess helper — invokes the hook adapter exactly as GitHub Copilot would
 # ---------------------------------------------------------------------------
 
 PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent.parent)
@@ -41,8 +41,8 @@ SRC_PATH = str(Path(PROJECT_ROOT) / "src")
 def _invoke_hook(command: str, stdin_json: str) -> subprocess.CompletedProcess:
     """Invoke the hook adapter as a subprocess with the given command and stdin.
 
-    Mirrors how Claude Code dispatches hooks:
-      PYTHONPATH=src python3 -m des.adapters.drivers.hooks.claude_code_hook_adapter {command}
+    Mirrors how GitHub Copilot dispatches hooks:
+    PYTHONPATH=src python3 -m des.adapters.drivers.hooks.copilot_hook_adapter {command}
 
     Args:
         command: Hook command (pre-tool-use, subagent-stop, pre-write, post-tool-use).
@@ -58,7 +58,7 @@ def _invoke_hook(command: str, stdin_json: str) -> subprocess.CompletedProcess:
         [
             sys.executable,
             "-m",
-            "des.adapters.drivers.hooks.claude_code_hook_adapter",
+            "des.adapters.drivers.hooks.copilot_hook_adapter",
             command,
         ],
         input=stdin_json,
@@ -365,7 +365,7 @@ def then_exit_code_nonzero(ctx: dict[str, Any]) -> None:
 def then_stdout_is_empty(ctx: dict[str, Any]) -> None:
     """Verify the hook produced absolutely no output on stdout.
 
-    This is the critical protocol assertion: Claude Code interprets any
+    This is the critical protocol assertion: GitHub Copilot interprets any
     stdout on exit 0 as a hook error. Silent exit is the only correct
     allow behavior.
     """
@@ -373,7 +373,7 @@ def then_stdout_is_empty(ctx: dict[str, Any]) -> None:
     assert result.stdout == "", (
         f"Expected empty stdout on allow path, but got:\n"
         f"  stdout: {result.stdout!r}\n"
-        f"This stdout causes Claude Code to display 'hook error' in the UI.\n"
+        f"This stdout causes GitHub Copilot to display 'hook error' in the UI.\n"
         f"Fix: remove print() calls on allow paths in the handler."
     )
 
@@ -391,14 +391,38 @@ def then_stdout_contains_block_json(ctx: dict[str, Any]) -> None:
     except json.JSONDecodeError as e:
         pytest.fail(f"stdout is not valid JSON: {e}\nRaw stdout: {result.stdout!r}")
 
-    assert output.get("decision") == "block", (
-        f"Expected decision 'block', got {output.get('decision')!r}.\n"
-        f"Full output: {json.dumps(output, indent=2)}"
-    )
-    assert output.get("reason"), (
-        f"Block decision must include a non-empty 'reason' field.\n"
-        f"Full output: {json.dumps(output, indent=2)}"
-    )
+    # Accept Copilot nested `hookSpecificOutput` shape or legacy top-level decision.
+    hso = output.get("hookSpecificOutput")
+    if hso:
+        # SubagentStop uses `decision: block`; PreToolUse/PreWrite use permissionDecision
+        if ctx.get("hook_command") == "subagent-stop":
+            assert hso.get("decision") == "block", (
+                f"Expected decision 'block' in hookSpecificOutput, got {hso.get('decision')!r}.\n"
+                f"Full output: {json.dumps(output, indent=2)}"
+            )
+            assert hso.get("reason"), (
+                f"Block decision must include a non-empty 'reason' field in hookSpecificOutput.\n"
+                f"Full output: {json.dumps(output, indent=2)}"
+            )
+        else:
+            assert hso.get("permissionDecision") == "deny", (
+                f"Expected permissionDecision 'deny', got {hso.get('permissionDecision')!r}.\n"
+                f"Full output: {json.dumps(output, indent=2)}"
+            )
+            assert hso.get("permissionDecisionReason"), (
+                f"permissionDecision must include a non-empty reason.\n"
+                f"Full output: {json.dumps(output, indent=2)}"
+            )
+    else:
+        # Fallback to legacy top-level decision for permissive compatibility
+        assert output.get("decision") == "block", (
+            f"Expected decision 'block', got {output.get('decision')!r}.\n"
+            f"Full output: {json.dumps(output, indent=2)}"
+        )
+        assert output.get("reason"), (
+            f"Block decision must include a non-empty 'reason' field.\n"
+            f"Full output: {json.dumps(output, indent=2)}"
+        )
 
 
 @then("stdout contains only an empty JSON object")
@@ -407,7 +431,7 @@ def then_stdout_contains_empty_json(ctx: dict[str, Any]) -> None:
 
     PostToolUse passthrough emits {} on stdout. This is different from the
     allow-path bug: PostToolUse ALWAYS writes to stdout (empty dict or
-    additionalContext dict). Claude Code's PostToolUse protocol expects this.
+    additionalContext dict). GitHub Copilot's PostToolUse protocol expects this.
     """
     result = ctx["result"]
     assert result.stdout.strip(), (
@@ -452,30 +476,17 @@ def then_stdout_contains_additional_context(ctx: dict[str, Any]) -> None:
 @then("stdout contains an error response")
 def then_stdout_contains_error_response(ctx: dict[str, Any]) -> None:
     """Verify stdout contains a structured error response.
-
-    PreToolUse fail-closed: malformed JSON triggers exit 1 with an error
-    response containing status and reason fields.
+    PreToolUse fail-closed: malformed JSON triggers a non-zero exit code and
+    the handler writes an error message to stderr (Copilot-adapted handlers).
     """
     result = ctx["result"]
-    assert result.stdout.strip(), (
-        "Expected error response JSON on stdout, but stdout was empty."
+    assert result.returncode != 0, (
+        f"Expected non-zero exit code for malformed JSON, got {result.returncode}.\n"
+        f"stdout: {result.stdout!r}\n"
+        f"stderr: {result.stderr!r}"
     )
-
-    try:
-        output = json.loads(result.stdout)
-    except json.JSONDecodeError as e:
-        pytest.fail(
-            f"Error response stdout is not valid JSON: {e}\n"
-            f"Raw stdout: {result.stdout!r}"
-        )
-
-    assert output.get("status") == "error", (
-        f"Expected status 'error', got {output.get('status')!r}.\n"
-        f"Full output: {json.dumps(output, indent=2)}"
-    )
-    assert output.get("reason"), (
-        f"Error response must include a non-empty 'reason' field.\n"
-        f"Full output: {json.dumps(output, indent=2)}"
+    assert result.stderr.strip(), (
+        "Expected an error message on stderr for malformed JSON, but stderr was empty."
     )
 
 

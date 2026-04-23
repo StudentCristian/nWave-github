@@ -1,10 +1,10 @@
 """SubagentStop handler — validates step completion after sub-agent returns.
 
-Translates Claude Code's SubagentStop hook event (JSON stdin) into
+Translates GitHub Copilot's SubagentStop hook event (JSON stdin) into
 SubagentStopService decisions (allow/block). Extracts DES context from
 agent transcripts, manages signal file lifecycle, and emits audit events.
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition.
+Adapted for GitHub Copilot hookSpecificOutput protocol.
 """
 
 import contextlib
@@ -144,19 +144,17 @@ def _resolve_des_context(
             return (
                 None,
                 {
-                    "status": "error",
                     "reason": "Missing required fields: executionLogPath, projectId, and stepId are all required",
                 },
-                1,
+                2,
             )
         if not Path(execution_log_path).is_absolute():
             return (
                 None,
                 {
-                    "status": "error",
                     "reason": f"executionLogPath must be absolute (got: {execution_log_path})",
                 },
-                1,
+                2,
             )
         return execution_log_path, project_id, step_id
 
@@ -207,8 +205,11 @@ The orchestrator must RE-DISPATCH the agent to execute missing phases.
 Never write log entries for phases that were not actually executed."""
 
     return {
-        "decision": "block",
-        "reason": notification,
+        "hookSpecificOutput": {
+            "hookEventName": "SubagentStop",
+            "decision": "block",
+            "reason": notification,
+        }
     }
 
 
@@ -268,9 +269,12 @@ def handle_subagent_stop() -> int:
                 return 0
 
             if stdin_result.parse_error:
-                response = {"status": "error", "reason": stdin_result.parse_error}
-                print(json.dumps(response))
-                exit_code = 1
+                # Parse error = fail-closed (deny) in Copilot
+                print(
+                    f"DES SubagentStop parse error: {stdin_result.parse_error}",
+                    file=sys.stderr,
+                )
+                exit_code = 2
                 return exit_code
 
             hook_input = stdin_result.hook_input
@@ -359,20 +363,20 @@ def handle_subagent_stop() -> int:
                 project_id, step_id, execution_log_path, decision
             )
             print(json.dumps(response))
-            # Exit 0 so Claude Code processes the JSON (exit 2 ignores stdout)
+            # Exit 0 so Copilot reads hookSpecificOutput with block decision
             exit_code = 0
             return exit_code
 
     except Exception as e:
-        # Fail-closed: any error blocks execution via stderr + exit 1
+        # Fail-closed: any error blocks execution via stderr + exit 2
         stderr_capture = stderr_buffer.getvalue()[:STDERR_CAPTURE_MAX_CHARS]
         log_hook_error(
             "subagent_stop",
             e,
             stderr_capture,
         )
-        print(f"SubagentStop hook error: {e!s}", file=sys.stderr)
-        exit_code = 1
+        print(f"DES SubagentStop error: {e!s}", file=sys.stderr)
+        exit_code = 2
         return exit_code
     finally:
         duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000

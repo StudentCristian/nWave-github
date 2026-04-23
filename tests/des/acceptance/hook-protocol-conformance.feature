@@ -1,20 +1,20 @@
 Feature: Hook Protocol Conformance
   As a developer using nWave hooks
-  I want hooks to follow Claude Code's protocol for allow and block decisions
+  I want hooks to follow GitHub Copilot's protocol for allow and block decisions
   So that allowing a tool invocation never triggers a "hook error" in the terminal
 
-  Claude Code treats any stdout from a PreToolUse hook on exit 0 as a protocol
+  GitHub Copilot treats any stdout from a PreToolUse hook on exit 0 as a protocol
   error. The correct allow behavior is: exit 0 with empty stdout. Block behavior
-  is: exit 2 (PreToolUse, PreWrite) or exit 0 with JSON (SubagentStop).
-  This feature validates the contract between DES hooks and Claude Code for all
+  is: exit 0 with a `hookSpecificOutput` containing a deny decision
+  (PreToolUse, PreWrite). SubagentStop uses exit 0 with JSON as well.
+  This feature validates the contract between DES hooks and GitHub Copilot for all
   four handler types: PreToolUse (Agent validation), SubagentStop (step
   completion), PreWrite (session guard for Write/Edit), and PostToolUse
   (failure notification injection).
 
-  # Exit code difference: PreToolUse and PreWrite use exit code 2 to block because
-  # Claude Code's PreToolUse protocol reads stdout ONLY on exit 2 and ignores it
-  # on exit 0. SubagentStop uses exit 0 with JSON because Claude Code's SubagentStop
-  # protocol reads stdout on exit 0 (exit 2 causes stdout to be ignored entirely).
+  # Exit code difference: For our Copilot-adapted handlers, block decisions are
+  # communicated on exit 0 via `hookSpecificOutput` JSON. SubagentStop also uses
+  # exit 0 with JSON for blocked outcomes.
 
   # ---------------------------------------------------------------------------
   # PreToolUse scenarios
@@ -31,7 +31,7 @@ Feature: Hook Protocol Conformance
   Scenario: PreToolUse block produces structured JSON on stdout
     Given an agent invocation referencing step "01-01" without DES markers
     When the PreToolUse hook processes the invocation
-    Then the hook exits with code 2
+    Then the hook exits with code 0
     And stdout contains a block decision with a reason
 
   # ---------------------------------------------------------------------------
@@ -67,7 +67,7 @@ Feature: Hook Protocol Conformance
   Scenario: PreWrite block produces structured JSON for execution log writes
     Given a write to the execution log "docs/feature/my-feature/deliver/execution-log.json"
     When the PreWrite hook processes the write request
-    Then the hook exits with code 2
+    Then the hook exits with code 0
     And stdout contains a block decision with a reason
 
   # ---------------------------------------------------------------------------

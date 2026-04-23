@@ -56,7 +56,7 @@ def ctx(tmp_path: Path) -> dict[str, Any]:
     global_nwave_dir = home_dir / ".nwave"
     global_nwave_dir.mkdir()
 
-    # Simulate Claude config dir with minimal installation markers
+    # Simulate legacy .claude config dir with minimal installation markers
     claude_dir = home_dir / ".claude"
     claude_dir.mkdir()
     agents_dir = claude_dir / "agents" / "nw"

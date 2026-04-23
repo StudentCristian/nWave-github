@@ -1,7 +1,8 @@
 # nWave Skill Template
 
-Version: 1.0 (2026-02-28)
+Version: 2.0 (2026-04-22)
 Extracted from analysis of 98 production skill files across 18 skill directories.
+Adapted for GitHub Copilot Agent Skills format.
 
 ## What is a Skill?
 
@@ -19,15 +20,17 @@ persona definitions, or frontmatter configuration for agents.
 
 ```yaml
 ---
-name: {skill-name}                        # REQUIRED. kebab-case, matches filename
+name: {skill-name}                        # REQUIRED. kebab-case, matches directory name
 description: {one-line purpose}           # REQUIRED. What knowledge this skill provides
-agent: nw-{agent-name}                    # OPTIONAL. Cross-ref: owner agent (for shared skills)
+user-invocable: false                     # OPTIONAL. Default true. Set false to hide from `/` menu
+disable-model-invocation: true            # OPTIONAL. Default false. Set true to prevent auto-loading
 ---
 ```
 
-Standard fields: `name` and `description` (required). The `agent` field is optional — used when a skill
-is cross-referenced by another agent to document ownership (e.g., a reviewer loading a specialist's skill).
-All content goes in the markdown body, not in frontmatter.
+Standard fields: `name` and `description` (required). Visibility fields `user-invocable` and
+`disable-model-invocation` control slash command visibility and auto-loading behavior. For pure
+knowledge skills (loaded by agents, not invoked by users) set both `user-invocable: false` and
+`disable-model-invocation: true`. All content goes in the markdown body, not in frontmatter.
 
 ## Naming Conventions
 
@@ -42,9 +45,17 @@ All content goes in the markdown body, not in frontmatter.
 
 ### File Location
 
-Skills are stored in: `nWave/skills/{agent-name}/{skill-name}.md`
+Skills are stored as directories with a `SKILL.md` file inside.
 
-At install time, they are deployed to: `~/.claude/skills/nw/{agent-name}/{skill-name}.md`
+**Project skills** (shared via repository):
+```
+.github/skills/nw-{skill-name}/SKILL.md
+```
+
+**Personal skills** (user profile):
+```
+~/.copilot/skills/nw-{skill-name}/SKILL.md
+```
 
 ## Body Template
 
@@ -161,22 +172,15 @@ Split a skill into multiple skills when:
 
 ## Cross-Reference Pattern
 
-Some reviewer agents load skills from their paired specialist's directory. Document this in the reviewer's frontmatter with comments:
-
-```yaml
-skills:
-  - tdd-review-enforcement           # reviewer-specific
-  - review-dimensions                 # cross-ref: from software-crafter/
-  - tdd-methodology                   # cross-ref: from software-crafter/
-```
-
-And in the reviewer's Skill Loading section, include the path:
+Some reviewer agents load skills from their paired specialist's skill directory. Document this in the agent's body with a Skill Loading section:
 
 ```markdown
-**How**: Use the Read tool to load skill files from two directories:
-- `~/.claude/skills/nw/{specialist-name}/` -- shared skills
-- `~/.claude/skills/nw/{specialist-name}-reviewer/` -- reviewer-specific skills
+**How**: Use `#tool:read/readFile` to load skill files from two directories:
+- `.github/skills/nw-{specialist-name}-*/` -- shared skills (match by prefix)
+- `.github/skills/nw-{specialist-name}-reviewer-*/` -- reviewer-specific skills
 ```
+
+Since Copilot agents do not have a `skills:` frontmatter field, cross-references are documented as comments in the agent's body text. The agent reads the skill files at runtime using `#tool:read/readFile`.
 
 ---
 
@@ -275,8 +279,8 @@ description: Toyota 5 Whys methodology with multi-causal branching, evidence req
 |---|---|---|
 | Workflow in skill | Step-by-step agent instructions | Move to agent definition; skill has knowledge only |
 | Persona in skill | "You are {Name}" | Persona belongs in agent definition |
-| Tool instructions | "Use Read tool to..." | Tool usage belongs in agent definition |
+| Tool instructions | "Use `#tool:read/readFile` to..." | Tool usage belongs in agent definition |
 | Too broad | Covers 3+ unrelated topics | Split into focused skills |
 | Too shallow | Generic advice without practitioner depth | Add decision trees, criteria, templates |
 | External references | "See {URL} for details" | Make self-contained; include needed content |
-| Duplicate content | Same knowledge in skill and agent | Keep in skill; agent references via Load |
+| Duplicate content | Same knowledge in skill and agent | Keep in skill; agent references via read |

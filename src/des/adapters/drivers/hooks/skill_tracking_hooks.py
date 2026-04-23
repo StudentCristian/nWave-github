@@ -3,7 +3,7 @@
 Intercepts Read tool calls to skill files and logs them for token cost analysis.
 All tracking is fail-open — never blocks agent execution.
 
-Extracted from claude_code_hook_adapter.py as part of P4 decomposition (step 4d).
+Extracted from the original adapter (now copilot_hook_adapter) as part of P4 decomposition (step 4d).
 """
 
 from des.adapters.driven.time.system_time import SystemTimeProvider
@@ -12,7 +12,7 @@ from des.adapters.driven.time.system_time import SystemTimeProvider
 def maybe_track_skill_load(hook_input: dict) -> None:
     """Track skill file reads for observability. Fail-open, never blocks.
 
-    Intercepts Read tool calls to skill files under /skills/nw/ and logs
+    Intercepts Read tool calls to skill files under .github/skills/ and logs
     them to .nwave/skill-loading-log.jsonl for token cost analysis.
 
     Args:
@@ -45,7 +45,7 @@ def maybe_track_skill_load(hook_input: dict) -> None:
 def maybe_track_skill_loads(transcript_path: str) -> None:
     """Track skill file reads from a sub-agent JSONL transcript. Fail-open.
 
-    Scans the transcript for Read tool calls targeting /skills/nw/ paths
+    Scans the transcript for Read tool calls targeting .github/skills/ paths
     and logs each as a SkillLoadEvent.
 
     Args:

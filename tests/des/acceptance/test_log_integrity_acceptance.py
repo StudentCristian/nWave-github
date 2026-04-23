@@ -242,7 +242,7 @@ class TestAT6MissingTranscript:
     """AT-6: transcript_path → non-existent file → returns None, no error."""
 
     def test_missing_transcript_returns_none(self, tmp_path: Path) -> None:
-        from des.adapters.drivers.hooks.claude_code_hook_adapter import (
+        from des.adapters.drivers.hooks.subagent_stop_handler import (
             extract_des_context_from_transcript,
         )
 

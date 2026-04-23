@@ -26,10 +26,11 @@ class TestSessionStartRouting:
 
     def test_session_start_calls_handle_session_start(self):
         """session-start command dispatches to handle_session_start."""
-        from des.adapters.drivers.hooks import hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import session_start_handler
 
         with patch.object(
-            hook_router,
+            session_start_handler,
             "handle_session_start",
             return_value=0,
         ) as mock_handler:
@@ -39,10 +40,11 @@ class TestSessionStartRouting:
 
     def test_session_start_exit_code_from_handler(self):
         """session-start forwards handler return value as exit code."""
-        from des.adapters.drivers.hooks import hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import session_start_handler
 
         with patch.object(
-            hook_router,
+            session_start_handler,
             "handle_session_start",
             return_value=0,
         ):
@@ -56,15 +58,18 @@ class TestUnknownCommandExits1:
 
     def test_unknown_command_still_exits_1(self, capsys):
         """Unknown command exits 1 with error JSON."""
-        from des.adapters.drivers.hooks import hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
 
         exits = _capture_exit(hook_router, ["adapter", "totally-unknown-xyz"])
 
-        assert exits == [1]
+        # Copilot adapter signals blocking deny via exit code 2 and
+        # nested `hookSpecificOutput` with `permissionDecision`.
+        assert exits == [2]
         out = capsys.readouterr().out.strip()
         payload = json.loads(out)
-        assert payload["status"] == "error"
-        assert "totally-unknown-xyz" in payload["reason"]
+        hso = payload.get("hookSpecificOutput", {})
+        assert hso.get("permissionDecision") == "deny"
+        assert "totally-unknown-xyz" in hso.get("permissionDecisionReason", "")
 
 
 class TestExistingRoutingUnaffected:
@@ -73,9 +78,10 @@ class TestExistingRoutingUnaffected:
     def test_pre_task_still_routes_to_pre_tool_use_handler(self):
         """pre-task command still routes to handle_pre_tool_use."""
         from des.adapters.drivers.hooks import hook_router
+        from des.adapters.drivers.hooks import pre_tool_use_handler
 
         with patch.object(
-            hook_router,
+            pre_tool_use_handler,
             "handle_pre_tool_use",
             return_value=0,
         ) as mock_handler:

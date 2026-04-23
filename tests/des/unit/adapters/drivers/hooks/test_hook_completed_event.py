@@ -1,4 +1,4 @@
-"""Tests for HOOK_COMPLETED event in claude_code_hook_adapter.
+"""Tests for HOOK_COMPLETED event in copilot_hook_adapter.
 
 Each handler emits a HOOK_COMPLETED audit event with hook_id, handler,
 exit_code, decision, and duration_ms. Tests exercise through the handler
@@ -105,7 +105,20 @@ def test_hook_completed_emitted_with_correct_exit_code_and_decision(
     handler_name, stdin_factory, expected_decision, monkeypatch, audit_events
 ):
     """HOOK_COMPLETED event is emitted with correct exit_code and decision for each handler."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     monkeypatch.setattr("sys.stdin", io.StringIO(stdin_factory()))
     monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
@@ -129,7 +142,7 @@ def test_hook_completed_emitted_with_correct_exit_code_and_decision(
 
 def test_hook_completed_emitted_on_block_path(monkeypatch, audit_events):
     """HOOK_COMPLETED event is emitted with exit_code=2, decision='block' when validation fails."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_tool_use_block_stdin()))
     monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
@@ -152,7 +165,7 @@ def test_hook_completed_emitted_on_block_path(monkeypatch, audit_events):
 
 def test_hook_completed_hook_id_matches_hook_invoked(monkeypatch, audit_events):
     """The hook_id in HOOK_COMPLETED matches the hook_id in the corresponding HOOK_INVOKED event."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_tool_use_stdin()))
     monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
@@ -182,7 +195,7 @@ def test_hook_completed_hook_id_matches_hook_invoked(monkeypatch, audit_events):
 
 def test_hook_completed_duration_ms_is_positive(monkeypatch, audit_events):
     """HOOK_COMPLETED event has duration_ms as a positive float."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_tool_use_stdin()))
     monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
@@ -204,7 +217,7 @@ def test_hook_completed_duration_ms_is_positive(monkeypatch, audit_events):
 
 def test_hook_completed_emitted_on_exception(monkeypatch, audit_events):
     """HOOK_COMPLETED event is emitted even when the handler raises an exception (finally block)."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     # Provide valid JSON stdin but make the service creation blow up
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_tool_use_stdin()))
@@ -267,7 +280,7 @@ def test_hook_completed_slow_hook_detection(monkeypatch, audit_events):
     # time.perf_counter_ns to return values with a large gap.
     import time
 
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     call_count = 0
 

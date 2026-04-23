@@ -289,7 +289,7 @@ def test_commit_verified_event_includes_stats_when_provided():
 
 def test_handle_subagent_stop_extracts_stats_from_hook_input(monkeypatch, tmp_path):
     """handle_subagent_stop extracts num_turns and total_tokens from hook_input into HOOK_COMPLETED."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import subagent_stop_handler as adapter
 
     events: list[AuditEvent] = []
     writer = make_capturing_writer(events)
@@ -323,7 +323,7 @@ def test_handle_subagent_stop_extracts_stats_from_hook_input(monkeypatch, tmp_pa
 
 def test_handle_subagent_stop_graceful_when_stats_missing(monkeypatch, tmp_path):
     """handle_subagent_stop does not break when hook_input lacks num_turns and total_tokens."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import subagent_stop_handler as adapter
 
     events: list[AuditEvent] = []
     writer = make_capturing_writer(events)

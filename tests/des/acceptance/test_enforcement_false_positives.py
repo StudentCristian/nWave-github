@@ -39,7 +39,7 @@ HOOK_ADAPTER = (
     / "adapters"
     / "drivers"
     / "hooks"
-    / "claude_code_hook_adapter.py"
+        / "copilot_hook_adapter.py"
 )
 
 
@@ -51,7 +51,7 @@ HOOK_ADAPTER = (
 def _invoke_pre_tool_use_hook(prompt: str) -> subprocess.CompletedProcess:
     """Invoke the real PreToolUse hook via subprocess with the given prompt.
 
-    Builds a Claude Code PreToolUse JSON payload and pipes it to the hook
+    Builds a PreToolUse JSON payload (Copilot protocol) and pipes it to the hook
     adapter. Returns the CompletedProcess with exit code, stdout, stderr.
     """
     payload = json.dumps(
@@ -96,18 +96,20 @@ def _assert_blocked_with_reason(
     result: subprocess.CompletedProcess, expected_reason: str
 ) -> None:
     """Assert the hook blocked the prompt with the expected reason substring."""
-    assert result.returncode == 2, (
-        f"Expected exit code 2 (block), got {result.returncode}.\n"
+    assert result.returncode == 0, (
+        f"Expected exit code 0 (Copilot block), got {result.returncode}.\n"
         f"stdout: {result.stdout}\n"
         f"stderr: {result.stderr}"
     )
     assert result.stdout.strip(), "Expected non-empty stdout with block response"
-    response = json.loads(result.stdout.strip())
-    assert response.get("decision") == "block", (
-        f"Expected block decision, got: {response}"
+    output = json.loads(result.stdout.strip())
+    hso = output.get("hookSpecificOutput", {})
+    assert hso.get("permissionDecision") == "deny", (
+        f"Expected permissionDecision 'deny', got: {hso.get('permissionDecision')!r}.\n"
+        f"Full output: {json.dumps(output, indent=2)}"
     )
-    assert expected_reason in response.get("reason", ""), (
-        f"Expected '{expected_reason}' in reason, got: {response.get('reason')}"
+    assert expected_reason in hso.get("permissionDecisionReason", ""), (
+        f"Expected '{expected_reason}' in permissionDecisionReason, got: {hso.get('permissionDecisionReason')!r}"
     )
 
 

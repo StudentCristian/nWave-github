@@ -8,7 +8,7 @@ Priority (highest to lowest):
 2. DES_AUDIT_LOG_DIR environment variable
 3. .nwave/des-config.json audit_log_dir field
 4. Project-local .nwave/des/logs/ (using cwd or Path.cwd())
-5. Global ~/.claude/des/logs/ (fallback)
+5. Global ~/.nwave/des/logs/ (fallback)
 """
 
 from __future__ import annotations
@@ -70,7 +70,7 @@ class AuditLogPathResolver:
             return effective_cwd / ".nwave" / "des" / "logs"
 
         # Priority 5: Global fallback
-        return home / ".claude" / "des" / "logs"
+        return home / ".nwave" / "des" / "logs"
 
     @staticmethod
     def _resolve_config_dir(cwd: Path) -> Path | None:

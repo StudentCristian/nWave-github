@@ -6,7 +6,6 @@ invalid states unrepresentable.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Self
 
 
 class PhaseStatus(str, Enum):
@@ -97,7 +96,7 @@ class StepId:
         return self.value
 
     @classmethod
-    def from_step_file_path(cls, step_file: str) -> Self:
+    def from_step_file_path(cls, step_file: str) -> "StepId":
         """Extract step ID from step file path.
 
         Args:

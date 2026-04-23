@@ -22,8 +22,8 @@ class TestNwAgentReceivesAdditionalContext:
 
     def test_nw_agent_writes_additional_context_to_stdout(self, capsys):
         """nw-software-crafter receives additionalContext JSON on stdout."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         hook_input = json.dumps(
@@ -35,12 +35,13 @@ class TestNwAgentReceivesAdditionalContext:
         )
 
         with patch("sys.stdin", io.StringIO(hook_input)):
-            exit_code = handle_subagent_start()
+            exit_code = handle_subagent_start_copilot()
 
         assert exit_code == 0
         out = capsys.readouterr().out.strip()
         payload = json.loads(out)
-        assert "additionalContext" in payload
+        assert "hookSpecificOutput" in payload
+        assert "additionalContext" in payload["hookSpecificOutput"]
 
     @pytest.mark.parametrize(
         "agent_type",
@@ -48,8 +49,8 @@ class TestNwAgentReceivesAdditionalContext:
     )
     def test_all_nw_prefixed_agents_receive_injection(self, capsys, agent_type):
         """Any agent_type starting with 'nw-' receives additionalContext."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         hook_input = json.dumps(
@@ -61,12 +62,13 @@ class TestNwAgentReceivesAdditionalContext:
         )
 
         with patch("sys.stdin", io.StringIO(hook_input)):
-            exit_code = handle_subagent_start()
+            exit_code = handle_subagent_start_copilot()
 
         assert exit_code == 0
         out = capsys.readouterr().out.strip()
         payload = json.loads(out)
-        assert "additionalContext" in payload
+        assert "hookSpecificOutput" in payload
+        assert "additionalContext" in payload["hookSpecificOutput"]
 
 
 class TestNonNwAgentReceivesNoInjection:
@@ -74,8 +76,8 @@ class TestNonNwAgentReceivesNoInjection:
 
     def test_non_nw_agent_produces_no_stdout(self, capsys):
         """agent_type not starting with 'nw-' produces no stdout output."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         hook_input = json.dumps(
@@ -87,15 +89,15 @@ class TestNonNwAgentReceivesNoInjection:
         )
 
         with patch("sys.stdin", io.StringIO(hook_input)):
-            exit_code = handle_subagent_start()
+            exit_code = handle_subagent_start_copilot()
 
         assert exit_code == 0
         assert capsys.readouterr().out.strip() == ""
 
     def test_explore_agent_produces_no_stdout(self, capsys):
         """Explore agent type produces no stdout output."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         hook_input = json.dumps(
@@ -107,7 +109,7 @@ class TestNonNwAgentReceivesNoInjection:
         )
 
         with patch("sys.stdin", io.StringIO(hook_input)):
-            exit_code = handle_subagent_start()
+            exit_code = handle_subagent_start_copilot()
 
         assert exit_code == 0
         assert capsys.readouterr().out.strip() == ""
@@ -118,8 +120,8 @@ class TestAdditionalContextMessageFormat:
 
     def test_additional_context_contains_agent_type(self, capsys):
         """additionalContext message includes the agent_type."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         hook_input = json.dumps(
@@ -131,19 +133,20 @@ class TestAdditionalContextMessageFormat:
         )
 
         with patch("sys.stdin", io.StringIO(hook_input)):
-            handle_subagent_start()
+            handle_subagent_start_copilot()
 
         out = capsys.readouterr().out.strip()
         payload = json.loads(out)
-        msg = payload["additionalContext"]
+        inner = payload.get("hookSpecificOutput", {})
+        msg = inner.get("additionalContext", "")
         assert "nw-software-crafter" in msg, (
             "additionalContext must include the agent_type in the message"
         )
 
     def test_additional_context_message_matches_spec_format(self, capsys):
         """additionalContext message matches imperative reminder spec format."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         hook_input = json.dumps(
@@ -155,15 +158,16 @@ class TestAdditionalContextMessageFormat:
         )
 
         with patch("sys.stdin", io.StringIO(hook_input)):
-            handle_subagent_start()
+            handle_subagent_start_copilot()
 
         out = capsys.readouterr().out.strip()
         payload = json.loads(out)
-        msg = payload["additionalContext"]
+        inner = payload.get("hookSpecificOutput", {})
+        msg = inner.get("additionalContext", "")
         # Must be an imperative reminder referencing skills path
         assert "MANDATORY" in msg
         assert "nw-solution-architect" in msg
-        assert "~/.claude/skills/nw/nw-solution-architect/" in msg
+        assert ".github/skills/nw-solution-architect/" in msg
 
 
 class TestSubagentStartHandlerFailOpen:
@@ -171,27 +175,27 @@ class TestSubagentStartHandlerFailOpen:
 
     def test_exception_in_handler_exits_0_with_no_output(self, capsys):
         """Exception during handling: exits 0, no stdout output."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         # Malformed JSON — simulates protocol error
         with patch("sys.stdin", io.StringIO("not valid json {")):
-            exit_code = handle_subagent_start()
+            exit_code = handle_subagent_start_copilot()
 
         assert exit_code == 0
         assert capsys.readouterr().out.strip() == ""
 
     def test_missing_agent_type_field_exits_0_with_no_output(self, capsys):
         """Hook input missing agent_type: exits 0, no stdout output."""
-        from des.adapters.drivers.hooks.subagent_start_handler import (
-            handle_subagent_start,
+        from des.adapters.drivers.hooks.copilot_subagent_start_handler import (
+            handle_subagent_start_copilot,
         )
 
         hook_input = json.dumps({"session_id": "sess-999"})
 
         with patch("sys.stdin", io.StringIO(hook_input)):
-            exit_code = handle_subagent_start()
+            exit_code = handle_subagent_start_copilot()
 
         assert exit_code == 0
         assert capsys.readouterr().out.strip() == ""

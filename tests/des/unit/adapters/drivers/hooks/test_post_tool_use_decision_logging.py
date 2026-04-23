@@ -56,7 +56,7 @@ def _stub_service_returning(context_value: str | None):
 
 def test_injected_event_emitted_for_continuation_context(monkeypatch, audit_events):
     """HOOK_POST_TOOL_USE_INJECTED emitted with context_type='continuation' and is_des_task=True."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import post_tool_use_handler as adapter
 
     continuation_text = (
         "DES STEP COMPLETED [des-observability/04-01]\n"
@@ -98,7 +98,7 @@ def test_injected_event_emitted_for_continuation_context(monkeypatch, audit_even
 
 def test_injected_event_emitted_for_failure_notification(monkeypatch, audit_events):
     """HOOK_POST_TOOL_USE_INJECTED emitted with context_type='failure_notification'."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import post_tool_use_handler as adapter
 
     failure_text = (
         "DES STEP INCOMPLETE [des-observability/04-01]\n"
@@ -141,7 +141,7 @@ def test_injected_event_emitted_for_failure_notification(monkeypatch, audit_even
 
 def test_passthrough_event_emitted_for_non_des_task(monkeypatch, audit_events):
     """HOOK_POST_TOOL_USE_PASSTHROUGH emitted with is_des_task=False when no DES markers."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import post_tool_use_handler as adapter
 
     monkeypatch.setattr(
         "sys.stdin", io.StringIO(_build_post_tool_use_stdin(des_task=False))
@@ -179,7 +179,7 @@ def test_passthrough_event_emitted_for_des_task_with_no_context(
     monkeypatch, audit_events
 ):
     """HOOK_POST_TOOL_USE_PASSTHROUGH emitted with is_des_task=True and reason when service returns None."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import post_tool_use_handler as adapter
 
     monkeypatch.setattr(
         "sys.stdin", io.StringIO(_build_post_tool_use_stdin(des_task=True))
@@ -214,7 +214,7 @@ def test_passthrough_event_emitted_for_des_task_with_no_context(
 
 def test_logging_failure_does_not_affect_response(monkeypatch):
     """When decision logging raises, handle_post_tool_use still returns valid response."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import post_tool_use_handler as adapter
 
     log_call_count = 0
 

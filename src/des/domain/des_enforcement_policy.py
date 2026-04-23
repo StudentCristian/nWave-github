@@ -71,7 +71,7 @@ class DesEnforcementPolicy:
                 "<!-- DES-VALIDATION : required -->",
                 "<!-- DES-PROJECT-ID : {project-id} -->",
                 "<!-- DES-STEP-ID : {step-id} -->",
-                "Read ~/.claude/skills/nw-execute/SKILL.md for the full template.",
+                "Read .github/skills/nw-execute/SKILL.md for the full template.",
                 "If this is NOT step execution, add: <!-- DES-ENFORCEMENT : exempt -->",
             ],
         )

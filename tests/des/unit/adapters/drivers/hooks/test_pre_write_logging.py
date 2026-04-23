@@ -46,7 +46,7 @@ def _build_pre_edit_stdin(file_path: str = "/tmp/test.py") -> str:
 
 def test_hook_invoked_includes_session_state_in_input_summary(monkeypatch, tmp_path):
     """HOOK_INVOKED input_summary includes file_path, session_active, and des_task_active."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     events = []
     writer = make_capturing_writer(events)
@@ -83,7 +83,7 @@ def test_hook_invoked_includes_session_state_in_input_summary(monkeypatch, tmp_p
 
 def test_allowed_event_emitted_when_no_session(monkeypatch, tmp_path):
     """HOOK_PRE_WRITE_ALLOWED emitted with reason='no_session' when no deliver session."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     events = []
     writer = make_capturing_writer(events)
@@ -130,7 +130,7 @@ def test_allowed_event_emitted_for_non_blocked_paths(
     file_path, scenario, monkeypatch, tmp_path
 ):
     """HOOK_PRE_WRITE_ALLOWED emitted for paths the policy allows during active session."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     events = []
     writer = make_capturing_writer(events)
@@ -164,7 +164,7 @@ def test_allowed_event_emitted_for_non_blocked_paths(
 
 def test_blocked_event_emitted_when_guard_blocks(monkeypatch, tmp_path):
     """HOOK_PRE_WRITE_BLOCKED emitted with file_path and reason when source write blocked."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     events = []
     writer = make_capturing_writer(events)
@@ -205,7 +205,7 @@ def test_blocked_event_emitted_when_guard_blocks(monkeypatch, tmp_path):
 
 def test_logging_exception_preserves_fail_open_behavior(monkeypatch, tmp_path):
     """When audit logging raises, handle_pre_write still returns allow (fail-open)."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     call_count = 0
 
@@ -245,7 +245,7 @@ def test_logging_exception_preserves_fail_open_behavior(monkeypatch, tmp_path):
 
 def test_execution_log_write_blocked_always(monkeypatch, tmp_path):
     """Direct Write to execution-log.json is blocked and guides to des.cli.init_log."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     events = []
     writer = make_capturing_writer(events)
@@ -290,7 +290,7 @@ def test_execution_log_write_blocked_always(monkeypatch, tmp_path):
 
 def test_execution_log_edit_blocked_always(monkeypatch, tmp_path):
     """Direct Edit to execution-log.json is blocked and guides to des.cli.log_phase."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     events = []
     writer = make_capturing_writer(events)
@@ -335,7 +335,7 @@ def test_execution_log_edit_blocked_always(monkeypatch, tmp_path):
 
 def test_write_and_edit_get_different_block_messages(monkeypatch, tmp_path):
     """Write guides to des.cli.init_log, Edit guides to des.cli.log_phase."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     monkeypatch.setattr(
         des_task_signal, "DES_DELIVER_SESSION_FILE", tmp_path / "nonexistent"

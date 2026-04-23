@@ -2,7 +2,7 @@
 Unit tests for TaskInvocationPort and its adapters.
 
 Tests validate that TaskInvocationPort interface is correctly defined and that
-ClaudeCodeTaskAdapter and MockedTaskAdapter implement the interface correctly.
+CopilotTaskAdapter and MockedTaskAdapter implement the interface correctly.
 """
 
 
@@ -101,18 +101,18 @@ def test_mocked_task_adapter_implements_task_invocation_port():
     assert isinstance(adapter, TaskInvocationPort)
 
 
-def test_claude_code_task_adapter_implements_task_invocation_port():
+def test_copilot_task_adapter_implements_task_invocation_port():
     """
-    Test that ClaudeCodeTaskAdapter implements TaskInvocationPort interface.
+    Test that CopilotTaskAdapter implements TaskInvocationPort interface.
 
-    Given: ClaudeCodeTaskAdapter class
+    Given: CopilotTaskAdapter class
     When: Class is inspected
     Then: It is an instance of TaskInvocationPort
     """
-    from des.adapters.driven.task_invocation.claude_code_task_adapter import (
-        ClaudeCodeTaskAdapter,
+    from des.adapters.driven.task_invocation.copilot_task_adapter import (
+        CopilotTaskAdapter,
     )
     from des.ports.driven_ports.task_invocation_port import TaskInvocationPort
 
-    adapter = ClaudeCodeTaskAdapter()
+    adapter = CopilotTaskAdapter()
     assert isinstance(adapter, TaskInvocationPort)

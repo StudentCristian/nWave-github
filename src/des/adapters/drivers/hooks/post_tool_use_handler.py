@@ -3,7 +3,7 @@
 Reads the audit log for the most recent HOOK_SUBAGENT_STOP_FAILED entry.
 If found, injects additionalContext so the orchestrator knows a sub-agent failed.
 
-Extracted from copilot_hook_adapter.py as part of P4 decomposition.
+Adapted for GitHub Copilot hookSpecificOutput protocol.
 """
 
 import contextlib
@@ -128,7 +128,12 @@ def handle_post_tool_use() -> int:
                     is_des_task=is_des_task,
                     context_type=context_type,
                 )
-                response = {"additionalContext": additional_context}
+                response = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PostToolUse",
+                        "additionalContext": additional_context,
+                    }
+                }
             else:
                 reason = "no_completion_status" if is_des_task else "non_des_task"
                 _log_post_tool_use_decision(

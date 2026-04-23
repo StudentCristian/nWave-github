@@ -151,7 +151,7 @@ def _save_rigor_with_scope(
     Simulate the /nw-rigor command's write behavior.
 
     This is the read-modify-write pattern that the markdown command
-    instructs Claude to execute. We test the observable outcome.
+    instructs GitHub Copilot to execute. We test the observable outcome.
     """
     if scope == "global":
         target_path = ctx["global_config_path"]

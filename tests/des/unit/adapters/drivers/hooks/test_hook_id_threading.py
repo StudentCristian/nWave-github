@@ -112,7 +112,16 @@ def _build_no_max_turns_stdin() -> str:
 def test_pre_tool_use_allowed_event_carries_hook_id(monkeypatch, tmp_path):
     """When PreToolUse allows a DES task, the HOOK_PRE_TOOL_USE_ALLOWED
     event carries the same hook_id as the HOOK_INVOKED event."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+    )
 
     monkeypatch.setattr(des_task_signal, "DES_SESSION_DIR", tmp_path / ".nwave" / "des")
     monkeypatch.setattr(
@@ -149,7 +158,16 @@ def test_pre_tool_use_allowed_event_carries_hook_id(monkeypatch, tmp_path):
 def test_pre_tool_use_blocked_event_carries_hook_id(monkeypatch):
     """When PreToolUse blocks (missing max_turns), the HOOK_PRE_TOOL_USE_BLOCKED
     event carries the same hook_id as the HOOK_INVOKED event."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+    )
 
     events: list[AuditEvent] = []
     writer = make_capturing_writer(events)
@@ -206,7 +224,16 @@ def _write_complete_execution_log(
 def test_subagent_stop_passed_event_carries_hook_id(monkeypatch, tmp_path):
     """When SubagentStop passes validation, the HOOK_SUBAGENT_STOP_PASSED
     event carries the same hook_id as the HOOK_INVOKED event."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+    )
 
     des_dir = tmp_path / ".nwave" / "des"
     des_dir.mkdir(parents=True)
@@ -254,7 +281,16 @@ def test_subagent_stop_passed_event_carries_hook_id(monkeypatch, tmp_path):
 def test_subagent_stop_failed_event_carries_hook_id(monkeypatch, tmp_path):
     """When SubagentStop fails validation (incomplete phases), the
     HOOK_SUBAGENT_STOP_FAILED event carries the same hook_id as HOOK_INVOKED."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+    )
 
     des_dir = tmp_path / ".nwave" / "des"
     des_dir.mkdir(parents=True)

@@ -120,7 +120,20 @@ def _build_non_des_task_stdin() -> str:
 
 def test_signal_file_contains_valid_uuid4_task_correlation_id(monkeypatch, tmp_path):
     """When PreToolUse allows a DES task, the signal file contains a valid UUID4 task_correlation_id."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     _patch_signal_paths(monkeypatch, tmp_path)
 
@@ -148,7 +161,20 @@ def test_hook_completed_pre_tool_use_includes_task_correlation_id(
     monkeypatch, tmp_path
 ):
     """HOOK_COMPLETED event from pre_tool_use includes the task_correlation_id for DES tasks."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     _patch_signal_paths(monkeypatch, tmp_path)
 
@@ -178,7 +204,20 @@ def test_hook_completed_subagent_stop_includes_task_correlation_id_from_signal(
     monkeypatch, tmp_path
 ):
     """HOOK_COMPLETED in subagent_stop reads task_correlation_id from the signal file."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     # Pre-populate a signal file with a known task_correlation_id
     des_dir = tmp_path / ".nwave" / "des"
@@ -233,7 +272,20 @@ def test_hook_completed_subagent_stop_includes_task_correlation_id_from_signal(
 
 def test_hook_completed_pre_tool_use_no_correlation_id_for_non_des(monkeypatch):
     """HOOK_COMPLETED from pre_tool_use does not include task_correlation_id for non-DES tasks."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     events: list[AuditEvent] = []
     writer = make_capturing_writer(events)
@@ -256,7 +308,7 @@ def test_hook_completed_subagent_stop_graceful_when_signal_missing(
     monkeypatch, tmp_path
 ):
     """When signal file is missing, subagent_stop HOOK_COMPLETED has no task_correlation_id (graceful)."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import subagent_stop_handler as adapter
 
     # No signal file created
     des_dir = tmp_path / ".nwave" / "des"
@@ -296,7 +348,7 @@ def test_hook_completed_subagent_stop_graceful_when_signal_missing(
 
 def test_hook_invoked_includes_task_correlation_id_for_des_tasks(monkeypatch, tmp_path):
     """HOOK_INVOKED event from pre_tool_use includes task_correlation_id for DES tasks."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     _patch_signal_paths(monkeypatch, tmp_path)
 

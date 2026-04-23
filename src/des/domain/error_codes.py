@@ -94,7 +94,7 @@ _register(
         category=ErrorCategory.IO,
         stage="install",
         message="Agent copy failed",
-        recovery="Check file permissions on ~/.claude/agents/nw/",
+        recovery="Check file permissions on nWave/agents/nw/",
     ),
     NWError(
         code="NW-I050",
@@ -115,7 +115,7 @@ _register(
         category=ErrorCategory.IO,
         stage="install",
         message="Backup creation failed",
-        recovery="Check disk space and permissions on ~/.claude/backups/",
+        recovery="Check disk space and permissions on .nwave/backups/",
     ),
 )
 
@@ -127,7 +127,7 @@ _register(
         category=ErrorCategory.DISPATCH,
         stage="hook",
         message="Unknown command argument",
-        recovery="Check hook configuration in ~/.claude/settings.json",
+        recovery="Check hook configuration in .github/hooks/",
     ),
     NWError(
         code="NW-H002",

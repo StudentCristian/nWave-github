@@ -51,15 +51,15 @@ class TestExtractsSkillLoadsFromTranscript:
                 {
                     "type": "tool_use",
                     "name": "Read",
-                    "input": {
-                        "file_path": "/home/user/.claude/skills/nw/software-crafter/tdd-methodology.md"
-                    },
+                        "input": {
+                            "file_path": "/home/user/project/.github/skills/software-crafter/tdd-methodology.md"
+                        },
                 },
                 {
                     "type": "tool_use",
                     "name": "Read",
                     "input": {
-                        "file_path": "/home/user/.claude/skills/nw/acceptance-designer/bdd-scenarios.md"
+                            "file_path": "/home/user/project/.github/skills/acceptance-designer/bdd-scenarios.md"
                     },
                 },
             ],
@@ -92,7 +92,7 @@ class TestExtractsSkillLoadsFromTranscript:
                         "type": "tool_use",
                         "name": "Read",
                         "input": {
-                            "file_path": "/home/user/.claude/skills/nw/software-crafter/hexagonal-testing.md"
+                                "file_path": "/home/user/project/.github/skills/software-crafter/hexagonal-testing.md"
                         },
                     },
                 },
@@ -187,13 +187,13 @@ class TestTranscriptTrackingFailOpen:
         transcript.write_text(
             "not-json\n"
             + json.dumps(
-                {
-                    "type": "tool_use",
-                    "name": "Read",
-                    "input": {
-                        "file_path": "/home/user/.claude/skills/nw/software-crafter/tdd-methodology.md"
-                    },
-                }
+                    {
+                        "type": "tool_use",
+                        "name": "Read",
+                        "input": {
+                            "file_path": "/home/user/project/.github/skills/software-crafter/tdd-methodology.md"
+                        },
+                    }
             )
             + "\n",
             encoding="utf-8",

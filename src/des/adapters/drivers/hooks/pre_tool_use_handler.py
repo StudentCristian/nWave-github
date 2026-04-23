@@ -4,7 +4,7 @@ Translates GitHub Copilot's PreToolUse hook event (JSON stdin) into
 PreToolUseService decisions (allow/block), manages DES task signal creation,
 and emits audit events through hook_protocol.
 
-Extracted from copilot_hook_adapter.py as part of P4 decomposition.
+Adapted for GitHub Copilot hookSpecificOutput protocol.
 """
 
 import contextlib
@@ -12,6 +12,7 @@ import io
 import json
 import time
 import uuid
+import sys
 
 from des.adapters.drivers.hooks import des_task_signal, service_factory
 from des.adapters.drivers.hooks.hook_protocol import (
@@ -49,9 +50,12 @@ def handle_pre_tool_use() -> int:
                 return 0
 
             if stdin_result.parse_error:
-                response = {"status": "error", "reason": stdin_result.parse_error}
-                print(json.dumps(response))
-                exit_code = 1
+                # Parse error = fail-closed (deny) in Copilot
+                print(
+                    f"DES PreToolUse parse error: {stdin_result.parse_error}",
+                    file=sys.stderr,
+                )
+                exit_code = 2
                 return exit_code
 
             hook_input = stdin_result.hook_input
@@ -67,7 +71,7 @@ def handle_pre_tool_use() -> int:
             )
 
             # Extract protocol fields
-            # Hook protocol sends: {"tool_name": "Agent", "tool_input": {...}, ...}
+            # Copilot sends: {"tool_name": "Agent", "tool_input": {...}, ...}
             prompt = tool_input.get("prompt", "")
 
             # Delegate to application service
@@ -106,20 +110,23 @@ def handle_pre_tool_use() -> int:
                         f"  {i + 1}. {s}" for i, s in enumerate(recovery)
                     )
                 response = {
-                    "decision": "block",
-                    "reason": reason_with_recovery,
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": reason_with_recovery,
+                    }
                 }
                 print(json.dumps(response))
-                exit_code = decision.exit_code
+                exit_code = 0
                 return exit_code
 
     except Exception as e:
         # Fail-closed: any error blocks execution
         stderr_capture = stderr_buffer.getvalue()[:STDERR_CAPTURE_MAX_CHARS]
         log_hook_error("pre_tool_use", e, stderr_capture)
-        response = {"status": "error", "reason": f"Unexpected error: {e!s}"}
-        print(json.dumps(response))
-        exit_code = 1
+        # Exit 2 = deny in Copilot (stderr is used as reason)
+        print(f"DES PreToolUse error: {e!s}", file=sys.stderr)
+        exit_code = 2
         return exit_code
     finally:
         duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000

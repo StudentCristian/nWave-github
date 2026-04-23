@@ -1,4 +1,4 @@
-"""Tests for hook_id generation in claude_code_hook_adapter.
+"""Tests for hook_id generation in copilot_hook_adapter.
 
 Each handler generates a UUID4 hook_id at entry and includes it in the
 HOOK_INVOKED audit event. Tests exercise through the handler driving ports
@@ -82,7 +82,20 @@ def test_handler_generates_valid_uuid4_hook_id_in_hook_invoked_event(
     handler_name, stdin_factory, monkeypatch, audit_events
 ):
     """Each handler generates a UUID4 hook_id and includes it in the HOOK_INVOKED event."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     monkeypatch.setattr("sys.stdin", io.StringIO(stdin_factory()))
     monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
@@ -109,7 +122,20 @@ def test_handler_generates_valid_uuid4_hook_id_in_hook_invoked_event(
 
 def test_hook_id_unique_across_invocations(monkeypatch):
     """Calling the same handler twice produces different hook_ids."""
-    from des.adapters.drivers.hooks import claude_code_hook_adapter as adapter
+    from types import SimpleNamespace
+    from des.adapters.drivers.hooks import (
+        pre_tool_use_handler,
+        subagent_stop_handler,
+        post_tool_use_handler,
+        pre_write_handler,
+    )
+
+    adapter = SimpleNamespace(
+        handle_pre_tool_use=pre_tool_use_handler.handle_pre_tool_use,
+        handle_subagent_stop=subagent_stop_handler.handle_subagent_stop,
+        handle_post_tool_use=post_tool_use_handler.handle_post_tool_use,
+        handle_pre_write=pre_write_handler.handle_pre_write,
+    )
 
     all_hook_ids = []
 

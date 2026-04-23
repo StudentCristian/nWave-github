@@ -19,35 +19,21 @@ from pathlib import Path
 #   __file__ = /mnt/c/.../ai-craft/src/des/application/tdd_template_loader.py
 #   Resolves to: /mnt/c/.../ai-craft/nWave/templates/step-tdd-cycle-schema.json
 #
-# Installed location:
-#   __file__ = ~/.claude/lib/python/des/application/tdd_template_loader.py
-#   Resolves to: ~/.claude/templates/step-tdd-cycle-schema.json
+# Legacy distribution notes removed. Templates are resolved from the project
+# `templates/` directory or package resources when available.
 
 
 def _get_template_path() -> Path:
     """Resolve template path for current environment.
 
-    Handles three deployment contexts:
-    - Installed: ~/.claude/lib/python/des/... → ~/.claude/templates/
+    Handles two deployment contexts:
     - Plugin: .../scripts/des/... → .../scripts/templates/
-    - Source: /path/to/project/src/des/... → project/nWave/templates/
+    - Source: /path/to/project/src/des/... → project_root/templates/
     """
     module_file = Path(__file__)
     # Normalize to forward slashes for cross-platform matching
     module_str = str(module_file).replace("\\", "/")
     module_resolved_str = str(module_file.resolve()).replace("\\", "/")
-
-    is_installed = (".claude" in module_str or ".claude" in module_resolved_str) and (
-        "lib/python/des" in module_str or "lib/python/des" in module_resolved_str
-    )
-
-    if is_installed:
-        for search_path in [module_file, module_file.resolve()]:
-            for parent in search_path.parents:
-                if parent.name == ".claude":
-                    candidate = parent / "templates" / "step-tdd-cycle-schema.json"
-                    if candidate.exists():
-                        return candidate
 
     # Plugin context: scripts/des/application/tdd_template_loader.py → scripts/templates/
     for search_path in [module_file, module_file.resolve()]:
@@ -56,10 +42,8 @@ def _get_template_path() -> Path:
                 candidate = parent / "templates" / "step-tdd-cycle-schema.json"
                 if candidate.exists():
                     return candidate
-
     return (
         module_file.parent.parent.parent.parent
-        / "nWave"
         / "templates"
         / "step-tdd-cycle-schema.json"
     )
