@@ -111,7 +111,7 @@ class TestEnforcementOrderingWithoutMaxTurns:
 
         # WHEN: Hook processes
         exit_code, stdout, _stderr = copilot_hook_stdin(
-            "pre-task", json.dumps(hook_input)
+            "pre-tool-use", json.dumps(hook_input)
         )
 
         # THEN: Blocked by enforcement policy
@@ -161,7 +161,7 @@ class TestEnforcementOrderingWithoutMaxTurns:
 
         # WHEN: Hook processes
         exit_code, stdout, _stderr = copilot_hook_stdin(
-            "pre-task", json.dumps(hook_input)
+            "pre-tool-use", json.dumps(hook_input)
         )
 
         # THEN: Blocked by completeness or template validation
@@ -202,7 +202,7 @@ class TestEnforcementOrderingWithoutMaxTurns:
 
         # WHEN: Hook processes
         exit_code, stdout, _stderr = copilot_hook_stdin(
-            "pre-task", json.dumps(hook_input)
+            "pre-tool-use", json.dumps(hook_input)
         )
 
         # THEN: ALLOWED

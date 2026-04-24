@@ -129,7 +129,7 @@ class TestAgentToolHookProcessing:
 
         # WHEN: Hook processes the invocation
         exit_code, stdout, _stderr = copilot_hook_stdin(
-            "pre-task", json.dumps(hook_input)
+            "pre-tool-use", json.dumps(hook_input)
         )
 
         # THEN: Invocation is ALLOWED
@@ -164,7 +164,7 @@ class TestAgentToolHookProcessing:
 
         # WHEN: Hook processes
         exit_code, stdout, _stderr = copilot_hook_stdin(
-            "pre-task", json.dumps(hook_input)
+            "pre-tool-use", json.dumps(hook_input)
         )
 
         # THEN: ALLOWED
@@ -200,7 +200,7 @@ class TestAgentToolHookProcessing:
 
         # WHEN: Hook processes
         exit_code, stdout, _stderr = copilot_hook_stdin(
-            "pre-task", json.dumps(hook_input)
+            "pre-tool-use", json.dumps(hook_input)
         )
 
         # THEN: Invocation is BLOCKED
@@ -244,7 +244,7 @@ class TestAgentToolHookProcessing:
 
         # WHEN: Hook processes
         exit_code, stdout, _stderr = copilot_hook_stdin(
-            "pre-task", json.dumps(hook_input)
+            "pre-tool-use", json.dumps(hook_input)
         )
 
         # THEN: ALLOWED (max_turns ignored, valid prompt passes)

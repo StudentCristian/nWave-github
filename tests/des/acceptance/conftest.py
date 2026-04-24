@@ -82,27 +82,27 @@ def temp_home(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def claude_config_dir(temp_home):
-    """Create .claude directory structure."""
-    claude_dir = temp_home / ".claude"
-    claude_dir.mkdir()
+def nwave_config_dir(temp_home):
+    """Create .nwave directory structure."""
+    nwave_dir = temp_home / ".nwave"
+    nwave_dir.mkdir()
 
-    des_dir = claude_dir / "des"
+    des_dir = nwave_dir / "des"
     des_dir.mkdir()
 
-    return claude_dir
+    return nwave_dir
 
 
 @pytest.fixture
-def settings_local_json_path(claude_config_dir):
-    """Return path to .claude/settings.local.json."""
-    return claude_config_dir / "settings.local.json"
+def settings_local_json_path(nwave_config_dir):
+    """Return path to .nwave/settings.local.json."""
+    return nwave_config_dir / "settings.local.json"
 
 
 @pytest.fixture
-def des_config_path(claude_config_dir):
-    """Return path to ~/.claude/des/config.yaml."""
-    return claude_config_dir / "des" / "config.yaml"
+def des_config_path(nwave_config_dir):
+    """Return path to ~/.nwave/des/config.yaml."""
+    return nwave_config_dir / "des" / "config.yaml"
 
 
 @pytest.fixture
@@ -149,11 +149,11 @@ def clean_des_environment(temp_home, audit_log_reader):
     audit_log_reader.clear()
 
     # Clean up any existing config files
-    des_config = temp_home / ".claude" / "des" / "config.yaml"
+    des_config = temp_home / ".nwave" / "des" / "config.yaml"
     if des_config.exists():
         des_config.unlink()
 
-    settings_local = temp_home / ".claude" / "settings.local.json"
+    settings_local = temp_home / ".nwave" / "settings.local.json"
     if settings_local.exists():
         settings_local.unlink()
 

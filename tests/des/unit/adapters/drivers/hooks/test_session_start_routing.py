@@ -1,4 +1,4 @@
-"""Unit tests for session-start routing in hook_router.
+"""Unit tests for session-start routing in copilot_hook_adapter.
 
 Test budget: 3 behaviors x 2 = 6 unit tests max.
 """
@@ -68,10 +68,10 @@ class TestUnknownCommandExits2:
 
 
 class TestExistingRoutingUnaffected:
-    """B3: Existing routing (pre-task, subagent-stop, post-tool-use) unaffected."""
+    """B3: Existing routing (pre-tool-use, subagent-stop, post-tool-use) unaffected."""
 
-    def test_pre_task_still_routes_to_pre_tool_use_handler(self):
-        """pre-task command still routes to handle_pre_tool_use."""
+    def test_pre_tool_use_still_routes_to_pre_tool_use_handler(self):
+        """pre-tool-use command still routes to handle_pre_tool_use."""
         from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
         from des.adapters.drivers.hooks import pre_tool_use_handler
 
