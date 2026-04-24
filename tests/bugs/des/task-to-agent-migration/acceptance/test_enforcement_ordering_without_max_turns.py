@@ -89,7 +89,7 @@ class TestEnforcementOrderingWithoutMaxTurns:
     All tests invoke through the driving port (handle_pre_tool_use).
     """
 
-    def test_enforcement_fires_before_completeness(self, claude_code_hook_stdin):
+    def test_enforcement_fires_before_completeness(self, copilot_hook_stdin):
         """
         GIVEN a prompt with step-id pattern but NO DES markers and NO max_turns
         WHEN PreToolUse hook processes the invocation
@@ -110,20 +110,21 @@ class TestEnforcementOrderingWithoutMaxTurns:
         }
 
         # WHEN: Hook processes
-        exit_code, stdout, _stderr = claude_code_hook_stdin(
+        exit_code, stdout, _stderr = copilot_hook_stdin(
             "pre-task", json.dumps(hook_input)
         )
 
         # THEN: Blocked by enforcement policy
-        assert exit_code == 2, (
+        assert exit_code == 0, (
             f"Should be blocked by enforcement. "
             f"Got exit code: {exit_code}, stdout: {stdout}"
         )
 
         output = json.loads(stdout)
-        assert output.get("decision") == "block"
+        hook_output = output.get("hookSpecificOutput", {})
+        assert hook_output.get("permissionDecision") == "deny"
 
-        reason = output.get("reason", "")
+        reason = hook_output.get("permissionDecisionReason", "")
         assert "DES_MARKERS_MISSING" in reason, (
             f"Should be blocked by enforcement (DES_MARKERS_MISSING). Got: {reason}"
         )
@@ -133,7 +134,7 @@ class TestEnforcementOrderingWithoutMaxTurns:
             f"Should NOT mention max_turns after removal. Got: {reason}"
         )
 
-    def test_completeness_check_runs_for_des_tasks(self, claude_code_hook_stdin):
+    def test_completeness_check_runs_for_des_tasks(self, copilot_hook_stdin):
         """
         GIVEN a DES prompt with markers but missing mandatory sections
         WHEN PreToolUse hook processes the invocation
@@ -159,27 +160,28 @@ class TestEnforcementOrderingWithoutMaxTurns:
         }
 
         # WHEN: Hook processes
-        exit_code, stdout, _stderr = claude_code_hook_stdin(
+        exit_code, stdout, _stderr = copilot_hook_stdin(
             "pre-task", json.dumps(hook_input)
         )
 
         # THEN: Blocked by completeness or template validation
-        assert exit_code == 2, (
+        assert exit_code == 0, (
             f"Incomplete DES prompt should be blocked. "
             f"Got exit code: {exit_code}, stdout: {stdout}"
         )
 
         output = json.loads(stdout)
-        assert output.get("decision") == "block"
+        hook_output = output.get("hookSpecificOutput", {})
+        assert hook_output.get("permissionDecision") == "deny"
 
         # THEN: Block reason is about missing sections, not max_turns
-        reason = output.get("reason", "")
+        reason = hook_output.get("permissionDecisionReason", "")
         assert "MAX_TURNS" not in reason and "max_turns" not in reason, (
             f"Block reason should not mention max_turns. Got: {reason}"
         )
         assert reason, "Block reason should not be empty"
 
-    def test_valid_des_prompt_allowed_without_max_turns(self, claude_code_hook_stdin):
+    def test_valid_des_prompt_allowed_without_max_turns(self, copilot_hook_stdin):
         """
         GIVEN a fully valid DES prompt with all mandatory sections, no max_turns
         WHEN PreToolUse hook processes the invocation
@@ -199,7 +201,7 @@ class TestEnforcementOrderingWithoutMaxTurns:
         }
 
         # WHEN: Hook processes
-        exit_code, stdout, _stderr = claude_code_hook_stdin(
+        exit_code, stdout, _stderr = copilot_hook_stdin(
             "pre-task", json.dumps(hook_input)
         )
 
@@ -209,7 +211,7 @@ class TestEnforcementOrderingWithoutMaxTurns:
             f"Got exit code: {exit_code}, stdout: {stdout}"
         )
 
-        # Allow path: silent exit 0, no stdout (Claude Code protocol)
+        # Allow path: silent exit 0, no stdout (Copilot protocol)
         assert stdout.strip() == "", (
             f"Allow path should produce no stdout. Got: {stdout!r}"
         )
@@ -221,9 +223,9 @@ class TestEnforcementOrderingWithoutMaxTurns:
 
 
 @pytest.fixture
-def claude_code_hook_stdin(tmp_path):
+def copilot_hook_stdin(tmp_path):
     """
-    Fixture to invoke Claude Code hook adapter directly (no subprocess).
+    Fixture to invoke Copilot hook adapter directly (no subprocess).
 
     Returns callable that:
     1. Takes (command, stdin_data)

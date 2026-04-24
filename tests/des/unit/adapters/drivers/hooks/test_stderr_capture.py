@@ -85,7 +85,7 @@ def test_acceptance_hook_error_includes_error_type_and_stderr_capture(monkeypatc
 
     events, exit_code = _run_handler_with_exception(monkeypatch, exploding_service)
 
-    assert exit_code == 1, "Handler should return 1 on exception"
+    assert exit_code == 2, "Handler should return 2 on exception"
 
     error_events = [e for e in events if e.event_type == "HOOK_ERROR"]
     assert len(error_events) >= 1, (

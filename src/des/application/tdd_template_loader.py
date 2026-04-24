@@ -1,7 +1,7 @@
 """
 TDD Template Loader - Single Source of Truth
 
-Loads TDD phase definitions from canonical template (nWave/templates/step-tdd-cycle-schema.json)
+Loads TDD phase definitions from canonical template (templates/step-tdd-cycle-schema.json)
 instead of hardcoding them in validators/tests.
 
 This ensures when template changes, all consumers update automatically.
@@ -17,7 +17,7 @@ from pathlib import Path
 #
 # Source location:
 #   __file__ = /mnt/c/.../ai-craft/src/des/application/tdd_template_loader.py
-#   Resolves to: /mnt/c/.../ai-craft/nWave/templates/step-tdd-cycle-schema.json
+#   Resolves to: /path/to/project/templates/step-tdd-cycle-schema.json
 #
 # Legacy distribution notes removed. Templates are resolved from the project
 # `templates/` directory or package resources when available.
@@ -79,7 +79,7 @@ def load_tdd_template() -> dict:
     if not template_path.exists():
         raise FileNotFoundError(
             f"Canonical TDD template not found at: {template_path}. "
-            f"Expected location: nWave/templates/step-tdd-cycle-schema.json"
+            f"Expected location: templates/step-tdd-cycle-schema.json"
         )
 
     with open(template_path) as f:

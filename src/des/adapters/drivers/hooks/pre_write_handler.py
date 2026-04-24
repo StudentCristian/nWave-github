@@ -95,21 +95,23 @@ def handle_pre_write() -> int:
                 if tool_name == "Write":
                     block_reason = (
                         "Direct creation of execution-log.json is blocked.\n\n"
-                        "Use the CLI to initialize the execution log:\n\n"
-                        f"  python -m des.cli.init_log \\\n"
+                        "Use the DES CLI to initialize the execution log:\n\n"
+                        f"  PYTHONPATH=$HOME/.github/lib/python "
+                        f"$(command -v python3 || command -v python) -m des.cli.init_log \\\n"
                         f"    --project-dir {project_dir} \\\n"
-                        "    --feature-id {feature-id}\n\n"
-                        "IMPORTANT: The execution log must be created through the CLI "
+                        "    --feature-id {{feature-id}}\n\n"
+                        "IMPORTANT: The execution log must be created through the DES CLI "
                         "to ensure correct schema."
                     )
                 else:
                     block_reason = (
                         "Direct modification of execution-log.json is blocked.\n\n"
-                        "Use the CLI to record phase outcomes after executing the step:\n\n"
-                        f"  python -m des.cli.log_phase \\\n"
+                        "Use the DES CLI to record phase outcomes after executing the step:\n\n"
+                        f"  PYTHONPATH=$HOME/.github/lib/python "
+                        f"$(command -v python3 || command -v python) -m des.cli.log_phase \\\n"
                         f"    --project-dir {project_dir} \\\n"
-                        "    --step-id {step-id} \\\n"
-                        "    --phase {phase} \\\n"
+                        "    --step-id {{step-id}} \\\n"
+                        "    --phase {{phase}} \\\n"
                         "    --status EXECUTED \\\n"
                         "    --data PASS\n\n"
                         "IMPORTANT: The step must be executed and completed successfully "

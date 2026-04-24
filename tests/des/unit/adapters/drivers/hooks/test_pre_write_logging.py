@@ -180,12 +180,20 @@ def test_blocked_event_emitted_when_guard_blocks(monkeypatch, tmp_path):
     monkeypatch.setattr(
         "sys.stdin", io.StringIO(_build_pre_write_stdin("src/des/main.py"))
     )
-    monkeypatch.setattr("builtins.print", lambda *a, **kw: None)
+    printed = []
+    monkeypatch.setattr("builtins.print", lambda *a, **kw: printed.append(a))
 
     with patch.object(hook_protocol, "_audit_writer_factory", return_value=writer):
         exit_code = adapter.handle_pre_write()
 
-    assert exit_code == 2
+    assert exit_code == 0
+
+    # Verify Copilot block response structure
+    assert len(printed) >= 1, "Expected block response on stdout"
+    response_json = json.loads(printed[-1][0])
+    hook_output = response_json["hookSpecificOutput"]
+    assert hook_output["permissionDecision"] == "deny"
+    assert hook_output["permissionDecisionReason"]
 
     blocked_events = [e for e in events if e.event_type == "HOOK_PRE_WRITE_BLOCKED"]
     assert len(blocked_events) == 1, (
@@ -236,7 +244,7 @@ def test_logging_exception_preserves_fail_open_behavior(monkeypatch, tmp_path):
     assert exit_code == 0
     # Verify it attempted to log (writer was called)
     assert call_count > 0, "Expected audit writer to be called even though it raised"
-    # Allow path: no stdout (Claude Code protocol — silent exit 0)
+    # Allow path: no stdout (Copilot protocol — silent exit 0)
     assert len(printed) == 0, f"Allow path should produce no output. Got: {printed}"
 
 
@@ -267,14 +275,15 @@ def test_execution_log_write_blocked_always(monkeypatch, tmp_path):
         exit_code = adapter.handle_pre_write()
 
     # Must block
-    assert exit_code == 2
+    assert exit_code == 0
 
     # Verify block response guides to init_log CLI
     assert len(printed) >= 1, "Expected at least one print call with block response"
     response_json = json.loads(printed[-1][0])
-    assert response_json["decision"] == "block"
-    assert "execution-log.json" in response_json["reason"]
-    assert "des.cli.init_log" in response_json["reason"]
+    hook_output = response_json["hookSpecificOutput"]
+    assert hook_output["permissionDecision"] == "deny"
+    assert "execution-log.json" in hook_output["permissionDecisionReason"]
+    assert "des.cli.init_log" in hook_output["permissionDecisionReason"]
 
     # Verify audit event
     blocked_events = [e for e in events if e.event_type == "HOOK_PRE_WRITE_BLOCKED"]
@@ -312,14 +321,15 @@ def test_execution_log_edit_blocked_always(monkeypatch, tmp_path):
         exit_code = adapter.handle_pre_write()
 
     # Must block
-    assert exit_code == 2
+    assert exit_code == 0
 
     # Verify block response guides to log_phase CLI
     assert len(printed) >= 1, "Expected at least one print call with block response"
     response_json = json.loads(printed[-1][0])
-    assert response_json["decision"] == "block"
-    assert "execution-log.json" in response_json["reason"]
-    assert "des.cli.log_phase" in response_json["reason"]
+    hook_output = response_json["hookSpecificOutput"]
+    assert hook_output["permissionDecision"] == "deny"
+    assert "execution-log.json" in hook_output["permissionDecisionReason"]
+    assert "des.cli.log_phase" in hook_output["permissionDecisionReason"]
 
     # Verify audit event
     blocked_events = [e for e in events if e.event_type == "HOOK_PRE_WRITE_BLOCKED"]
@@ -355,7 +365,9 @@ def test_write_and_edit_get_different_block_messages(monkeypatch, tmp_path):
     with patch.object(hook_protocol, "_audit_writer_factory", return_value=writer):
         adapter.handle_pre_write()
 
-    write_reason = json.loads(write_printed[-1][0])["reason"]
+    write_reason = json.loads(write_printed[-1][0])["hookSpecificOutput"][
+        "permissionDecisionReason"
+    ]
 
     # Collect Edit block message
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_edit_stdin(exec_log_path)))
@@ -365,7 +377,9 @@ def test_write_and_edit_get_different_block_messages(monkeypatch, tmp_path):
     with patch.object(hook_protocol, "_audit_writer_factory", return_value=writer):
         adapter.handle_pre_write()
 
-    edit_reason = json.loads(edit_printed[-1][0])["reason"]
+    edit_reason = json.loads(edit_printed[-1][0])["hookSpecificOutput"][
+        "permissionDecisionReason"
+    ]
 
     # Messages must differ and guide to different CLIs
     assert write_reason != edit_reason, (

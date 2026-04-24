@@ -127,7 +127,7 @@ def _resolve_des_context(
 
     Supports two protocols:
     1. Direct DES format (CLI testing): {"executionLogPath", "projectId", "stepId"}
-    2. Claude Code protocol (live hooks): {"agent_transcript_path", "cwd", ...}
+    2. Copilot protocol (live hooks): {"agent_transcript_path", "cwd", ...}
 
     Returns:
         On success: (execution_log_path, project_id, step_id)
@@ -158,7 +158,7 @@ def _resolve_des_context(
             )
         return execution_log_path, project_id, step_id
 
-    # Claude Code protocol - extract DES context from transcript
+    # Copilot protocol - extract DES context from transcript
     agent_transcript_path = hook_input.get("agent_transcript_path")
     cwd = hook_input.get("cwd", "")
 
@@ -216,7 +216,7 @@ Never write log entries for phases that were not actually executed."""
 def _extract_execution_stats(hook_input: dict) -> tuple[int | None, int | None]:
     """Extract turns_used and tokens_used from hook input.
 
-    Claude Code may include num_turns and total_tokens in SubagentStop hook_input.
+    Copilot may include num_turns and total_tokens in SubagentStop hook_input.
 
     Args:
         hook_input: Parsed JSON from stdin.
@@ -245,7 +245,7 @@ def handle_subagent_stop() -> int:
 
     Protocol translation only -- all decisions delegated to SubagentStopService.
 
-    Claude Code sends: {"agent_id", "agent_type", "agent_transcript_path", "cwd", ...}
+    Copilot sends: {"agent_id", "agent_type", "agent_transcript_path", "cwd", ...}
     DES context (project_id, step_id) is extracted from the agent's transcript.
     Non-DES agents (no markers in transcript) are allowed through.
 
@@ -332,7 +332,7 @@ def handle_subagent_stop() -> int:
 
             stop_hook_active = bool(hook_input.get("stop_hook_active", False))
             # Pass cwd for commit verification from both protocols.
-            # Claude Code sends cwd in hook input JSON.
+            # Copilot sends cwd in hook input JSON.
             cwd = hook_input.get("cwd", "")
             service = service_factory.create_subagent_stop_service()
             decision = service.validate(

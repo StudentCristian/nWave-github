@@ -53,23 +53,18 @@ class TestSessionStartRouting:
         assert exits == [0]
 
 
-class TestUnknownCommandExits1:
-    """B2: Unknown command exits 1 (existing behavior unchanged)."""
+class TestUnknownCommandExits2:
+    """B2: Unknown command exits 2."""
 
-    def test_unknown_command_still_exits_1(self, capsys):
-        """Unknown command exits 1 with error JSON."""
+    def test_unknown_command_exits_2(self, capsys):
+        """Unknown command exits 2 with error on stderr."""
         from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
 
         exits = _capture_exit(hook_router, ["adapter", "totally-unknown-xyz"])
 
-        # Copilot adapter signals blocking deny via exit code 2 and
-        # nested `hookSpecificOutput` with `permissionDecision`.
         assert exits == [2]
-        out = capsys.readouterr().out.strip()
-        payload = json.loads(out)
-        hso = payload.get("hookSpecificOutput", {})
-        assert hso.get("permissionDecision") == "deny"
-        assert "totally-unknown-xyz" in hso.get("permissionDecisionReason", "")
+        err = capsys.readouterr().err.strip()
+        assert "totally-unknown-xyz" in err
 
 
 class TestExistingRoutingUnaffected:
@@ -77,7 +72,7 @@ class TestExistingRoutingUnaffected:
 
     def test_pre_task_still_routes_to_pre_tool_use_handler(self):
         """pre-task command still routes to handle_pre_tool_use."""
-        from des.adapters.drivers.hooks import hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
         from des.adapters.drivers.hooks import pre_tool_use_handler
 
         with patch.object(
@@ -85,6 +80,6 @@ class TestExistingRoutingUnaffected:
             "handle_pre_tool_use",
             return_value=0,
         ) as mock_handler:
-            _capture_exit(hook_router, ["adapter", "pre-task"])
+            _capture_exit(hook_router, ["adapter", "pre-tool-use"])
 
         mock_handler.assert_called_once()

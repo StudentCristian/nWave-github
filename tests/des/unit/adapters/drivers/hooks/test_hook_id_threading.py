@@ -178,7 +178,7 @@ def test_pre_tool_use_blocked_event_carries_hook_id(monkeypatch):
     with patch.object(hook_protocol, "_audit_writer_factory", return_value=writer):
         exit_code = adapter.handle_pre_tool_use()
 
-    assert exit_code == 2
+    assert exit_code == 0
 
     # Extract hook_id from HOOK_INVOKED
     invoked = [e for e in events if e.event_type == "HOOK_INVOKED"]

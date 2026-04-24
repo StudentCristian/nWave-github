@@ -85,8 +85,8 @@ def test_empty_stdin_produces_protocol_anomaly(
 @pytest.mark.parametrize(
     "handler_name,expected_fallback,expected_exit_code",
     [
-        ("handle_pre_tool_use", "error", 1),
-        ("handle_subagent_stop", "error", 1),
+        ("handle_pre_tool_use", "error", 2),
+        ("handle_subagent_stop", "error", 2),
         ("handle_post_tool_use", "allow", 0),
         ("handle_pre_write", "allow", 0),
     ],
@@ -140,9 +140,9 @@ def test_json_parse_error_produces_protocol_anomaly(
     "stdin_content,handler_name,expected_exit_code",
     [
         ("", "handle_pre_tool_use", 0),
-        ("{bad json", "handle_pre_tool_use", 1),
+        ("{bad json", "handle_pre_tool_use", 2),
         ("", "handle_subagent_stop", 0),
-        ("{bad json", "handle_subagent_stop", 1),
+        ("{bad json", "handle_subagent_stop", 2),
     ],
     ids=[
         "empty_stdin_pre_tool_use",

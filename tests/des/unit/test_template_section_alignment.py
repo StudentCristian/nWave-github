@@ -3,7 +3,7 @@ Test that the DES execute template contains all mandatory sections
 required by the validator.
 
 This prevents drift between the validator's MANDATORY_SECTIONS list
-and the actual template content in execute.md.
+and the actual template content in nw-execute.prompt.md.
 """
 
 import re
@@ -39,10 +39,10 @@ def _extract_template_code_block(template_path: Path) -> str:
 
 def test_execute_template_contains_all_mandatory_sections():
     """Every section in MandatorySectionChecker.MANDATORY_SECTIONS must
-    appear as a '# SECTION_NAME' header inside the execute.md template
+    appear as a '# SECTION_NAME' header inside the nw-execute.prompt.md template
     code block."""
     project_root = _find_project_root()
-    template_path = project_root / "nWave" / "tasks" / "nw" / "execute.md"
+    template_path = project_root / ".github" / "prompts" / "nw-execute.prompt.md"
 
     template_block = _extract_template_code_block(template_path)
 
@@ -53,7 +53,7 @@ def test_execute_template_contains_all_mandatory_sections():
     missing = mandatory - headers_in_template
 
     assert not missing, (
-        f"Template execute.md is missing mandatory section(s): {sorted(missing)}. "
+        f"Template nw-execute.prompt.md is missing mandatory section(s): {sorted(missing)}. "
         f"The validator requires these sections but the template does not contain them. "
         f"Add '# SECTION_NAME' headers to the template code block."
     )

@@ -2,7 +2,7 @@
 Regression Tests: Agent Tool Hook Processing After Task-to-Agent Migration
 
 PROBLEM STATEMENT:
-Claude Code v2.1.63 renamed the "Task" tool to "Agent" and removed the
+Copilot tool integration renamed the "Task" tool to "Agent" and removed the
 max_turns parameter from tool_input schema. This broke DES hooks silently:
 1. PreToolUse hook matchers with "Task" stopped firing (tool_name is now "Agent")
 2. max_turns validation always returned MISSING_MAX_TURNS, blocking all DES tasks
@@ -97,15 +97,15 @@ class TestAgentToolHookProcessing:
     """Regression tests for Agent tool invocations after Task-to-Agent migration.
 
     The key regression: DES hooks must process Agent tool invocations without
-    requiring max_turns in tool_input, since Claude Code v2.1.63 moved this
+    requiring max_turns in tool_input, since Copilot moved this
     parameter to agent definition YAML frontmatter.
 
     All tests invoke through the driving port (handle_pre_tool_use) which is
-    the actual entry point called by Claude Code hooks.
+    the actual entry point called by Copilot hooks.
     """
 
     def test_agent_tool_des_invocation_allowed_without_max_turns(
-        self, claude_code_hook_stdin
+        self, copilot_hook_stdin
     ):
         """
         GIVEN a valid DES prompt with NO max_turns in tool_input (new Agent schema)
@@ -128,7 +128,7 @@ class TestAgentToolHookProcessing:
         }
 
         # WHEN: Hook processes the invocation
-        exit_code, stdout, _stderr = claude_code_hook_stdin(
+        exit_code, stdout, _stderr = copilot_hook_stdin(
             "pre-task", json.dumps(hook_input)
         )
 
@@ -138,12 +138,12 @@ class TestAgentToolHookProcessing:
             f"Got exit code: {exit_code}, stdout: {stdout}"
         )
 
-        # Allow path: silent exit 0, no stdout (Claude Code protocol)
+        # Allow path: silent exit 0, no stdout (Copilot protocol)
         assert stdout.strip() == "", (
             f"Allow path should produce no stdout. Got: {stdout!r}"
         )
 
-    def test_agent_tool_non_des_invocation_passes_through(self, claude_code_hook_stdin):
+    def test_agent_tool_non_des_invocation_passes_through(self, copilot_hook_stdin):
         """
         GIVEN an Agent tool invocation with no DES markers and no max_turns
         WHEN PreToolUse hook processes the invocation
@@ -163,7 +163,7 @@ class TestAgentToolHookProcessing:
         }
 
         # WHEN: Hook processes
-        exit_code, stdout, _stderr = claude_code_hook_stdin(
+        exit_code, stdout, _stderr = copilot_hook_stdin(
             "pre-task", json.dumps(hook_input)
         )
 
@@ -173,16 +173,16 @@ class TestAgentToolHookProcessing:
             f"Got exit code: {exit_code}, stdout: {stdout}"
         )
 
-        # Allow path: silent exit 0, no stdout (Claude Code protocol)
+        # Allow path: silent exit 0, no stdout (Copilot protocol)
         assert stdout.strip() == "", (
             f"Allow path should produce no stdout. Got: {stdout!r}"
         )
 
-    def test_agent_tool_invalid_des_prompt_still_blocked(self, claude_code_hook_stdin):
+    def test_agent_tool_invalid_des_prompt_still_blocked(self, copilot_hook_stdin):
         """
         GIVEN a DES prompt with markers but missing mandatory sections, no max_turns
         WHEN PreToolUse hook processes the invocation
-        THEN hook BLOCKS invocation with exit code 2
+        THEN hook BLOCKS invocation with exit code 0
         AND block reason does NOT mention max_turns
 
         The removal of max_turns validation must not weaken other validations.
@@ -199,29 +199,30 @@ class TestAgentToolHookProcessing:
         }
 
         # WHEN: Hook processes
-        exit_code, stdout, _stderr = claude_code_hook_stdin(
+        exit_code, stdout, _stderr = copilot_hook_stdin(
             "pre-task", json.dumps(hook_input)
         )
 
         # THEN: Invocation is BLOCKED
-        assert exit_code == 2, (
+        assert exit_code == 0, (
             f"Incomplete DES prompt should be blocked. "
             f"Got exit code: {exit_code}, stdout: {stdout}"
         )
 
         output = json.loads(stdout)
-        assert output.get("decision") == "block", (
-            f"Decision should be 'block'. Got: {output}"
+        hook_output = output.get("hookSpecificOutput", {})
+        assert hook_output.get("permissionDecision") == "deny", (
+            f"permissionDecision should be 'deny'. Got: {output}"
         )
 
         # THEN: Block reason does NOT mention max_turns
-        reason = output.get("reason", "")
+        reason = hook_output.get("permissionDecisionReason", "")
         assert "MAX_TURNS" not in reason and "max_turns" not in reason, (
             f"Block reason should not mention max_turns after removal. "
             f"Got reason: {reason}"
         )
 
-    def test_agent_tool_with_legacy_max_turns_still_works(self, claude_code_hook_stdin):
+    def test_agent_tool_with_legacy_max_turns_still_works(self, copilot_hook_stdin):
         """
         GIVEN an Agent tool invocation WITH max_turns=30 in tool_input (legacy field)
         WHEN PreToolUse hook processes the invocation
@@ -242,7 +243,7 @@ class TestAgentToolHookProcessing:
         }
 
         # WHEN: Hook processes
-        exit_code, stdout, _stderr = claude_code_hook_stdin(
+        exit_code, stdout, _stderr = copilot_hook_stdin(
             "pre-task", json.dumps(hook_input)
         )
 
@@ -252,7 +253,7 @@ class TestAgentToolHookProcessing:
             f"Got exit code: {exit_code}, stdout: {stdout}"
         )
 
-        # Allow path: silent exit 0, no stdout (Claude Code protocol)
+        # Allow path: silent exit 0, no stdout (Copilot protocol)
         assert stdout.strip() == "", (
             f"Allow path should produce no stdout. Got: {stdout!r}"
         )
@@ -264,9 +265,9 @@ class TestAgentToolHookProcessing:
 
 
 @pytest.fixture
-def claude_code_hook_stdin(tmp_path):
+def copilot_hook_stdin(tmp_path):
     """
-    Fixture to invoke Claude Code hook adapter directly (no subprocess).
+    Fixture to invoke Copilot hook adapter directly (no subprocess).
 
     Returns callable that:
     1. Takes (command, stdin_data)

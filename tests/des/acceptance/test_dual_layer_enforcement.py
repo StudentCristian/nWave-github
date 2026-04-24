@@ -444,7 +444,9 @@ class TestDualLayerEnforcement:
             f"Should include DES-PROJECT-ID marker, got: {ctx}"
         )
         assert "DES-STEP-ID" in ctx, f"Should include DES-STEP-ID marker, got: {ctx}"
-        assert "execute.md" in ctx, f"Should reference execute.md template, got: {ctx}"
+        assert "nw-execute.prompt.md" in ctx, (
+            f"Should reference nw-execute.prompt.md template, got: {ctx}"
+        )
 
     # =========================================================================
     # AC-009.9: PostToolUse failure includes DES reminder for DES tasks
@@ -482,7 +484,9 @@ class TestDualLayerEnforcement:
         assert "DES-VALIDATION" in ctx, (
             f"Should include DES marker reminder, got: {ctx}"
         )
-        assert "execute.md" in ctx, f"Should reference execute.md, got: {ctx}"
+        assert "nw-execute.prompt.md" in ctx, (
+            f"Should reference nw-execute.prompt.md, got: {ctx}"
+        )
 
     # =========================================================================
     # AC-009.10: Non-DES task still passes through even with PASSED audit

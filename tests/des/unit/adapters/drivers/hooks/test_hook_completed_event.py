@@ -137,11 +137,15 @@ def test_hook_completed_emitted_with_correct_exit_code_and_decision(
     assert event.data["decision"] == expected_decision
 
 
-# --- Test 2: HOOK_COMPLETED emitted on block path with exit_code=2, decision='block' ---
+# --- Test 2: HOOK_COMPLETED emitted on block path with Copilot semantics ---
 
 
 def test_hook_completed_emitted_on_block_path(monkeypatch, audit_events):
-    """HOOK_COMPLETED event is emitted with exit_code=2, decision='block' when validation fails."""
+    """HOOK_COMPLETED event is emitted with exit_code=0, decision='allow' when validation fails.
+
+    Copilot block responses are emitted via hookSpecificOutput on stdout while
+    process exit remains 0.
+    """
     from des.adapters.drivers.hooks import pre_tool_use_handler as adapter
 
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_tool_use_block_stdin()))
@@ -156,8 +160,8 @@ def test_hook_completed_emitted_on_block_path(monkeypatch, audit_events):
 
     event = completed_events[0]
     assert event.data["exit_code"] == exit_code
-    assert exit_code == 2
-    assert event.data["decision"] == "block"
+    assert exit_code == 0
+    assert event.data["decision"] == "allow"
 
 
 # --- Test 3: hook_id in HOOK_COMPLETED matches hook_id in HOOK_INVOKED ---
@@ -233,8 +237,8 @@ def test_hook_completed_emitted_on_exception(monkeypatch, audit_events):
     ):
         exit_code = adapter.handle_pre_tool_use()
 
-    # Should return 1 (error/fail-closed)
-    assert exit_code == 1
+    # Copilot fail-closed path returns 2
+    assert exit_code == 2
 
     completed_events = [e for e in audit_events if e.event_type == "HOOK_COMPLETED"]
     assert len(completed_events) == 1, (
@@ -243,8 +247,8 @@ def test_hook_completed_emitted_on_exception(monkeypatch, audit_events):
     )
 
     event = completed_events[0]
-    assert event.data["exit_code"] == 1
-    assert event.data["decision"] == "error"
+    assert event.data["exit_code"] == 2
+    assert event.data["decision"] == "block"
     assert event.data["duration_ms"] > 0
 
 

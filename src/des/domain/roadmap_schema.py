@@ -1,6 +1,6 @@
 """Roadmap Schema Loader - Single Source of Truth for Roadmap Structure.
 
-Loads roadmap validation rules from nWave/templates/roadmap-schema.json.
+Loads roadmap validation rules from templates/roadmap-schema.json.
 Provides cached access via frozen dataclass.
 
 Mirrors tdd_schema.py pattern: frozen dataclass, lazy path resolution,
@@ -44,7 +44,7 @@ class RoadmapSchemaLoader:
         """Resolve schema path for current environment.
 
         Handles three deployment contexts:
-        - Source: src/des/domain/roadmap_schema.py -> project_root/nWave/templates/
+        - Source: src/des/domain/roadmap_schema.py -> project_root/templates/
         - Plugin: .../scripts/des/domain/roadmap_schema.py -> .../scripts/templates/
         - Source: src/des/domain/roadmap_schema.py -> project_root/templates/
         """

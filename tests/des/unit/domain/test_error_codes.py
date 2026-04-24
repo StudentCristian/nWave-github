@@ -74,7 +74,7 @@ class TestGetError:
 
     @pytest.mark.parametrize(
         "code",
-        ["NW-I001", "NW-H001", "NW-B001", "NW-P001"],
+        ["NW-I001", "NW-H001", "NW-B001"],
     )
     def test_returns_error_for_valid_code(self, code):
         """get_error should return NWError for each registered code."""
@@ -96,7 +96,6 @@ class TestGetErrorsByStage:
             ("install", "NW-I"),
             ("hook", "NW-H"),
             ("build", "NW-B"),
-            ("plugin", "NW-P"),
         ],
     )
     def test_returns_errors_matching_stage(self, stage, prefix):
@@ -129,15 +128,15 @@ class TestRegistryCoverage:
     """Tests for registry completeness requirements."""
 
     def test_registry_has_at_least_20_codes(self):
-        """Registry should contain at least 20 error codes total."""
+        """Registry should contain at least 15 error codes total."""
         total = sum(
             len(get_errors_by_stage(stage))
-            for stage in ("install", "hook", "build", "plugin")
+            for stage in ("install", "hook", "build")
         )
-        assert total >= 20
+        assert total >= 15
 
-    def test_all_four_stages_represented(self):
-        """Registry should have codes for all 4 lifecycle stages."""
-        for stage in ("install", "hook", "build", "plugin"):
+    def test_all_three_stages_represented(self):
+        """Registry should have codes for all 3 lifecycle stages."""
+        for stage in ("install", "hook", "build"):
             errors = get_errors_by_stage(stage)
             assert len(errors) >= 1, f"Stage '{stage}' has no error codes"

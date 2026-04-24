@@ -2,7 +2,7 @@
 TDD Schema Loader - Single Source of Truth for TDD Rules.
 
 Loads TDD phase definitions, validation rules, and skip prefixes from
-nWave/templates/step-tdd-cycle-schema.json. Provides cached access to avoid
+templates/step-tdd-cycle-schema.json. Provides cached access to avoid
 repeated file I/O.
 
 Design Principles:
@@ -115,7 +115,7 @@ class TDDSchemaLoader:
 
         Args:
             schema_path: Path to schema JSON file. Defaults to project's
-                         nWave/templates/step-tdd-cycle-schema.json
+                         templates/step-tdd-cycle-schema.json
         """
         self._schema_path = schema_path or self._resolve_default_schema_path()
         self._cached_schema: TDDSchema | None = None

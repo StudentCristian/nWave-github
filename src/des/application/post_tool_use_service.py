@@ -3,7 +3,7 @@
 Concrete service (no abstract port) per ADR-2: only one consumer,
 only one implementation. Extracting an interface is trivial if needed later.
 
-Called by: ClaudeCodeHookAdapter when PostToolUse hook fires after Task returns.
+Called by: CopilotHookAdapter when PostToolUse hook fires after Task returns.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ MANDATORY: Include these DES markers in the Task prompt:
 <!-- DES-STEP-ID : {step-id} -->
 
 Without these markers, DES validation is bypassed and the step won't be verified.
-Read nWave/tasks/nw/execute.md for the full DES Prompt Template with all 9 mandatory sections."""
+Read .github/prompts/nw-execute.prompt.md for the full DES Prompt Template with all 9 mandatory sections."""
 
 
 class PostToolUseService:

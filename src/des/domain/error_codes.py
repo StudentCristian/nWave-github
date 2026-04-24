@@ -1,7 +1,7 @@
 """Centralized error code registry for all nWave lifecycle stages.
 
 Every error code follows the format NW-{S}{NNN} where:
-- S = single-letter stage identifier (I=install, H=hook, B=build, P=plugin)
+- S = single-letter stage identifier (I=install, H=hook, B=build)
 - NNN = 3-digit number within the stage
 
 Provides lookup by code, by stage, and by category.
@@ -47,7 +47,7 @@ class NWError:
 
 
 # ---------------------------------------------------------------------------
-# Registry: canonical error definitions for all 4 lifecycle stages
+# Registry: canonical error definitions for all nWave-github lifecycle stages
 # ---------------------------------------------------------------------------
 
 _REGISTRY: dict[str, NWError] = {}
@@ -87,14 +87,14 @@ _register(
         category=ErrorCategory.IO,
         stage="install",
         message="Agent source directory not found",
-        recovery="Verify nWave/agents/ exists in project root",
+        recovery="Verify .github/agents/ exists in project root",
     ),
     NWError(
         code="NW-I011",
         category=ErrorCategory.IO,
         stage="install",
         message="Agent copy failed",
-        recovery="Check file permissions on nWave/agents/nw/",
+        recovery="Check file permissions on .github/agents/",
     ),
     NWError(
         code="NW-I050",
@@ -108,7 +108,7 @@ _register(
         category=ErrorCategory.VALIDATION,
         stage="install",
         message="Post-install verification failed",
-        recovery="Run nwave-ai install again. If persists, file issue.",
+        recovery="Re-run installation workflow and verify src/des and templates are present.",
     ),
     NWError(
         code="NW-I090",
@@ -155,7 +155,7 @@ _register(
         category=ErrorCategory.PERMISSION,
         stage="hook",
         message="Source write blocked during deliver",
-        recovery="Write through DES sub-agent or use des.cli tools",
+        recovery="Write through DES sub-agent or use DES CLI tools (python -m des.cli.log_phase)",
     ),
     NWError(
         code="NW-H040",
@@ -188,7 +188,7 @@ _register(
         category=ErrorCategory.IO,
         stage="build",
         message="Source tree missing required directory",
-        recovery="Verify nWave/ directory structure is complete",
+        recovery="Verify .github/ and templates/ directory structure is complete",
     ),
     NWError(
         code="NW-B002",
@@ -220,45 +220,9 @@ _register(
     ),
 )
 
-# -- Plugin Discovery Errors (NW-P) ----------------------------------------
-
-_register(
-    NWError(
-        code="NW-P001",
-        category=ErrorCategory.CONFIG,
-        stage="plugin",
-        message="CLAUDE_PLUGIN_ROOT not set (expected)",
-        recovery="Normal when using glob fallback",
-    ),
-    NWError(
-        code="NW-P002",
-        category=ErrorCategory.IO,
-        stage="plugin",
-        message="Glob discovery found no plugin cache",
-        recovery="Reinstall nWave plugin or use CLI install",
-    ),
-    NWError(
-        code="NW-P003",
-        category=ErrorCategory.IO,
-        stage="plugin",
-        message="CLI install path not found",
-        recovery="Run nwave-ai install to install framework",
-    ),
-    NWError(
-        code="NW-P004",
-        category=ErrorCategory.VALIDATION,
-        stage="plugin",
-        message="Resolved path missing des/__init__.py",
-        recovery="Plugin installation may be corrupted; reinstall",
-    ),
-    NWError(
-        code="NW-P010",
-        category=ErrorCategory.INTERNAL,
-        stage="plugin",
-        message="DES module import failed after resolution",
-        recovery="Check Python version (requires 3.10+) and module integrity",
-    ),
-)
+# NOTE: NW-P plugin discovery errors were removed for nWave-github.
+# This distribution loads DES directly from src/des and does not use
+# Claude plugin discovery paths.
 
 
 # ---------------------------------------------------------------------------
@@ -282,7 +246,7 @@ def get_errors_by_stage(stage: str) -> list[NWError]:
     """Return all errors for a given lifecycle stage.
 
     Args:
-        stage: One of "install", "hook", "build", "plugin".
+        stage: One of "install", "hook", "build".
 
     Returns:
         List of NWError instances matching the stage.

@@ -313,7 +313,7 @@ def valid_task_json():
     """Provide valid Task tool JSON for hook adapter testing.
 
     Schema v3.0: Loads TDD phases dynamically from canonical template
-    (Single Source of Truth: nWave/templates/step-tdd-cycle-schema.json).
+    (Single Source of Truth: templates/step-tdd-cycle-schema.json).
     """
     # Import template loader to get canonical phase definitions
     from des.application.tdd_template_loader import (

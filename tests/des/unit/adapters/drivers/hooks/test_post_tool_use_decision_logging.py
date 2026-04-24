@@ -15,7 +15,7 @@ Behaviors:
 2. HOOK_POST_TOOL_USE_INJECTED emitted with context_type='failure_notification' for failure context
 3. HOOK_POST_TOOL_USE_PASSTHROUGH emitted when additional_context is None (non-DES task)
 4. HOOK_POST_TOOL_USE_PASSTHROUGH emitted with reason for DES task that has no context
-5. Logging failure does not affect response to Claude Code (fail-open preserved)
+5. Logging failure does not affect response to Copilot (fail-open preserved)
 """
 
 import io

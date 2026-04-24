@@ -30,7 +30,7 @@ class TestTDDPhaseValidatorSchemaV4Current:
         WHEN validate() called
         THEN checks for all phases from Single Source of Truth
 
-        This test loads the canonical phase count from nWave/templates/step-tdd-cycle-schema.json
+        This test loads the canonical phase count from templates/step-tdd-cycle-schema.json
         ensuring validator and tests stay synchronized with template changes.
         """
         # GIVEN: Load canonical phase definitions from template

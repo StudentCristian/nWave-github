@@ -1,6 +1,6 @@
 """Tests for SubagentStop hook protocol translation.
 
-The SubagentStop hook receives Claude Code's protocol:
+The SubagentStop hook receives Copilot's protocol:
     {"agent_id", "agent_type", "agent_transcript_path", "cwd", "session_id", ...}
 
 NOT the custom DES fields that SubagentStopService expects:
@@ -101,7 +101,7 @@ class TestExtractDesContextFromTranscript:
         assert context is None
 
     def test_handles_content_as_list_of_blocks(self, tmp_path):
-        """Claude Code sometimes sends content as list of text blocks."""
+        """Copilot sometimes sends content as list of text blocks."""
         transcript_path = str(tmp_path / "agent.jsonl")
         user_msg = {
             "type": "user",
@@ -132,11 +132,11 @@ class TestExtractDesContextFromTranscript:
         assert context["step_id"] == "01-01"
 
 
-class TestSubagentStopWithClaudeCodeProtocol:
-    """Integration tests: handle_subagent_stop() with Claude Code's actual protocol."""
+class TestSubagentStopWithCopilotProtocol:
+    """Integration tests: handle_subagent_stop() with Copilot's actual protocol."""
 
     def _make_hook_input(self, agent_transcript_path: str, cwd: str) -> str:
-        """Build Claude Code SubagentStop protocol JSON."""
+        """Build Copilot SubagentStop protocol JSON."""
         return json.dumps(
             {
                 "session_id": "test-session",
@@ -165,7 +165,7 @@ class TestSubagentStopWithClaudeCodeProtocol:
         exit_code = handle_subagent_stop()
 
         assert exit_code == 0
-        # Allow path: no stdout (Claude Code protocol)
+        # Allow path: no stdout (Copilot protocol)
         assert len(captured) == 0, (
             f"Allow path should produce no output. Got: {captured}"
         )
@@ -233,7 +233,7 @@ class TestSubagentStopWithClaudeCodeProtocol:
         exit_code = handle_subagent_stop()
 
         assert exit_code == 0
-        # Allow path: no stdout (Claude Code protocol)
+        # Allow path: no stdout (Copilot protocol)
         assert len(captured) == 0, (
             f"Allow path should produce no output. Got: {captured}"
         )
@@ -275,23 +275,17 @@ class TestSubagentStopWithClaudeCodeProtocol:
 
         exit_code = handle_subagent_stop()
 
-        # Exit 0 so Claude Code processes JSON (exit 2 ignores stdout)
+        # Exit 0 so Copilot processes JSON output.
         assert exit_code == 0
         response = json.loads(captured[0])
-        assert response["decision"] == "block"
-        assert "Missing phases" in response["reason"]
+        hook_output = response["hookSpecificOutput"]
+        assert hook_output["decision"] == "block"
+        assert "Missing phases" in hook_output["reason"]
 
-    def test_block_response_contains_only_claude_code_recognized_fields(
+    def test_block_response_uses_copilot_hook_specific_output(
         self, tmp_path, monkeypatch
     ):
-        """Block response must not include hookSpecificOutput with unrecognized hookEventName.
-
-        Claude Code recognizes hookSpecificOutput only for PreToolUse and
-        PermissionRequest events. Using hookEventName="SubagentStop" causes
-        a runtime error: "classifyHandoffIfNeeded is not defined".
-
-        The block response should contain only: decision, reason.
-        """
+        """Block response is emitted in Copilot hookSpecificOutput format."""
         prompt = (
             "<!-- DES-VALIDATION: required -->\n"
             "<!-- DES-PROJECT-ID: test-project -->\n"
@@ -325,16 +319,10 @@ class TestSubagentStopWithClaudeCodeProtocol:
         handle_subagent_stop()
 
         response = json.loads(captured[0])
-        assert response["decision"] == "block"
-
-        # hookSpecificOutput with hookEventName="SubagentStop" is NOT recognized
-        # by Claude Code and causes "classifyHandoffIfNeeded is not defined"
-        RECOGNIZED_FIELDS = {"decision", "reason"}
-        unrecognized = set(response.keys()) - RECOGNIZED_FIELDS
-        assert not unrecognized, (
-            f"Block response contains fields not recognized by Claude Code: {unrecognized}. "
-            f"hookSpecificOutput is only valid for PreToolUse/PermissionRequest events."
-        )
+        hook_output = response.get("hookSpecificOutput", {})
+        assert hook_output.get("hookEventName") == "SubagentStop"
+        assert hook_output.get("decision") == "block"
+        assert hook_output.get("reason")
 
     def test_des_subagent_missing_execution_log_blocked(self, tmp_path, monkeypatch):
         """DES agent where execution-log.json doesn't exist should be blocked."""
@@ -354,8 +342,9 @@ class TestSubagentStopWithClaudeCodeProtocol:
 
         exit_code = handle_subagent_stop()
 
-        # Exit 0 so Claude Code processes JSON (exit 2 ignores stdout)
+        # Exit 0 so Copilot processes JSON output.
         assert exit_code == 0
         response = json.loads(captured[0])
-        assert response["decision"] == "block"
-        assert "not found" in response["reason"].lower()
+        hook_output = response["hookSpecificOutput"]
+        assert hook_output["decision"] == "block"
+        assert "not found" in hook_output["reason"].lower()
