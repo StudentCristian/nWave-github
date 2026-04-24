@@ -82,17 +82,23 @@ def handle_pre_write() -> int:
 
             hook_input = stdin_result.hook_input
 
+            # Early-return: only guard file-write tools
+            COPILOT_WRITE_TOOLS = {"create_file", "replace_string_in_file", "editFiles", "createFile"}
+            tool_name = hook_input.get("tool_name", "")
+            if tool_name not in COPILOT_WRITE_TOOLS:
+                return 0
+
             # Extract file path from tool_input
+            # Note: Copilot sends camelCase filePath, not snake_case file_path
             tool_input = hook_input.get("tool_input", {})
-            file_path = tool_input.get("file_path", "")
+            file_path = tool_input.get("filePath", tool_input.get("file_path", ""))
 
             # --- Execution log guard: always block direct writes ---
             if file_path and file_path.endswith("execution-log.json"):
                 project_dir = (
                     str(Path(file_path).parent) if file_path else "{project-dir}"
                 )
-                tool_name = hook_input.get("tool_name", "")
-                if tool_name == "Write":
+                if tool_name == "create_file":
                     block_reason = (
                         "Direct creation of execution-log.json is blocked.\n\n"
                         "Use the DES CLI to initialize the execution log:\n\n"

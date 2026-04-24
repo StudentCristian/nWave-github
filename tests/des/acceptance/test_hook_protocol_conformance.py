@@ -225,13 +225,13 @@ def given_des_agent_validation_failure(ctx: dict[str, Any], tmp_path: Path) -> N
 
 @given(parsers.parse('a write to a non-protected file "{file_path}"'))
 def given_write_to_non_protected_file(ctx: dict[str, Any], file_path: str) -> None:
-    """Prepare stdin for a Write tool targeting a non-protected file."""
+    """Prepare stdin for a create_file tool targeting a non-protected file."""
     ctx["hook_command"] = "pre-write"
     ctx["stdin"] = json.dumps(
         {
-            "tool_name": "Write",
+            "tool_name": "create_file",
             "tool_input": {
-                "file_path": file_path,
+                "filePath": file_path,
                 "content": "Some documentation content.",
             },
         }
@@ -240,7 +240,7 @@ def given_write_to_non_protected_file(ctx: dict[str, Any], file_path: str) -> No
 
 @given(parsers.parse('a write to the execution log "{file_path}"'))
 def given_write_to_execution_log(ctx: dict[str, Any], file_path: str) -> None:
-    """Prepare stdin for a Write tool targeting the execution log.
+    """Prepare stdin for a create_file tool targeting the execution log.
 
     The execution log guard always blocks direct writes regardless of
     session state.
@@ -248,9 +248,9 @@ def given_write_to_execution_log(ctx: dict[str, Any], file_path: str) -> None:
     ctx["hook_command"] = "pre-write"
     ctx["stdin"] = json.dumps(
         {
-            "tool_name": "Write",
+            "tool_name": "create_file",
             "tool_input": {
-                "file_path": file_path,
+                "filePath": file_path,
                 "content": '{"feature_id": "my-feature", "steps": {}}',
             },
         }

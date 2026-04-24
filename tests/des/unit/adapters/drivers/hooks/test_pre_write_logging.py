@@ -32,13 +32,13 @@ from .conftest import make_capturing_writer
 
 
 def _build_pre_write_stdin(file_path: str = "/tmp/test.py") -> str:
-    """Build Write tool input JSON."""
-    return json.dumps({"tool_name": "Write", "tool_input": {"file_path": file_path}})
+    """Build create_file tool input JSON (Copilot write tool)."""
+    return json.dumps({"tool_name": "create_file", "tool_input": {"filePath": file_path}})
 
 
 def _build_pre_edit_stdin(file_path: str = "/tmp/test.py") -> str:
-    """Build Edit tool input JSON."""
-    return json.dumps({"tool_name": "Edit", "tool_input": {"file_path": file_path}})
+    """Build replace_string_in_file tool input JSON (Copilot edit tool)."""
+    return json.dumps({"tool_name": "replace_string_in_file", "tool_input": {"filePath": file_path}})
 
 
 # --- Test 1: HOOK_INVOKED enriched with session_active and des_task_active ---
@@ -343,8 +343,8 @@ def test_execution_log_edit_blocked_always(monkeypatch, tmp_path):
 # --- Test 8: Write vs Edit get different block messages ---
 
 
-def test_write_and_edit_get_different_block_messages(monkeypatch, tmp_path):
-    """Write guides to des.cli.init_log, Edit guides to des.cli.log_phase."""
+def test_create_file_and_replace_string_get_different_block_messages(monkeypatch, tmp_path):
+    """create_file guides to des.cli.init_log, replace_string_in_file guides to des.cli.log_phase."""
     from des.adapters.drivers.hooks import pre_write_handler as adapter
 
     monkeypatch.setattr(
@@ -356,36 +356,80 @@ def test_write_and_edit_get_different_block_messages(monkeypatch, tmp_path):
 
     exec_log_path = str(tmp_path / "project" / "execution-log.json")
 
-    # Collect Write block message
+    # Collect create_file block message
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_write_stdin(exec_log_path)))
-    write_printed = []
-    monkeypatch.setattr("builtins.print", lambda *a, **kw: write_printed.append(a))
+    create_printed = []
+    monkeypatch.setattr("builtins.print", lambda *a, **kw: create_printed.append(a))
 
     writer = make_capturing_writer([])
     with patch.object(hook_protocol, "_audit_writer_factory", return_value=writer):
         adapter.handle_pre_write()
 
-    write_reason = json.loads(write_printed[-1][0])["hookSpecificOutput"][
+    create_reason = json.loads(create_printed[-1][0])["hookSpecificOutput"][
         "permissionDecisionReason"
     ]
 
-    # Collect Edit block message
+    # Collect replace_string_in_file block message
     monkeypatch.setattr("sys.stdin", io.StringIO(_build_pre_edit_stdin(exec_log_path)))
-    edit_printed = []
-    monkeypatch.setattr("builtins.print", lambda *a, **kw: edit_printed.append(a))
+    replace_printed = []
+    monkeypatch.setattr("builtins.print", lambda *a, **kw: replace_printed.append(a))
 
     with patch.object(hook_protocol, "_audit_writer_factory", return_value=writer):
         adapter.handle_pre_write()
 
-    edit_reason = json.loads(edit_printed[-1][0])["hookSpecificOutput"][
+    replace_reason = json.loads(replace_printed[-1][0])["hookSpecificOutput"][
         "permissionDecisionReason"
     ]
 
     # Messages must differ and guide to different CLIs
-    assert write_reason != edit_reason, (
-        "Write and Edit should get different block messages"
+    assert create_reason != replace_reason, (
+        "create_file and replace_string_in_file should get different block messages"
     )
-    assert "init_log" in write_reason
-    assert "log_phase" in edit_reason
-    assert "init_log" not in edit_reason
-    assert "log_phase" not in write_reason
+    assert "init_log" in create_reason
+    assert "log_phase" in replace_reason
+    assert "init_log" not in replace_reason
+    assert "log_phase" not in create_reason
+
+
+# --- Test 9: Early-return for non-write tools (early optimization) ---
+
+
+def test_early_return_for_non_write_tools(monkeypatch, tmp_path):
+    """Early-return exit 0 (no output) when tool_name not in COPILOT_WRITE_TOOLS."""
+    from des.adapters.drivers.hooks import pre_write_handler as adapter
+
+    events = []
+    writer = make_capturing_writer(events)
+
+    # No session, no DES task
+    monkeypatch.setattr(
+        des_task_signal, "DES_DELIVER_SESSION_FILE", tmp_path / "nonexistent"
+    )
+    monkeypatch.setattr(
+        des_task_signal, "DES_TASK_ACTIVE_FILE", tmp_path / "nonexistent"
+    )
+
+    # Tool name is "read_file" (not a write tool)
+    stdin_json = json.dumps({
+        "tool_name": "read_file",
+        "tool_input": {"filePath": "src/main.py"}
+    })
+    monkeypatch.setattr("sys.stdin", io.StringIO(stdin_json))
+    printed = []
+    monkeypatch.setattr("builtins.print", lambda *a, **kw: printed.append(a))
+
+    with patch.object(hook_protocol, "_audit_writer_factory", return_value=writer):
+        exit_code = adapter.handle_pre_write()
+
+    # Must exit 0 (silent allow, no output)
+    assert exit_code == 0
+    # No stdout output (early return optimization)
+    assert len(printed) == 0, (
+        f"Early-return for non-write tool should produce no output. Got: {printed}"
+    )
+    # No pre-write-specific audit events (early return skips all logic)
+    # Note: HOOK_COMPLETED is still emitted as part of normal hook completion
+    specific_events = [e for e in events if e.event_type.startswith("HOOK_PRE_WRITE")]
+    assert len(specific_events) == 0, (
+        f"Early-return should not produce HOOK_PRE_WRITE events. Got: {[e.event_type for e in events]}"
+    )

@@ -64,7 +64,7 @@ def _build_post_tool_use_stdin() -> str:
 
 def _build_pre_write_stdin() -> str:
     return json.dumps(
-        {"tool_name": "Write", "tool_input": {"file_path": "/tmp/test.py"}}
+        {"tool_name": "create_file", "tool_input": {"filePath": "/tmp/test.py"}}
     )
 
 

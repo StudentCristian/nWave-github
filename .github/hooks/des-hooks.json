@@ -15,7 +15,7 @@
             },
             {
                 "type": "command",
-                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter pre-write",
+                "command": "bash -c '[ -f .nwave/deliver-session.json ] && python3 -m des.adapters.drivers.hooks.copilot_hook_adapter pre-write || true'",
                 "timeout": 10
             }
         ],
