@@ -1,7 +1,7 @@
 """Acceptance tests for session-start routing in hook adapter.
 
 AC-03-02: Running adapter with "session-start" argument invokes session_start_handler.
-          Unknown command still exits 1. Existing routing unaffected.
+          Unknown command still exits 2. Existing routing unaffected.
 """
 
 import json
@@ -27,7 +27,7 @@ class TestSessionStartRoutingAcceptance:
 
     def test_session_start_command_dispatches_to_handler(self):
         """Running adapter with 'session-start' routes to session_start_handler."""
-        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as adapter
         from des.adapters.drivers.hooks import session_start_handler
 
         with patch.object(
@@ -35,16 +35,16 @@ class TestSessionStartRoutingAcceptance:
             "handle_session_start",
             return_value=0,
         ) as mock_handler:
-            exits = _capture_exit(hook_router, ["adapter", "session-start"])
+            exits = _capture_exit(adapter, ["adapter", "session-start"])
 
         mock_handler.assert_called_once()
         assert exits == [0]
 
-    def test_unknown_command_exits_1(self, capsys):
+    def test_unknown_command_exits_2(self, capsys):
         """Unknown command reports error on stderr and exits 2."""
-        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as adapter
 
-        exits = _capture_exit(hook_router, ["adapter", "not-a-real-command"])
+        exits = _capture_exit(adapter, ["adapter", "not-a-real-command"])
 
         # Copilot adapter writes an error message to stderr and exits 2.
         assert exits == [2]

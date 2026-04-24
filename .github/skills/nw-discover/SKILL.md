@@ -54,7 +54,7 @@ Not applicable (DISCOVER is the first wave — no prior documents to update).
 
 ## Success Criteria
 
-Refer to Scout's quality gates in ~/.claude/agents/nw/nw-product-discoverer.md.
+Refer to Scout's quality gates in .github/agents/nw-product-discoverer.agent.md.
 
 - [ ] All 4 decision gates passed (G1-G4)
 - [ ] Minimum interview thresholds met per phase

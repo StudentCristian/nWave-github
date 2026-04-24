@@ -12,6 +12,11 @@
                 "type": "command",
                 "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter pre-tool-use",
                 "timeout": 15
+            },
+            {
+                "type": "command",
+                "command": "python3 -m des.adapters.drivers.hooks.copilot_hook_adapter pre-write",
+                "timeout": 10
             }
         ],
         "PostToolUse": [

@@ -26,7 +26,7 @@ class TestSessionStartRouting:
 
     def test_session_start_calls_handle_session_start(self):
         """session-start command dispatches to handle_session_start."""
-        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as adapter
         from des.adapters.drivers.hooks import session_start_handler
 
         with patch.object(
@@ -34,13 +34,13 @@ class TestSessionStartRouting:
             "handle_session_start",
             return_value=0,
         ) as mock_handler:
-            _capture_exit(hook_router, ["adapter", "session-start"])
+            _capture_exit(adapter, ["adapter", "session-start"])
 
         mock_handler.assert_called_once()
 
     def test_session_start_exit_code_from_handler(self):
         """session-start forwards handler return value as exit code."""
-        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as adapter
         from des.adapters.drivers.hooks import session_start_handler
 
         with patch.object(
@@ -48,7 +48,7 @@ class TestSessionStartRouting:
             "handle_session_start",
             return_value=0,
         ):
-            exits = _capture_exit(hook_router, ["adapter", "session-start"])
+            exits = _capture_exit(adapter, ["adapter", "session-start"])
 
         assert exits == [0]
 
@@ -58,9 +58,9 @@ class TestUnknownCommandExits2:
 
     def test_unknown_command_exits_2(self, capsys):
         """Unknown command exits 2 with error on stderr."""
-        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as adapter
 
-        exits = _capture_exit(hook_router, ["adapter", "totally-unknown-xyz"])
+        exits = _capture_exit(adapter, ["adapter", "totally-unknown-xyz"])
 
         assert exits == [2]
         err = capsys.readouterr().err.strip()
@@ -72,7 +72,7 @@ class TestExistingRoutingUnaffected:
 
     def test_pre_tool_use_still_routes_to_pre_tool_use_handler(self):
         """pre-tool-use command still routes to handle_pre_tool_use."""
-        from des.adapters.drivers.hooks import copilot_hook_adapter as hook_router
+        from des.adapters.drivers.hooks import copilot_hook_adapter as adapter
         from des.adapters.drivers.hooks import pre_tool_use_handler
 
         with patch.object(
@@ -80,6 +80,6 @@ class TestExistingRoutingUnaffected:
             "handle_pre_tool_use",
             return_value=0,
         ) as mock_handler:
-            _capture_exit(hook_router, ["adapter", "pre-tool-use"])
+            _capture_exit(adapter, ["adapter", "pre-tool-use"])
 
         mock_handler.assert_called_once()

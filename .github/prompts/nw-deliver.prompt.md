@@ -100,7 +100,7 @@ INPUT: "{feature-description}"
      b. Create deliver session marker: .nwave/des/deliver-session.json
   |
   1.5. Detect development paradigm
-     a. Read project .github/copilot-instructions.md (project root, NOT ~/.claude/CLAUDE.md)
+   a. Read project .github/copilot-instructions.md (project root only; ignore legacy global instruction files)
      b. Search "## Development Paradigm"
      c. Found → extract paradigm: "functional"/@nw-functional-software-crafter or "object-oriented"/@nw-software-crafter (default)
      d. Not found → ask user "OOP or Functional?"|offer to write to .github/copilot-instructions.md
@@ -375,7 +375,7 @@ INPUT: "{feature-description}"
      b. Create deliver session marker: .nwave/des/deliver-session.json
   |
   1.5. Detect development paradigm
-     a. Read project .github/copilot-instructions.md (project root, NOT ~/.claude/CLAUDE.md)
+   a. Read project .github/copilot-instructions.md (project root only; ignore legacy global instruction files)
      b. Search "## Development Paradigm"
      c. Found → extract paradigm: "functional"/@nw-functional-software-crafter or "object-oriented"/@nw-software-crafter (default)
      d. Not found → ask user "OOP or Functional?"|offer to write to .github/copilot-instructions.md

@@ -1,6 +1,6 @@
 ---
 name: nw-update
-description: "Queues a deferred self-update of nwave-ai. Writes a PendingUpdateFlag that the SessionStart hook replays on the next Claude Code launch, so the current session is not interrupted. Falls back to manual instructions when the package manager cannot be detected."
+description: "Queues a deferred self-update of nwave-ai. Writes a PendingUpdateFlag that the SessionStart hook replays on the next GitHub Copilot session start, so the current session is not interrupted. Falls back to manual instructions when the package manager cannot be detected."
 user-invocable: true
 argument-hint: '[target-version] - Optional explicit version (e.g. 1.4.2). Defaults to the latest version discovered by the periodic update check.'
 ---

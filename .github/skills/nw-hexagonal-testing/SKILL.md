@@ -84,7 +84,7 @@ For test doubles policy and violation examples, load the tdd-methodology skill.
 | Application | InMemory ports for focused scenarios | InMemory doubles | Application orchestrates — test logic, not I/O |
 | Adapter | REAL I/O ALWAYS* | Real system (tmp_path, subprocess, DB) | Adapter IS the I/O boundary — testing with InMemory defeats the purpose |
 
-*Exception: costly subprocesses (claude -p, LLM) and paid external APIs use contract smoke tests tagged `@requires_external` instead of real I/O. See nw-tdd-methodology Mandate 6 for the full adapter type → test type table.
+*Exception: costly subprocesses (LLM CLI/tools) and paid external APIs use contract smoke tests tagged `@requires_external` instead of real I/O. See nw-tdd-methodology Mandate 6 for the full adapter type → test type table.
 | WS/E2E | Per declared strategy (A/B/C/D) | Real for local, fake for costly | WS proves wiring — InMemory proves nothing about wiring |
 
 ### Key Insight

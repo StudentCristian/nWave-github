@@ -7,8 +7,8 @@ Each handler reads stdin and emits hookSpecificOutput natively.
 Usage:
     python -m des.adapters.drivers.hooks.copilot_hook_adapter <command>
 
-Commands: pre-tool-use, post-tool-use, session-start, subagent-start,
-          subagent-stop, deliver-progress
+Commands: pre-tool-use, pre-write, pre-edit, post-tool-use, session-start,
+          subagent-start, subagent-stop, deliver-progress
 """
 
 from __future__ import annotations

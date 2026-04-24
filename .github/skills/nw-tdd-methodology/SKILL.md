@@ -271,7 +271,7 @@ Team needs CI flexibility? → Strategy D (Configurable via env var)
 | Filesystem | real (tmp_path) | real (tmp_path) | real (tmp_path) — ALWAYS |
 | Git repo | real (tmp_path + git init) | real | real — ALWAYS |
 | Local subprocess (pytest, ruff, grep) | real | real | real — ALWAYS |
-| Costly subprocess (claude -p, LLM) | fake (mock Popen) | fake | contract smoke (@requires_external) |
+| Costly subprocess (LLM CLI/tools) | fake (mock Popen) | fake | contract smoke (@requires_external) |
 | Paid external API (Stripe, Blumberg) | fake server | fake server | contract test with recorded fixtures |
 | Database | real (SQLite/testcontainers) | real (testcontainers) | real — ALWAYS |
 | Container services | optional (docker-compose) | testcontainers | real if available |

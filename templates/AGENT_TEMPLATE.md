@@ -2,7 +2,7 @@
 # nWave Agent Template (GitHub Copilot)
 
 Version: 2.0 (2026-04-22)
-Adapted from Claude Code template v1.0. Based on analysis of 23 production agents (12 specialists + 11 reviewers).
+Adapted from GitHub Copilot template v1.0. Based on analysis of 23 production agents (12 specialists + 11 reviewers).
 
 ## Frontmatter Schema
 
@@ -309,7 +309,7 @@ Extended (4-column, for cross-referenced skills):
 | Zero examples | No `### Example` sections | Add 3-5 canonical examples |
 | Missing subagent paragraph | No `In subagent mode` text | Add canonical paragraph after Goal |
 | Orphan skills | Skill in frontmatter but no `Load:` directive | Add Load directive in relevant workflow phase |
-| Missing skill path | No `~/.claude/skills/nw/{name}/` documented | Add Skills path line |
+| Missing skill path | No `.github/skills/nw-{name}/SKILL.md` path documented | Add Skills path line |
 | Soft skill language | "Should load", "consider loading" | Use "MUST load", "read it NOW" |
 | Specifying defaults | Instructions Claude already follows | Remove; specify only divergent behaviors |
 | Aggressive language | CRITICAL, MANDATORY, ABSOLUTE | Direct statements without emphasis markers |

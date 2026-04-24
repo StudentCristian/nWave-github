@@ -94,7 +94,7 @@ class TestIgnoresNonSkillCalls:
             "/home/user/project/.github/copilot-instructions.md",
             "/home/user/project/.github/prompts/deliver.prompt.md",
         ],
-        ids=["source_file", "claude_md", "command_file"],
+        ids=["source_file", "instructions_md", "command_file"],
     )
     def test_ignores_non_skill_read(self, file_path: str) -> None:
         """Read to non-skill paths does not produce events."""

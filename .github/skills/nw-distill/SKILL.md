@@ -105,7 +105,7 @@ Team needs different behavior in CI vs local development?
 | Filesystem | real (tmp_path) | real (tmp_path) -- ALWAYS |
 | Git repo | real (tmp_path + git init) | real -- ALWAYS |
 | Local subprocess (pytest, ruff) | real | real -- ALWAYS |
-| Costly subprocess (claude -p, LLM) | fake (mock) | contract smoke (@requires_external) |
+| Costly subprocess (LLM CLI/tools) | fake (mock) | contract smoke (@requires_external) |
 | Paid external API | fake server | contract test with recorded fixtures |
 | Database | real (SQLite/testcontainers) | real -- ALWAYS |
 | Container services | per user preference | real if available |
@@ -154,7 +154,7 @@ When designing adapter acceptance scenarios, EVERY driven adapter has at least o
 | RuffLintRunner | NO — MISSING | Add: "Lint runner checks real ruff output" |
 ```
 
-4. **Add Missing Scenarios** — Every row with "NO — MISSING" MUST have a scenario added. If the adapter is for a costly external (claude -p), a `@requires_external` contract smoke test is acceptable instead. Gate: zero "NO — MISSING" rows remain.
+4. **Add Missing Scenarios** — Every row with "NO — MISSING" MUST have a scenario added. If the adapter is for a costly external (LLM CLI/tool), a `@requires_external` contract smoke test is acceptable instead. Gate: zero "NO — MISSING" rows remain.
 
 Cross-references: nw-tdd-methodology Mandate 5 (Walking Skeleton) and Mandate 6 (Real I/O), nw-quality-framework Dimension 9 (Walking Skeleton Integrity).
 
